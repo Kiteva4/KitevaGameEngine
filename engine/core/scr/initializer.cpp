@@ -1,6 +1,5 @@
-#include "initializer.h"
+//#include "initializer.h"
 
-Initializer::Initializer()
-{
 
-}
+/*! @brief Класс инициализации данных */
+
