@@ -1,10 +1,12 @@
 #ifndef INITIALIZER_H
 #define INITIALIZER_H
 
-#include <list>
+#include <map>
 #include <functional>
+#include <stdint.h>
 #include <ikgeobject.h>
 #include <kgeobject.h>
+#include <iostream>
 
 class Initializer
 {
@@ -13,57 +15,58 @@ public:
 
     Initializer();
 
-
     void Init()
     {
-        for(auto f : InitLists)
-            f();
-
-        for(auto f : StartList)
-            f();
+        for(auto& obj : KGEObjects)
+        {
+            std::cout << "KGEObject " << obj.first << "Init" << std::endl;
+            obj.second.Init();
+        }
     }
 
     void Start()
     {
-        for(auto f : StartList)
-            f();
+        for(auto& obj : KGEObjects)
+        {
+            std::cout << "KGEObject " << obj.first << " Start" << std::endl;
+            obj.second.Init();
+        }
     }
 
     void Update()
     {
-        for(auto f : UpdateList)
-            f();
+        for(auto& obj : KGEObjects)
+        {
+            std::cout << "KGEObject " << obj.first << " Update" << std::endl;
+            obj.second.Update();
+        }
     }
 
     void Stop()
     {
-        for(auto f : StopList)
-            f();
+        for(auto& obj : KGEObjects)
+        {
+            std::cout << "KGEObject " << obj.first << " Stop" << std::endl;
+            obj.second.Stop();
+        }
     }
 
-    void AddToInitLists(std::function<void(void)>)  {}
-    void AddToStartList(std::function<void(void)>)  {}
-    void AddToUpdateList(std::function<void(void)>) {}
-    void AddToStopList(std::function<void(void)>)   {}
+    void AddKGEObjectToInitLists(KGEObject* adr, const KGEObject& obj)
+    {
+        uint32_t id = *(uint32_t *) &obj;
+
+        KGEObjects.insert({ id, obj});
+    }
+
     ~Initializer() { ClearLists(); }
+
 private:
 
-
-
-    std::list<std::function<void(void)>> InitLists;
-
-    std::list<std::function<void(void)>> StartList;
-
-    std::list<std::function<void(void)>> UpdateList;
-
-    std::list<std::function<void(void)>> StopList;
+    std::map<uint32_t, KGEObject> KGEObjects;
 
     void ClearLists()
     {
-        InitLists.clear();
-        StartList.clear();
-        UpdateList.clear();
-        StopList.clear();
+        KGEObjects.clear();
     }
 };
 

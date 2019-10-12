@@ -2,11 +2,14 @@
 #define KDEOBJECT_H
 
 #include <ikgeobject.h>
+#include <string>
 
 class KGEObject : public IKGEObject
 {
 public:
-    KGEObject() {}
+    KGEObject()
+    {
+    }
 
     ~KGEObject() override {}
 
@@ -17,6 +20,8 @@ public:
     void Update() override;
 
     void Stop() override;
+
+    std::string id;
 };
 
 #endif // KDEOBJECT_H
