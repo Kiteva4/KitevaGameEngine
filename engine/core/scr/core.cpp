@@ -26,7 +26,4 @@ Core::Core()
     core.Init(pWindowControl);
 }
 
-Core::~Core()
-{
-
-}
+Core::~Core() {}

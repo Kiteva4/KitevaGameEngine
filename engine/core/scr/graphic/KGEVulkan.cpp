@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <cassert>
 
-#include <vulkan_core.h>
+//#include <vulkan_core.h>
 
 void VulkanPrintImageUsageFlags(const VkImageUsageFlags& flags)
 {

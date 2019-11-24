@@ -15,79 +15,66 @@ include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(${CMAKE_SOURCE_DIR}/external/glm)
-include_directories(${CMAKE_SOURCE_DIR}/external/vulkan)
-
 include_directories(${CMAKE_SOURCE_DIR}/engine/lib/include)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE")
 
-# Use FindVulkan module added with CMAKE 3.7
-if (NOT CMAKE_VERSION VERSION_LESS 3.7.0)
-        message(STATUS "Using module to find Vulkan")
-        find_package(Vulkan)
+#VULKAN
+if(WIN32)
+  find_path(Vulkan_INCLUDE_DIR
+    NAMES vulkan/vulkan.h
+    PATHS
+      "$ENV{VULKAN_SDK}/Include"
+    )
+
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
+    find_library(Vulkan_LIBRARY
+      NAMES vulkan-1
+      PATHS
+        "$ENV{VULKAN_SDK}/Lib"
+        "$ENV{VULKAN_SDK}/Bin"
+        )
+  elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    find_library(Vulkan_LIBRARY
+      NAMES vulkan-1
+      PATHS
+        "$ENV{VULKAN_SDK}/Lib32"
+        "$ENV{VULKAN_SDK}/Bin32"
+        NO_SYSTEM_ENVIRONMENT_PATH
+        )
+  endif()
+else()
+    find_path(Vulkan_INCLUDE_DIR
+      NAMES vulkan/vulkan.h
+      PATHS
+        "$ENV{VULKAN_SDK}/include")
+    find_library(Vulkan_LIBRARY
+      NAMES vulkan
+      PATHS
+        "$ENV{VULKAN_SDK}/lib")
 endif()
 
-IF(WIN32)
-        IF (NOT Vulkan_FOUND)
-                find_library(Vulkan_LIBRARY NAMES vulkan-1 vulkan PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
-                IF (Vulkan_LIBRARY)
-                        set(Vulkan_FOUND ON)
-                        MESSAGE("Using bundled Vulkan library version")
-                ENDIF()
-        ENDIF()
-        find_library(ASSIMP_LIBRARIES NAMES assimp libassimp.dll.a PATHS ${CMAKE_SOURCE_DIR}/libs/assimp)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
-ELSE(WIN32)
-        IF (NOT Vulkan_FOUND)
-                find_library(Vulkan_LIBRARY NAMES vulkan HINTS "$ENV{VULKAN_SDK}/libs" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-                IF (Vulkan_LIBRARY)
-                        set(Vulkan_FOUND ON)
-                        MESSAGE("Using bundled Vulkan library version")
-                ENDIF()
-        ENDIF()
-        find_package(ASSIMP REQUIRED)
-        find_package(Threads REQUIRED)
-IF(USE_D2D_WSI)
-        MESSAGE("Using direct to display extension...")
-        add_definitions(-D_DIRECT2DISPLAY)
-ELSEIF(USE_WAYLAND_WSI)
-        find_program(PKG_CONFIG pkg-config)
-        if (NOT PKG_CONFIG)
-                message(FATAL_ERROR "pkg-config binary not found")
-        endif ()
-        find_package(Wayland REQUIRED)
-        if (NOT WAYLAND_FOUND)
-                message(FATAL_ERROR "Wayland development package not found")
-        endif ()
-        pkg_check_modules(WAYLAND_PROTOCOLS REQUIRED wayland-protocols)
-        if (NOT WAYLAND_PROTOCOLS_FOUND)
-                message(FATAL_ERROR "Wayland protocols package not found")
-        endif ()
-        find_program(WAYLAND_SCANNER wayland-scanner)
-        if (NOT WAYLAND_SCANNER)
-                message(FATAL_ERROR "wayland-scanner binary not found")
-        endif ()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WAYLAND_KHR")
-        include_directories(${WAYLAND_INCLUDE_DIR})
-        execute_process(COMMAND ${PKG_CONFIG} --variable=pkgdatadir wayland-protocols OUTPUT_VARIABLE protocol_dir OUTPUT_STRIP_TRAILING_WHITESPACE)
-        execute_process(COMMAND ${WAYLAND_SCANNER} client-header ${protocol_dir}/stable/xdg-shell/xdg-shell.xml ${CMAKE_BINARY_DIR}/xdg-shell-client-protocol.h
-                        COMMAND ${WAYLAND_SCANNER} private-code ${protocol_dir}/stable/xdg-shell/xdg-shell.xml ${CMAKE_BINARY_DIR}/xdg-shell-protocol.c)
-        include_directories(${CMAKE_BINARY_DIR})
-ELSE(USE_D2D_WSI)
-        find_package(XCB REQUIRED)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_XCB_KHR")
-ENDIF(USE_D2D_WSI)
-        # Todo : android?
-ENDIF(WIN32)
+set(Vulkan_LIBRARIES ${Vulkan_LIBRARY})
+set(Vulkan_INCLUDE_DIRS ${Vulkan_INCLUDE_DIR})
 
-IF (NOT Vulkan_FOUND)
-        message(FATAL_ERROR "Could not find Vulkan library!")
-ELSE()
-        message(STATUS ${Vulkan_LIBRARY})
-ENDIF()
+#include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Vulkan
+  DEFAULT_MSG
+  Vulkan_LIBRARY Vulkan_INCLUDE_DIR)
 
-IF(WIN32)
-        # Nothing here (yet)
-ELSE(WIN32)
-        link_libraries(${XCB_LIBRARIES} ${Vulkan_LIBRARY} ${Vulkan_LIBRARY} ${ASSIMP_LIBRARIES} ${WAYLAND_CLIENT_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-ENDIF(WIN32)
+mark_as_advanced(Vulkan_INCLUDE_DIR Vulkan_LIBRARY)
+
+if(Vulkan_FOUND AND NOT TARGET Vulkan::Vulkan)
+  add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
+  set_target_properties(Vulkan::Vulkan PROPERTIES
+    IMPORTED_LOCATION "${Vulkan_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${Vulkan_INCLUDE_DIRS}")
+endif()
+#VULKAN_END
+
+include_directories($ENV{VULKAN_SDK}/Include)
+target_link_libraries(${PROJECT_NAME}
+    ${Vulkan_LIBRARIES}
+    )

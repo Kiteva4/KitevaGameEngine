@@ -59,4 +59,19 @@ void WindowsWindowControl::Init(unsigned int Width, unsigned int Height)
     ShowWindow(m_hwnd, SW_SHOW);
 }
 
+VkSurfaceKHR WindowsWindowControl::CreateSurface(VkInstance &inst)
+{
+    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
+    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    surfaceCreateInfo.hinstance = m_hinstance;
+    surfaceCreateInfo.hwnd = m_hwnd;
+
+    VkSurfaceKHR surface;
+
+    VkResult res = vkCreateWin32SurfaceKHR(inst, &surfaceCreateInfo, nullptr, &surface);
+    CHECK_VULKAN_ERROR("vkCreateXcbSurfaceKHR error %d\n", res);
+
+    return surface;
+}
+
 #endif
