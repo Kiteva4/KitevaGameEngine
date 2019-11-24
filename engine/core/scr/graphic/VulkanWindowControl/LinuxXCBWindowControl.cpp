@@ -8,6 +8,7 @@
 
 #include "graphic/KGEVulkan.h"
 #include "graphic/VulkanWindowControl/LinuxXCBWindowControl.h"
+#include "vulkan/vulkan_xcb.h"
 
 LinuxXCBWindowControl::LinuxXCBWindowControl()
 {
@@ -71,6 +72,7 @@ void LinuxXCBWindowControl::Init(unsigned int Width, unsigned int Height)
 
 VkSurfaceKHR LinuxXCBWindowControl::CreateSurface(VkInstance &inst)
 {
+
     VkXcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     surfaceCreateInfo.connection = m_pXCBConn;

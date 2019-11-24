@@ -74,7 +74,86 @@ if(Vulkan_FOUND AND NOT TARGET Vulkan::Vulkan)
 endif()
 #VULKAN_END
 
-include_directories($ENV{VULKAN_SDK}/Include)
+include_directories(${Vulkan_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}
     ${Vulkan_LIBRARIES}
+    )
+
+#X11
+IF (NOT WIN32)
+  # use pkg-config to get the directories and then use these values
+  # in the FIND_PATH() and FIND_LIBRARY() calls
+  FIND_PACKAGE(PkgConfig)
+  PKG_CHECK_MODULES(PKG_X11_XCB QUIET x11-xcb)
+
+  SET(X11_XCB_DEFINITIONS ${PKG_X11_XCB_CFLAGS})
+
+  FIND_PATH(X11_XCB_INCLUDE_DIR NAMES X11/Xlib-xcb.h HINTS ${PKG_X11_XCB_INCLUDE_DIRS})
+  FIND_LIBRARY(X11_XCB_LIBRARIES NAMES X11-xcb HINTS ${PKG_X11_XCB_LIBRARY_DIRS})
+
+  include(FindPackageHandleStandardArgs)
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(X11_XCB DEFAULT_MSG X11_XCB_LIBRARIES X11_XCB_INCLUDE_DIR)
+
+  MARK_AS_ADVANCED(X11_XCB_INCLUDE_DIR X11_XCB_LIBRARIES)
+ENDIF (NOT WIN32)
+#X11_END
+
+include_directories(${X11_XCB_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME}
+    ${X11_XCB_LIBRARIES}
+    )
+
+#XCB
+find_package(PkgConfig)
+
+if(NOT XCB_FIND_COMPONENTS)
+    set(XCB_FIND_COMPONENTS xcb)
+endif()
+
+include(FindPackageHandleStandardArgs)
+set(XCB_FOUND true)
+set(XCB_INCLUDE_DIRS "")
+set(XCB_LIBRARIES "")
+foreach(comp ${XCB_FIND_COMPONENTS})
+    # component name
+    string(TOUPPER ${comp} compname)
+    string(REPLACE "-" "_" compname ${compname})
+    # header name
+    string(REPLACE "xcb-" "" headername xcb/${comp}.h)
+    # library name
+    set(libname ${comp})
+
+    pkg_check_modules(PC_${comp} QUIET ${comp})
+
+    find_path(${compname}_INCLUDE_DIR NAMES ${headername}
+        HINTS
+        ${PC_${comp}_INCLUDEDIR}
+        ${PC_${comp}_INCLUDE_DIRS}
+        )
+
+    find_library(${compname}_LIBRARY NAMES ${libname}
+        HINTS
+        ${PC_${comp}_LIBDIR}
+        ${PC_${comp}_LIBRARY_DIRS}
+        )
+
+    find_package_handle_standard_args(${comp}
+        FOUND_VAR ${comp}_FOUND
+        REQUIRED_VARS ${compname}_INCLUDE_DIR ${compname}_LIBRARY)
+    mark_as_advanced(${compname}_INCLUDE_DIR ${compname}_LIBRARY)
+
+    list(APPEND XCB_INCLUDE_DIRS ${${compname}_INCLUDE_DIR})
+    list(APPEND XCB_LIBRARIES ${${compname}_LIBRARY})
+
+    if(NOT ${comp}_FOUND)
+        set(XCB_FOUND false)
+    endif()
+endforeach()
+
+list(REMOVE_DUPLICATES XCB_INCLUDE_DIRS)
+#XCB_END
+
+include_directories(${XCB_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME}
+    ${XCB_LIBRARIES}
     )
