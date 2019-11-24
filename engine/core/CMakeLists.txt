@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 2.8)
-#include/graphic/KGEVulkanCore.cpp
 project(KGECore CXX)
 
 file(GLOB_RECURSE HDRS *.h)
@@ -40,7 +39,7 @@ IF(WIN32)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
 ELSE(WIN32)
         IF (NOT Vulkan_FOUND)
-                find_library(Vulkan_LIBRARY NAMES vulkan HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
+                find_library(Vulkan_LIBRARY NAMES vulkan HINTS "$ENV{VULKAN_SDK}/libs" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
                 IF (Vulkan_LIBRARY)
                         set(Vulkan_FOUND ON)
                         MESSAGE("Using bundled Vulkan library version")
