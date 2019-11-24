@@ -1,5 +1,5 @@
-#include "core.h"
-#include <graphic/KGEVulkanCore.h>
+#include <core.h>
+#include "graphic/GKEVulkanApp.h"
 
 #include "graphic/VulkanWindowControl/LinuxXCBWindowControl.h"
 #include "graphic/VulkanWindowControl/WindowsWindowControl.h"
@@ -9,21 +9,9 @@
 
 Core::Core()
 {
-
-    IVulkanWindowControl* pWindowControl = nullptr;
-
-#ifdef __linux__
-    pWindowControl = new LinuxXCBWindowControl();
-#elif _WIN32
-    pWindowControl = new WindowsWindowControl("KitevaGameEngine");
-#else
-    //TODO
-#endif
-
-    pWindowControl->Init(WINDOW_WIDTH, WINDOW_HEIGHT);
-
-    KGEVulkanCore core("KitevaGameEngine");
-    core.Init(pWindowControl);
+    GKEVulkanApp app("KitevaGameEngine", WINDOW_WIDTH, WINDOW_HEIGHT);
+    app.Init();
+    app.Run();
 }
 
 Core::~Core() {}
