@@ -1845,12 +1845,14 @@ typedef enum VkCommandPoolCreateFlagBits {
     VK_COMMAND_POOL_CREATE_PROTECTED_BIT = 0x00000004,
     VK_COMMAND_POOL_CREATE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkCommandPoolCreateFlagBits;
+
 typedef VkFlags VkCommandPoolCreateFlags;
 
 typedef enum VkCommandPoolResetFlagBits {
     VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT = 0x00000001,
     VK_COMMAND_POOL_RESET_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkCommandPoolResetFlagBits;
+
 typedef VkFlags VkCommandPoolResetFlags;
 
 typedef enum VkCommandBufferUsageFlagBits {
@@ -1859,18 +1861,21 @@ typedef enum VkCommandBufferUsageFlagBits {
     VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT = 0x00000004,
     VK_COMMAND_BUFFER_USAGE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkCommandBufferUsageFlagBits;
+
 typedef VkFlags VkCommandBufferUsageFlags;
 
 typedef enum VkQueryControlFlagBits {
     VK_QUERY_CONTROL_PRECISE_BIT = 0x00000001,
     VK_QUERY_CONTROL_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkQueryControlFlagBits;
+
 typedef VkFlags VkQueryControlFlags;
 
 typedef enum VkCommandBufferResetFlagBits {
     VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT = 0x00000001,
     VK_COMMAND_BUFFER_RESET_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkCommandBufferResetFlagBits;
+
 typedef VkFlags VkCommandBufferResetFlags;
 
 typedef enum VkStencilFaceFlagBits {
@@ -1880,7 +1885,9 @@ typedef enum VkStencilFaceFlagBits {
     VK_STENCIL_FRONT_AND_BACK = VK_STENCIL_FACE_FRONT_AND_BACK,
     VK_STENCIL_FACE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkStencilFaceFlagBits;
+
 typedef VkFlags VkStencilFaceFlags;
+
 typedef struct VkApplicationInfo {
     VkStructureType    sType;
     const void*        pNext;

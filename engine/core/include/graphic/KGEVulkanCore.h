@@ -1,19 +1,21 @@
 #ifndef KGEVULKANCORE_H
 #define KGEVULKANCORE_H
 
+
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 #include <vulkan/vk_sdk_platform.h>
 #include <graphic/KGEVulkan.h>
-
+#include <graphic/VulkanWindowControl/IVulkanWindowControl.h>
 #include <string>
 
 class KGEVulkanCore
 {
 public:
-    KGEVulkanCore(const char* pAppName);
+    KGEVulkanCore(const char* appName);
     ~KGEVulkanCore();
 
-    void Init(VulkanWindowControl* pWindowControl);
+    void Init(IVulkanWindowControl* pWindowControl);
 
     const VkPhysicalDevice& GetPhysDevice() const;
 

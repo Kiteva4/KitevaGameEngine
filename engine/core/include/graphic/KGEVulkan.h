@@ -29,20 +29,6 @@ struct VulkanPhysicalDevices {
 void VulkanEnumExtProps(std::vector<VkExtensionProperties>& ExtProps);
 void VulkanPrintImageUsageFlags(const VkImageUsageFlags& flags);
 VkShaderModule VulkanCreateShaderModule(VkDevice& device, const char* pFileName);
-void VulkanGetPhysicalDevices(const VkInstance& inst, const VkSurfaceKHR& Surface, VulkanPhysicalDevices& PhysDevices);
-
-class VulkanWindowControl
-{
-protected:
-    VulkanWindowControl() {}
-
-    ~VulkanWindowControl() {}
-
-public:
-
-    virtual void Init(unsigned int Width, unsigned int Height) = 0;
-
-    virtual VkSurfaceKHR CreateSurface(VkInstance& inst) = 0;
-};
+void VulkanGetPhysicalDevices(const VkInstance& inst, const VkSurfaceKHR& surface, VulkanPhysicalDevices& physDevices);
 
 #endif

@@ -1,20 +1,18 @@
-#pragma once
-
 #include "KGEutilityl.h"
 #include "graphic/KGEVulkanCore.h"
 
-PFN_vkCreateDebugReportCallbackEXT my_vkCreateDebugReportCallbackEXT = NULL;
+PFN_vkCreateDebugReportCallbackEXT my_vkCreateDebugReportCallbackEXT = nullptr;
 
 
 VKAPI_ATTR VkBool32 VKAPI_CALL MyDebugReportCallback(
-    VkDebugReportFlagsEXT       flags,
-    VkDebugReportObjectTypeEXT  objectType,
-    uint64_t                    object,
-    size_t                      location,
-    int32_t                     messageCode,
-    const char*                 pLayerPrefix,
-    const char*                 pMessage,
-    void*                       pUserData)
+        VkDebugReportFlagsEXT       flags,
+        VkDebugReportObjectTypeEXT  objectType,
+        uint64_t                    object,
+        size_t                      location,
+        int32_t                     messageCode,
+        const char*                 pLayerPrefix,
+        const char*                 pMessage,
+        void*                       pUserData)
 {
     printf("%s\n", pMessage);
     return VK_FALSE;
@@ -23,9 +21,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL MyDebugReportCallback(
 
 
 
-KGEVulkanCore::KGEVulkanCore(const char* pAppName)
+KGEVulkanCore::KGEVulkanCore(const char* appName)
 {
-    m_appName = std::string(pAppName);
+    m_appName = std::string(appName);
     m_gfxDevIndex = -1;
     m_gfxQueueFamily = -1;
 }
@@ -37,7 +35,7 @@ KGEVulkanCore::~KGEVulkanCore()
 }
 
 
-void KGEVulkanCore::Init(VulkanWindowControl* pWindowControl)
+void KGEVulkanCore::Init(IVulkanWindowControl *pWindowControl)
 {
     std::vector<VkExtensionProperties> ExtProps;
     VulkanEnumExtProps(ExtProps);
@@ -77,21 +75,24 @@ const VkSurfaceCapabilitiesKHR KGEVulkanCore::GetSurfaceCaps() const
 
 void KGEVulkanCore::SelectPhysicalDevice()
 {
-    for (unsigned int i = 0 ; i < m_physDevices.m_devices.size() ; i++) {
-
-        for (unsigned int j = 0 ; j < m_physDevices.m_qFamilyProps[i].size() ; j++) {
+    for (unsigned int i = 0 ; i < m_physDevices.m_devices.size() ; i++)
+    {
+        for (unsigned int j = 0 ; j < m_physDevices.m_qFamilyProps[i].size() ; j++)
+        {
             VkQueueFamilyProperties& QFamilyProp = m_physDevices.m_qFamilyProps[i][j];
 
             printf("Family %d Num queues: %d\n", j, QFamilyProp.queueCount);
             VkQueueFlags flags = QFamilyProp.queueFlags;
             printf("    GFX %s, Compute %s, Transfer %s, Sparse binding %s\n",
-                    (flags & VK_QUEUE_GRAPHICS_BIT) ? "Yes" : "No",
-                    (flags & VK_QUEUE_COMPUTE_BIT) ? "Yes" : "No",
-                    (flags & VK_QUEUE_TRANSFER_BIT) ? "Yes" : "No",
-                    (flags & VK_QUEUE_SPARSE_BINDING_BIT) ? "Yes" : "No");
+                   (flags & VK_QUEUE_GRAPHICS_BIT) ? "Yes" : "No",
+                   (flags & VK_QUEUE_COMPUTE_BIT) ? "Yes" : "No",
+                   (flags & VK_QUEUE_TRANSFER_BIT) ? "Yes" : "No",
+                   (flags & VK_QUEUE_SPARSE_BINDING_BIT) ? "Yes" : "No");
 
-            if ((flags & VK_QUEUE_GRAPHICS_BIT) && (m_gfxDevIndex == -1)) {
-                if (!m_physDevices.m_qSupportsPresent[i][j]) {
+            if ((flags & VK_QUEUE_GRAPHICS_BIT) && (m_gfxDevIndex == -1))
+            {
+                if (!m_physDevices.m_qSupportsPresent[i][j])
+                {
                     printf("Present is not supported\n");
                     continue;
                 }
@@ -119,15 +120,15 @@ void KGEVulkanCore::CreateInstance()
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
     const char* pInstExt[] = {
-#ifdef ENABLE_DEBUG_LAYERS
+    #ifdef ENABLE_DEBUG_LAYERS
         VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
-#endif
+    #endif
         VK_KHR_SURFACE_EXTENSION_NAME,
-#ifdef _WIN32
+    #ifdef _WIN32
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-#else
+    #else
         VK_KHR_XCB_SURFACE_EXTENSION_NAME
-#endif
+    #endif
     };
 
 #ifdef ENABLE_DEBUG_LAYERS
@@ -149,27 +150,28 @@ void KGEVulkanCore::CreateInstance()
     VkResult res = vkCreateInstance(&instInfo, nullptr, &m_inst);
     CHECK_VULKAN_ERROR("vkCreateInstance %d\n", res)
 
-#ifdef ENABLE_DEBUG_LAYERS
-    // Get the address to the vkCreateDebugReportCallbackEXT function
-    my_vkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(m_inst, "vkCreateDebugReportCallbackEXT"));
+        #ifdef ENABLE_DEBUG_LAYERS
+            // Get the address to the vkCreateDebugReportCallbackEXT function
+            my_vkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(m_inst, "vkCreateDebugReportCallbackEXT"));
 
     // Register the debug callback
     VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
     callbackCreateInfo.sType       = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
     callbackCreateInfo.pNext       = nullptr;
     callbackCreateInfo.flags       = VK_DEBUG_REPORT_ERROR_BIT_EXT |
-                                     VK_DEBUG_REPORT_WARNING_BIT_EXT |
-                                     VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+            VK_DEBUG_REPORT_WARNING_BIT_EXT |
+            VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
     callbackCreateInfo.pfnCallback = &MyDebugReportCallback;
     callbackCreateInfo.pUserData   = nullptr;
 
     VkDebugReportCallbackEXT callback;
     res = my_vkCreateDebugReportCallbackEXT(m_inst, &callbackCreateInfo, nullptr, &callback);
     CHECK_VULKAN_ERROR("my_vkCreateDebugReportCallbackEXT error %d\n", res)
-#endif
+        #endif
 }
 
-
+/*! @brief Создание логического устройства
+ логическое устройство абстракция над реальным физическим устройством */
 void KGEVulkanCore::CreateLogicalDevice()
 {
     VkDeviceQueueCreateInfo qInfo = {};
@@ -195,7 +197,7 @@ void KGEVulkanCore::CreateLogicalDevice()
 
     CHECK_VULKAN_ERROR("vkCreateDevice error %d\n", res)
 
-    printf("Device created\n");
+            printf("Device created\n");
 }
 
 
@@ -207,5 +209,5 @@ VkSemaphore KGEVulkanCore::CreateSemaphore()
     VkSemaphore semaphore;
     VkResult res = vkCreateSemaphore(m_device, &createInfo, nullptr, &semaphore);
     CHECK_VULKAN_ERROR("vkCreateSemaphore error %d\n", res)
-    return semaphore;
+            return semaphore;
 }

@@ -8,7 +8,7 @@ file(GLOB_RECURSE SRCS *.cpp)
 add_library(${PROJECT_NAME} STATIC ${SRCS} ${HDRS})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "KGEAnimation")
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".a")
 
 include_directories(${PROJECT_SOURCE_DIR}/include/)
@@ -20,6 +20,7 @@ include_directories(${CMAKE_SOURCE_DIR}/external/vulkan)
 
 include_directories(${CMAKE_SOURCE_DIR}/engine/lib/include)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE")
 
 # Use FindVulkan module added with CMAKE 3.7
 if (NOT CMAKE_VERSION VERSION_LESS 3.7.0)
