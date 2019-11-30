@@ -1,7 +1,7 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include<initializer.h>
+//#include<initializer.h>
 
 class Core
 {

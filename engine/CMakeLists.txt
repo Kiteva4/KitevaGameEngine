@@ -14,9 +14,9 @@ include_directories(
     )
 
 target_link_libraries(${PROJECT_NAME}
+    KGECore
     KGEAnimation
     KGEAudio
-    KGECore
     KGELib
     pthread
     )

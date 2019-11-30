@@ -1,55 +1,46 @@
 #ifndef KGEVULKANCORE_H
 #define KGEVULKANCORE_H
 
-
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
-#include <vulkan/vk_sdk_platform.h>
-
+#include <string>
+#include <vector>
+#include <iostream>
 #include <graphic/KGEVulkan.h>
 #include <graphic/VulkanWindowControl/IVulkanWindowControl.h>
-#include <string>
+
+#ifdef NDEBUG
+const bool DEBUG_MODE = false;
+#else
+const bool DEBUG_MODE = true;
+#endif
+
 
 class KGEVulkanCore
 {
 public:
-    KGEVulkanCore(const char* appName);
+    KGEVulkanCore(uint32_t width, uint32_t heigh, IVulkanWindowControl* windowControl);
     ~KGEVulkanCore();
-
-    void Init(IVulkanWindowControl* pWindowControl);
-
-    const VkPhysicalDevice& GetPhysDevice() const;
-
-    const VkSurfaceFormatKHR& GetSurfaceFormat() const;
-
-    const VkSurfaceCapabilitiesKHR GetSurfaceCaps() const;
-
-    const VkSurfaceKHR& GetSurface() const { return m_surface; }
-
-    uint32_t GetQueueFamily() const { return m_gfxQueueFamily; }
-
-    VkInstance& GetInstance() { return m_inst; }
-
-    VkDevice& GetDevice() { return m_device; }
-
-    VkSemaphore CreateSemaphore();
-
 private:
-    void CreateInstance();
-    void CreateSurface();
-    void SelectPhysicalDevice();
-    void CreateLogicalDevice();
 
-    // Vulkan objects
-    VkInstance m_inst;
-    VkSurfaceKHR m_surface;
-    VulkanPhysicalDevices m_physDevices;
-    VkDevice m_device;
+    uint32_t m_width;
+    uint32_t m_heigh;
 
-    // Internal stuff
-    std::string m_appName;
-    int m_gfxDevIndex;
-    uint32_t m_gfxQueueFamily;
+    VkInstance m_vkInstance{};
+    //Инициализация инстанса
+    VkInstance InitVkInstance(
+            std::string appName,                                /*! Наименование приложения         */
+            std::string engineName,                             /*! Наименование среды(движка)      */
+            std::vector<const char*> extensionsRequired,        /*! Список запрашиваемых расширений */
+            std::vector<const char*> validationLayersRequired); /*! Список слоев валидации          */
+
+    //Деинициализация инстанса
+    void DeinitInstance(VkInstance* vkInstance);
+
+    VkDebugReportCallbackEXT m_validationReportCallback;
+
+    VkSurfaceKHR m_vkSurface;
+    VkSurfaceKHR InitWindowSurface(IVulkanWindowControl* windowControl);
+    void DeinitWindowSurface(VkInstance vkInstance, VkSurfaceKHR * surface);
 };
+
 
 #endif // KGEVULKANCORE_H

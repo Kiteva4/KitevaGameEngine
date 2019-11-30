@@ -27,7 +27,7 @@ LinuxXCBWindowControl::~LinuxXCBWindowControl()
     }
 }
 
-void LinuxXCBWindowControl::Init(unsigned int Width, unsigned int Height)
+void LinuxXCBWindowControl::Init(uint32_t Width, uint32_t Height)
 {
     m_pXCBConn = xcb_connect(NULL, NULL);
 

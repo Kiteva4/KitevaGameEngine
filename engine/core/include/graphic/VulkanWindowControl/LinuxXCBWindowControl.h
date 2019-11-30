@@ -12,7 +12,7 @@ public:
     LinuxXCBWindowControl();
     ~LinuxXCBWindowControl();
 
-    virtual void Init(unsigned int Width, unsigned int Height);
+    virtual void Init(uint32_t Width, uint32_t Height);
 
     virtual VkSurfaceKHR CreateSurface(VkInstance& inst);
 

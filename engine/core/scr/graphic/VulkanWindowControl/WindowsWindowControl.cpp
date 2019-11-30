@@ -22,7 +22,7 @@ WindowsWindowControl::~WindowsWindowControl()
 
 }
 
-void WindowsWindowControl::Init(unsigned int Width, unsigned int Height)
+void WindowsWindowControl::Init(uint32_t Width, uint32_t Height)
 {
     WNDCLASSEX wndcls = {};
 
@@ -59,17 +59,25 @@ void WindowsWindowControl::Init(unsigned int Width, unsigned int Height)
     ShowWindow(m_hwnd, SW_SHOW);
 }
 
-VkSurfaceKHR WindowsWindowControl::CreateSurface(VkInstance &inst)
+VkSurfaceKHR WindowsWindowControl::CreateSurface(VkInstance &vkInstance)
 {
-    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
-    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    surfaceCreateInfo.hinstance = m_hinstance;
-    surfaceCreateInfo.hwnd = m_hwnd;
+    VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfoKhr = {};
+    win32SurfaceCreateInfoKhr.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    win32SurfaceCreateInfoKhr.hwnd = m_hwnd;
+    win32SurfaceCreateInfoKhr.hinstance = m_hinstance;
+    win32SurfaceCreateInfoKhr.flags = 0;
+    win32SurfaceCreateInfoKhr.pNext =  nullptr;
 
-    VkSurfaceKHR surface;
+    PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR =
+            (PFN_vkCreateWin32SurfaceKHR)vkGetInstanceProcAddr(vkInstance, "vkCreateWin32SurfaceKHR");
 
-    VkResult res = vkCreateWin32SurfaceKHR(inst, &surfaceCreateInfo, nullptr, &surface);
-    CHECK_VULKAN_ERROR("vkCreateXcbSurfaceKHR error %d\n", res);
+     VkSurfaceKHR surface;
+
+    if(vkCreateWin32SurfaceKHR(vkInstance, &win32SurfaceCreateInfoKhr, nullptr, &surface) != VK_SUCCESS){
+        throw std::runtime_error("Vulkan: Error in vkCreateWin32SurfaceKHR function!");
+    }
+
+    std::cout << "Vulkan: Surface successfully created" << std::endl;
 
     return surface;
 }

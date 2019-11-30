@@ -1,213 +1,149 @@
-#include "KGEutilityl.h"
 #include "graphic/KGEVulkanCore.h"
 
-PFN_vkCreateDebugReportCallbackEXT my_vkCreateDebugReportCallbackEXT = nullptr;
 
-
-VKAPI_ATTR VkBool32 VKAPI_CALL MyDebugReportCallback(
-        VkDebugReportFlagsEXT       flags,
-        VkDebugReportObjectTypeEXT  objectType,
-        uint64_t                    object,
-        size_t                      location,
-        int32_t                     messageCode,
-        const char*                 pLayerPrefix,
-        const char*                 pMessage,
-        void*                       pUserData)
+KGEVulkanCore::KGEVulkanCore(uint32_t width, uint32_t heigh, IVulkanWindowControl* windowControl) :
+    m_width(width),
+    m_heigh(heigh),
+    m_vkInstance(nullptr),
+    m_validationReportCallback(nullptr),
+    m_vkSurface(nullptr)
 {
-    printf("%s\n", pMessage);
-    return VK_FALSE;
+    m_vkInstance = InitVkInstance(
+        "Application name",
+        "Engine name",
+        { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_EXT_DEBUG_REPORT_EXTENSION_NAME },
+        { "VK_LAYER_LUNARG_standard_validation" });
+
+    m_vkSurface = InitWindowSurface(windowControl);
 }
-
-
-
-
-KGEVulkanCore::KGEVulkanCore(const char* appName)
-{
-    m_appName = std::string(appName);
-    m_gfxDevIndex = -1;
-    m_gfxQueueFamily = -1;
-}
-
 
 KGEVulkanCore::~KGEVulkanCore()
 {
-
+    DeinitWindowSurface(m_vkInstance, &m_vkSurface);
+    DeinitInstance(&m_vkInstance);
 }
 
-
-void KGEVulkanCore::Init(IVulkanWindowControl *pWindowControl)
+VkInstance KGEVulkanCore::InitVkInstance(
+    std::string applicationName,
+    std::string engineName,
+    std::vector<const char*> extensionsRequired,
+    std::vector<const char*> validationLayersRequired)
 {
-    std::vector<VkExtensionProperties> ExtProps;
-    VulkanEnumExtProps(ExtProps);
+    VkApplicationInfo applicationInfo = {};
+    applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    applicationInfo.pApplicationName = applicationName.c_str();
+    applicationInfo.pEngineName = engineName.c_str();
+    applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    applicationInfo.apiVersion = VK_API_VERSION_1_0;
 
-    CreateInstance();
+    VkInstanceCreateInfo instanceCreateInfo = {};
+    instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
-    m_surface = pWindowControl->CreateSurface(m_inst);
-    assert(m_surface);
-
-    printf("Surface created\n");
-
-    VulkanGetPhysicalDevices(m_inst, m_surface, m_physDevices);
-    SelectPhysicalDevice();
-    CreateLogicalDevice();
-}
-
-const VkPhysicalDevice& KGEVulkanCore::GetPhysDevice() const
-{
-    assert(m_gfxDevIndex >= 0);
-    return m_physDevices.m_devices[m_gfxDevIndex];
-}
-
-const VkSurfaceFormatKHR& KGEVulkanCore::GetSurfaceFormat() const
-{
-    assert(m_gfxDevIndex >= 0);
-    return m_physDevices.m_surfaceFormats[m_gfxDevIndex][0];
-}
-
-
-const VkSurfaceCapabilitiesKHR KGEVulkanCore::GetSurfaceCaps() const
-{
-    assert(m_gfxDevIndex >= 0);
-    return m_physDevices.m_surfaceCaps[m_gfxDevIndex];
-
-}
-
-
-void KGEVulkanCore::SelectPhysicalDevice()
-{
-    for (unsigned int i = 0 ; i < m_physDevices.m_devices.size() ; i++)
+    bool validationQueried = false;
+    //Если есть запрашиваемые расширения инстанса
+    if (!extensionsRequired.empty())
     {
-        for (unsigned int j = 0 ; j < m_physDevices.m_qFamilyProps[i].size() ; j++)
+        if (!kge::vkutility::checkInstanceExtensionsSupported(extensionsRequired)) {
+            throw std::runtime_error("Vulkan: Not supported required instance extensions!");
+        }
+
+        instanceCreateInfo.ppEnabledExtensionNames = extensionsRequired.data();
+        instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensionsRequired.size());
+
+        //Проверка на наличие запрошенного расширения Debug
+        bool debugReportExtensionQueried = false;
+
+        for (auto* extensionName : extensionsRequired)
         {
-            VkQueueFamilyProperties& QFamilyProp = m_physDevices.m_qFamilyProps[i][j];
-
-            printf("Family %d Num queues: %d\n", j, QFamilyProp.queueCount);
-            VkQueueFlags flags = QFamilyProp.queueFlags;
-            printf("    GFX %s, Compute %s, Transfer %s, Sparse binding %s\n",
-                   (flags & VK_QUEUE_GRAPHICS_BIT) ? "Yes" : "No",
-                   (flags & VK_QUEUE_COMPUTE_BIT) ? "Yes" : "No",
-                   (flags & VK_QUEUE_TRANSFER_BIT) ? "Yes" : "No",
-                   (flags & VK_QUEUE_SPARSE_BINDING_BIT) ? "Yes" : "No");
-
-            if ((flags & VK_QUEUE_GRAPHICS_BIT) && (m_gfxDevIndex == -1))
-            {
-                if (!m_physDevices.m_qSupportsPresent[i][j])
-                {
-                    printf("Present is not supported\n");
-                    continue;
-                }
-
-                m_gfxDevIndex = i;
-                m_gfxQueueFamily = j;
-                printf("Using GFX device %d and queue family %d\n", m_gfxDevIndex, m_gfxQueueFamily);
+            if (strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, extensionName) == 0) {
+                debugReportExtensionQueried = true;
+                break;
             }
+        }
+
+        //Было запрошено расширения
+        if (debugReportExtensionQueried && !validationLayersRequired.empty()) {
+
+            //Есть слои валидации
+            if (!kge::vkutility::checkValidationLayersSupported(validationLayersRequired)) {
+                throw std::runtime_error("Vulkan: Not all required layers supporeted!");
+            }
+
+            instanceCreateInfo.enabledLayerCount = (uint32_t)validationLayersRequired.size();
+            instanceCreateInfo.ppEnabledLayerNames = validationLayersRequired.data();
+
+            validationQueried = true;
+            std::cout << "Vulkan: Validation enabled"  << std::endl;
         }
     }
 
-    if (m_gfxDevIndex == -1) {
-        printf("No GFX device found!\n");
-        assert(0);
+    VkInstance vkInstance;
+
+    if (vkCreateInstance(&instanceCreateInfo, nullptr, &(vkInstance)) != VK_SUCCESS) {
+        throw std::runtime_error("Vulkan: Error in the 'vkCreateInstance' function");
+    }
+
+    std::cout << "Vulkan: Instance sucessfully created" << std::endl;
+
+    if (validationQueried){
+        VkDebugReportCallbackCreateInfoEXT debugReportCallbackCreateInfo = {};
+        debugReportCallbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+        debugReportCallbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+        debugReportCallbackCreateInfo.pfnCallback = kge::vkutility::DebugVulkanCallback; //????????? ?? ???????, ??????? ????? ?????????? ??? ??????????? ??????
+
+        //Получаем адрес функции создания обьекта
+        PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT =
+            (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(
+                vkInstance, "vkCreateDebugReportCallbackEXT");
+
+        //Если получили адрес и успешно создали
+        if (vkCreateDebugReportCallbackEXT(vkInstance, &debugReportCallbackCreateInfo, nullptr, &(this->m_validationReportCallback)) != VK_SUCCESS){
+            throw std::runtime_error("Vulkan: Error in the 'vkCreateDebugReportCallbackEXT'");
+        }
+
+        std::cout << "Vulkan: Report callback sucessfully created" << std::endl;
+    }
+
+    return vkInstance;
+}
+
+void KGEVulkanCore::DeinitInstance(VkInstance* vkInstance)
+{
+    //Если был создан обьект m_validationReportCallback
+    if (m_validationReportCallback != nullptr) {
+        //Получаем адрес функции для его уничтожения
+        PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT =
+            (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(
+            *vkInstance, "vkCreateDebugReportCallbackEXT");
+
+        vkDestroyDebugReportCallbackEXT(
+            *vkInstance,
+            this->m_validationReportCallback,
+            nullptr);
+
+        this->m_validationReportCallback = nullptr;
+
+        std::cout << "Vulkan: Report callback sucessfully destroyed" << std::endl;
+    }
+
+    if (*vkInstance != nullptr) {
+        vkDestroyInstance(*vkInstance, nullptr);
+        *vkInstance = nullptr;
+
+        std::cout << "Vulkan: Instance sucessfully destroyed" << std::endl;
     }
 }
 
-
-void KGEVulkanCore::CreateInstance()
+VkSurfaceKHR KGEVulkanCore::InitWindowSurface(IVulkanWindowControl *windowControl)
 {
-    VkApplicationInfo appInfo = {};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = m_appName.c_str();
-    appInfo.engineVersion = 1;
-    appInfo.apiVersion = VK_API_VERSION_1_0;
-
-    const char* pInstExt[] = {
-    #ifdef ENABLE_DEBUG_LAYERS
-        VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
-    #endif
-        VK_KHR_SURFACE_EXTENSION_NAME,
-    #ifdef _WIN32
-        VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-    #else
-        "VK_KHR_xcb_surface"
-    #endif
-    };
-
-#ifdef ENABLE_DEBUG_LAYERS
-    const char* pInstLayers[] = {
-        "VK_LAYER_LUNARG_standard_validation"
-    };
-#endif
-
-    VkInstanceCreateInfo instInfo = {};
-    instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    instInfo.pApplicationInfo = &appInfo;
-#ifdef ENABLE_DEBUG_LAYERS
-    instInfo.enabledLayerCount = ARRAY_SIZE_IN_ELEMENTS(pInstLayers);
-    instInfo.ppEnabledLayerNames = pInstLayers;
-#endif
-    instInfo.enabledExtensionCount = ARRAY_SIZE_IN_ELEMENTS(pInstExt);
-    instInfo.ppEnabledExtensionNames = pInstExt;
-
-    VkResult res = vkCreateInstance(&instInfo, nullptr, &m_inst);
-    CHECK_VULKAN_ERROR("vkCreateInstance %d\n", res)
-
-        #ifdef ENABLE_DEBUG_LAYERS
-            // Get the address to the vkCreateDebugReportCallbackEXT function
-            my_vkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(m_inst, "vkCreateDebugReportCallbackEXT"));
-
-    // Register the debug callback
-    VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
-    callbackCreateInfo.sType       = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-    callbackCreateInfo.pNext       = nullptr;
-    callbackCreateInfo.flags       = VK_DEBUG_REPORT_ERROR_BIT_EXT |
-            VK_DEBUG_REPORT_WARNING_BIT_EXT |
-            VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-    callbackCreateInfo.pfnCallback = &MyDebugReportCallback;
-    callbackCreateInfo.pUserData   = nullptr;
-
-    VkDebugReportCallbackEXT callback;
-    res = my_vkCreateDebugReportCallbackEXT(m_inst, &callbackCreateInfo, nullptr, &callback);
-    CHECK_VULKAN_ERROR("my_vkCreateDebugReportCallbackEXT error %d\n", res)
-        #endif
+    windowControl->Init(m_width, m_heigh);
+    return windowControl->CreateSurface(m_vkInstance);
 }
 
-/*! @brief Создание логического устройства
- логическое устройство абстракция над реальным физическим устройством */
-void KGEVulkanCore::CreateLogicalDevice()
+void KGEVulkanCore::DeinitWindowSurface(VkInstance vkInstance, VkSurfaceKHR *surface)
 {
-    VkDeviceQueueCreateInfo qInfo = {};
-    qInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-
-    float qPriorities = 1.0f;
-    qInfo.queueCount = 1;
-    qInfo.pQueuePriorities = &qPriorities;
-    qInfo.queueFamilyIndex = m_gfxQueueFamily;
-
-    const char* pDevExt[] = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
-
-    VkDeviceCreateInfo devInfo = {};
-    devInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    devInfo.enabledExtensionCount = ARRAY_SIZE_IN_ELEMENTS(pDevExt);
-    devInfo.ppEnabledExtensionNames = pDevExt;
-    devInfo.queueCreateInfoCount = 1;
-    devInfo.pQueueCreateInfos = &qInfo;
-
-    VkResult res = vkCreateDevice(GetPhysDevice(), &devInfo, nullptr, &m_device);
-
-    CHECK_VULKAN_ERROR("vkCreateDevice error %d\n", res)
-
-            printf("Device created\n");
-}
-
-
-VkSemaphore KGEVulkanCore::CreateSemaphore()
-{
-    VkSemaphoreCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkSemaphore semaphore;
-    VkResult res = vkCreateSemaphore(m_device, &createInfo, nullptr, &semaphore);
-    CHECK_VULKAN_ERROR("vkCreateSemaphore error %d\n", res)
-            return semaphore;
+    if(surface != nullptr & *surface != nullptr){
+        vkDestroySurfaceKHR(vkInstance, *surface, nullptr);
+    }
 }

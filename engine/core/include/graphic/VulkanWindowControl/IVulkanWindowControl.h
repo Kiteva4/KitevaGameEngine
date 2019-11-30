@@ -6,17 +6,17 @@
 
 #include "KGEutilityl.h"
 
-/*! @brief Класс декорации управления оконной поверхности */
 class IVulkanWindowControl
 {
 protected:
     IVulkanWindowControl() {}
 
-    ~IVulkanWindowControl() {}
+
 
 public:
+    virtual ~IVulkanWindowControl() {}
 
-    virtual void Init(unsigned int Width, unsigned int Height) = 0;
+    virtual void Init(uint32_t Width, uint32_t Height) = 0;
 
     virtual VkSurfaceKHR CreateSurface(VkInstance& inst) = 0;
 };
