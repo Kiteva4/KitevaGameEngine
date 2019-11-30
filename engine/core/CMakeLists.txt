@@ -14,44 +14,54 @@ include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 include_directories(${CMAKE_SOURCE_DIR}/external)
-include_directories(${CMAKE_SOURCE_DIR}/external/glm)
+include_directories(${CMAKE_SOURCE_DIR}/external/glm/glm)
+include_directories(${CMAKE_SOURCE_DIR}/external/glfw/include)
 include_directories(${CMAKE_SOURCE_DIR}/engine/lib/include)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE")
 
+include_directories(${CMAKE_SOURCE_DIR}/external/glfw/include)
+target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES})
+
+message(--- glfw includes = ${GLFW_INCLUDE_DIRS})
+message(--- glfw static libs = ${GLFW_STATIC_LIBRARIES})
+message(--- glfw libs = ${GLFW_LIBRARIES})
+
 #VULKAN
 if(WIN32)
-  find_path(Vulkan_INCLUDE_DIR
-    NAMES vulkan/vulkan.h
-    PATHS
-      "$ENV{VULKAN_SDK}/Include"
-    )
+    find_path(
+        Vulkan_INCLUDE_DIR
+        NAMES vulkan/vulkan.h
+        PATHS
+        "$ENV{VULKAN_SDK}/Include"
+        )
 
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
-    find_library(Vulkan_LIBRARY
-      NAMES vulkan-1
-      PATHS
-        "$ENV{VULKAN_SDK}/Lib"
-        "$ENV{VULKAN_SDK}/Bin"
-        )
-  elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    find_library(Vulkan_LIBRARY
-      NAMES vulkan-1
-      PATHS
-        "$ENV{VULKAN_SDK}/Lib32"
-        "$ENV{VULKAN_SDK}/Bin32"
-        NO_SYSTEM_ENVIRONMENT_PATH
-        )
-  endif()
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
+        find_library(
+            Vulkan_LIBRARY
+            NAMES vulkan-1
+            PATHS
+            "$ENV{VULKAN_SDK}/Lib"
+            "$ENV{VULKAN_SDK}/Bin"
+            )
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        find_library(Vulkan_LIBRARY
+            NAMES vulkan-1
+            PATHS
+            "$ENV{VULKAN_SDK}/Lib32"
+            "$ENV{VULKAN_SDK}/Bin32"
+            NO_SYSTEM_ENVIRONMENT_PATH
+            )
+    endif()
 else()
     find_path(Vulkan_INCLUDE_DIR
-      NAMES vulkan/vulkan.h
-      PATHS
+        NAMES vulkan/vulkan.h
+        PATHS
         "$ENV{VULKAN_SDK}/include")
     find_library(Vulkan_LIBRARY
-      NAMES vulkan
-      PATHS
+        NAMES vulkan
+        PATHS
         "$ENV{VULKAN_SDK}/lib")
 endif()
 
@@ -61,16 +71,16 @@ set(Vulkan_INCLUDE_DIRS ${Vulkan_INCLUDE_DIR})
 #include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Vulkan
-  DEFAULT_MSG
-  Vulkan_LIBRARY Vulkan_INCLUDE_DIR)
+    DEFAULT_MSG
+    Vulkan_LIBRARY Vulkan_INCLUDE_DIR)
 
 mark_as_advanced(Vulkan_INCLUDE_DIR Vulkan_LIBRARY)
 
 if(Vulkan_FOUND AND NOT TARGET Vulkan::Vulkan)
-  add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
-  set_target_properties(Vulkan::Vulkan PROPERTIES
-    IMPORTED_LOCATION "${Vulkan_LIBRARIES}"
-    INTERFACE_INCLUDE_DIRECTORIES "${Vulkan_INCLUDE_DIRS}")
+    add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
+    set_target_properties(Vulkan::Vulkan PROPERTIES
+        IMPORTED_LOCATION "${Vulkan_LIBRARIES}"
+        INTERFACE_INCLUDE_DIRECTORIES "${Vulkan_INCLUDE_DIRS}")
 endif()
 #VULKAN_END
 
@@ -81,25 +91,25 @@ target_link_libraries(${PROJECT_NAME}
 
 #X11
 IF (UNIX AND NOT APPLE)
-  # use pkg-config to get the directories and then use these values
-  # in the FIND_PATH() and FIND_LIBRARY() calls
-  FIND_PACKAGE(PkgConfig)
-  PKG_CHECK_MODULES(PKG_X11_XCB QUIET x11-xcb)
+# use pkg-config to get the directories and then use these values
+# in the FIND_PATH() and FIND_LIBRARY() calls
+FIND_PACKAGE(PkgConfig)
+PKG_CHECK_MODULES(PKG_X11_XCB QUIET x11-xcb)
 
-  SET(X11_XCB_DEFINITIONS ${PKG_X11_XCB_CFLAGS})
+SET(X11_XCB_DEFINITIONS ${PKG_X11_XCB_CFLAGS})
 
-  FIND_PATH(X11_XCB_INCLUDE_DIR NAMES X11/Xlib-xcb.h HINTS ${PKG_X11_XCB_INCLUDE_DIRS})
-  FIND_LIBRARY(X11_XCB_LIBRARIES NAMES X11-xcb HINTS ${PKG_X11_XCB_LIBRARY_DIRS})
+FIND_PATH(X11_XCB_INCLUDE_DIR NAMES X11/Xlib-xcb.h HINTS ${PKG_X11_XCB_INCLUDE_DIRS})
+FIND_LIBRARY(X11_XCB_LIBRARIES NAMES X11-xcb HINTS ${PKG_X11_XCB_LIBRARY_DIRS})
 
-  include(FindPackageHandleStandardArgs)
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(X11_XCB DEFAULT_MSG X11_XCB_LIBRARIES X11_XCB_INCLUDE_DIR)
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(X11_XCB DEFAULT_MSG X11_XCB_LIBRARIES X11_XCB_INCLUDE_DIR)
 
-  MARK_AS_ADVANCED(X11_XCB_INCLUDE_DIR X11_XCB_LIBRARIES)
+MARK_AS_ADVANCED(X11_XCB_INCLUDE_DIR X11_XCB_LIBRARIES)
 
-  include_directories(${X11_XCB_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME}
-      ${X11_XCB_LIBRARIES}
-      )
+include_directories(${X11_XCB_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME}
+    ${X11_XCB_LIBRARIES}
+    )
 
 ENDIF (UNIX AND NOT APPLE)
 #X11_END
@@ -108,58 +118,58 @@ ENDIF (UNIX AND NOT APPLE)
 
 #XCB
 IF (UNIX AND NOT APPLE)
-    find_package(PkgConfig)
+find_package(PkgConfig)
 
-    if(NOT XCB_FIND_COMPONENTS)
+if(NOT XCB_FIND_COMPONENTS)
     set(XCB_FIND_COMPONENTS xcb)
+endif()
+
+include(FindPackageHandleStandardArgs)
+set(XCB_FOUND true)
+set(XCB_INCLUDE_DIRS "")
+set(XCB_LIBRARIES "")
+foreach(comp ${XCB_FIND_COMPONENTS})
+    # component name
+    string(TOUPPER ${comp} compname)
+    string(REPLACE "-" "_" compname ${compname})
+    # header name
+    string(REPLACE "xcb-" "" headername xcb/${comp}.h)
+    # library name
+    set(libname ${comp})
+
+    pkg_check_modules(PC_${comp} QUIET ${comp})
+
+    find_path(${compname}_INCLUDE_DIR NAMES ${headername}
+        HINTS
+        ${PC_${comp}_INCLUDEDIR}
+        ${PC_${comp}_INCLUDE_DIRS}
+        )
+
+    find_library(${compname}_LIBRARY NAMES ${libname}
+        HINTS
+        ${PC_${comp}_LIBDIR}
+        ${PC_${comp}_LIBRARY_DIRS}
+        )
+
+    find_package_handle_standard_args(${comp}
+        FOUND_VAR ${comp}_FOUND
+        REQUIRED_VARS ${compname}_INCLUDE_DIR ${compname}_LIBRARY)
+    mark_as_advanced(${compname}_INCLUDE_DIR ${compname}_LIBRARY)
+
+    list(APPEND XCB_INCLUDE_DIRS ${${compname}_INCLUDE_DIR})
+    list(APPEND XCB_LIBRARIES ${${compname}_LIBRARY})
+
+    if(NOT ${comp}_FOUND)
+        set(XCB_FOUND false)
     endif()
+endforeach()
 
-    include(FindPackageHandleStandardArgs)
-    set(XCB_FOUND true)
-    set(XCB_INCLUDE_DIRS "")
-    set(XCB_LIBRARIES "")
-    foreach(comp ${XCB_FIND_COMPONENTS})
-        # component name
-        string(TOUPPER ${comp} compname)
-        string(REPLACE "-" "_" compname ${compname})
-        # header name
-        string(REPLACE "xcb-" "" headername xcb/${comp}.h)
-        # library name
-        set(libname ${comp})
+list(REMOVE_DUPLICATES XCB_INCLUDE_DIRS)
 
-        pkg_check_modules(PC_${comp} QUIET ${comp})
-
-       find_path(${compname}_INCLUDE_DIR NAMES ${headername}
-         HINTS
-         ${PC_${comp}_INCLUDEDIR}
-          ${PC_${comp}_INCLUDE_DIRS}
-          )
-
-        find_library(${compname}_LIBRARY NAMES ${libname}
-            HINTS
-            ${PC_${comp}_LIBDIR}
-            ${PC_${comp}_LIBRARY_DIRS}
-            )
-
-        find_package_handle_standard_args(${comp}
-            FOUND_VAR ${comp}_FOUND
-            REQUIRED_VARS ${compname}_INCLUDE_DIR ${compname}_LIBRARY)
-        mark_as_advanced(${compname}_INCLUDE_DIR ${compname}_LIBRARY)
-
-        list(APPEND XCB_INCLUDE_DIRS ${${compname}_INCLUDE_DIR})
-        list(APPEND XCB_LIBRARIES ${${compname}_LIBRARY})
-
-        if(NOT ${comp}_FOUND)
-            set(XCB_FOUND false)
-        endif()
-        endforeach()
-
-        list(REMOVE_DUPLICATES XCB_INCLUDE_DIRS)
-
-        include_directories(${XCB_INCLUDE_DIRS})
-        target_link_libraries(${PROJECT_NAME}
-            ${XCB_LIBRARIES}
-            )
+include_directories(${XCB_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME}
+    ${XCB_LIBRARIES}
+    )
 
 ENDIF (UNIX AND NOT APPLE)
 #XCB_END

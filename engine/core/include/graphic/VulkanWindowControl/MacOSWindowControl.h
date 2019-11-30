@@ -1,3 +1,4 @@
+#ifdef __APPLE__
 #ifndef MACOSWINDOWCONTROL_H
 #define MACOSWINDOWCONTROL_H
 
@@ -8,10 +9,12 @@ class MacOSWindowControl : public IVulkanWindowControl
 public:
 
     MacOSWindowControl(const char* appName);
-    virtual ~MacOSWindowControl();
+    virtual ~MacOSWindowControl() override;
     virtual void Init(unsigned int Width, unsigned int Height) override;
 
-    virtual VkSurfaceKHR CreateSurface(VkInstance& inst) override;
+    virtual VkSurfaceKHR CreateSurface(VkInstance& vkInstance) override;
 };
 
 #endif // MACOSWINDOWCONTROL_H
+
+#endif

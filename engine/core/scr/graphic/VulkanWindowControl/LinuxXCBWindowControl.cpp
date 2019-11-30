@@ -70,7 +70,7 @@ void LinuxXCBWindowControl::Init(uint32_t Width, uint32_t Height)
     printf("Window %x created\n", m_xcbWindow);
 }
 
-VkSurfaceKHR LinuxXCBWindowControl::CreateSurface(VkInstance &inst)
+VkSurfaceKHR LinuxXCBWindowControl::CreateSurface(VkInstance &vkInstance)
 {
 
     VkXcbSurfaceCreateInfoKHR surfaceCreateInfo = {};
@@ -80,7 +80,7 @@ VkSurfaceKHR LinuxXCBWindowControl::CreateSurface(VkInstance &inst)
 
     VkSurfaceKHR surface;
 
-    VkResult res = vkCreateXcbSurfaceKHR(inst, &surfaceCreateInfo, NULL, &surface);
+    VkResult res = vkCreateXcbSurfaceKHR(vkInstance, &surfaceCreateInfo, NULL, &surface);
     CHECK_VULKAN_ERROR("vkCreateXcbSurfaceKHR error %d\n", res);
 
     return surface;

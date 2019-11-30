@@ -8,22 +8,26 @@
 #include <graphic/VulkanWindowControl/IVulkanWindowControl.h>
 
 #ifdef NDEBUG
-const bool DEBUG_MODE = false;
+const bool enableValidationLayers = false;
 #else
-const bool DEBUG_MODE = true;
+const bool enableValidationLayers = true;
 #endif
 
 
 class KGEVulkanCore
 {
 public:
-    KGEVulkanCore(uint32_t width, uint32_t heigh, IVulkanWindowControl* windowControl);
+    KGEVulkanCore(uint32_t width,
+                  uint32_t heigh,
+                  IVulkanWindowControl* windowControl,
+                  std::vector <const char*> extensions);
     ~KGEVulkanCore();
 private:
 
     uint32_t m_width;
     uint32_t m_heigh;
 
+    /* Instance*/
     VkInstance m_vkInstance{};
     //Инициализация инстанса
     VkInstance InitVkInstance(
@@ -37,9 +41,15 @@ private:
 
     VkDebugReportCallbackEXT m_validationReportCallback;
 
+    /* Surface */
     VkSurfaceKHR m_vkSurface;
     VkSurfaceKHR InitWindowSurface(IVulkanWindowControl* windowControl);
     void DeinitWindowSurface(VkInstance vkInstance, VkSurfaceKHR * surface);
+
+    /* Device */
+    VkDevice m_vkDevice;
+    VkSurfaceKHR InitDevice();
+    void DeinitSurface();
 };
 
 

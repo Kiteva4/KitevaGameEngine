@@ -1,7 +1,10 @@
 #include "graphic/KGEVulkanCore.h"
 
 
-KGEVulkanCore::KGEVulkanCore(uint32_t width, uint32_t heigh, IVulkanWindowControl* windowControl) :
+KGEVulkanCore::KGEVulkanCore(uint32_t width,
+                             uint32_t heigh,
+                             IVulkanWindowControl* windowControl,
+                             std::vector <const char*> extensions) :
     m_width(width),
     m_heigh(heigh),
     m_vkInstance(nullptr),
@@ -11,7 +14,7 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width, uint32_t heigh, IVulkanWindowContro
     m_vkInstance = InitVkInstance(
         "Application name",
         "Engine name",
-        { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_EXT_DEBUG_REPORT_EXTENSION_NAME },
+        extensions,//{ VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_EXT_DEBUG_REPORT_EXTENSION_NAME },
         { "VK_LAYER_LUNARG_standard_validation" });
 
     m_vkSurface = InitWindowSurface(windowControl);
@@ -19,6 +22,7 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width, uint32_t heigh, IVulkanWindowContro
 
 KGEVulkanCore::~KGEVulkanCore()
 {
+
     DeinitWindowSurface(m_vkInstance, &m_vkSurface);
     DeinitInstance(&m_vkInstance);
 }
@@ -137,7 +141,6 @@ void KGEVulkanCore::DeinitInstance(VkInstance* vkInstance)
 
 VkSurfaceKHR KGEVulkanCore::InitWindowSurface(IVulkanWindowControl *windowControl)
 {
-    windowControl->Init(m_width, m_heigh);
     return windowControl->CreateSurface(m_vkInstance);
 }
 

@@ -18,6 +18,6 @@ public:
 
     virtual void Init(uint32_t Width, uint32_t Height) = 0;
 
-    virtual VkSurfaceKHR CreateSurface(VkInstance& inst) = 0;
+    virtual VkSurfaceKHR CreateSurface(VkInstance& vkInstance) = 0;
 };
 #endif // IVULKANWINDOWCONTROL_H

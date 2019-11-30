@@ -8,11 +8,6 @@ using namespace std;
 
 int main()
 {
-
     Core core;
-
-    //renderer = new KGEVulkanCore();
-
-    //delete renderer;
     return 0;
 }
