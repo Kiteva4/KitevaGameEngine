@@ -46,10 +46,13 @@ private:
     VkSurfaceKHR InitWindowSurface(IVulkanWindowControl* windowControl);
     void DeinitWindowSurface(VkInstance vkInstance, VkSurfaceKHR * surface);
 
-    /* Device */
-    VkDevice m_vkDevice;
-    VkSurfaceKHR InitDevice();
-    void DeinitSurface();
+    kge::vkstructs::Device m_device;
+    kge::vkstructs::Device InitDevice(VkInstance vkInstance,
+                                      VkSurfaceKHR surface,
+                                      std::vector<const char*> extensionsRequired,
+                                      std::vector<const char*> validationLayersRequired,
+                                      bool uniqueQueueFamilies);
+    void DeinitDevice(kge::vkstructs::Device* device);
 };
 
 

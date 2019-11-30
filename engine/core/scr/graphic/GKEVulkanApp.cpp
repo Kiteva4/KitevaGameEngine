@@ -41,7 +41,7 @@ void GKEVulkanApp::Init()
 
 //#else
     m_windowControl = new GLFWWindowControl("Window Name");
-    m_windowControl->Init(100,1000);
+    m_windowControl->Init(m_appWidth,m_appHeigh);
     //Запрос необходимых glfw расширений
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions{};
@@ -61,5 +61,5 @@ void GKEVulkanApp::Init()
 
 void GKEVulkanApp::Run()
 {
-    std::cout << "app tick" << std::endl;
+    //std::cout << "app tick" << std::endl;
 }

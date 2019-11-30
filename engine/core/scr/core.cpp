@@ -4,8 +4,8 @@
 //#include "graphic/VulkanWindowControl/LinuxXCBWindowControl.h"
 //#include "graphic/VulkanWindowControl/WindowsWindowControl.h"
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 1920*0.4
+#define WINDOW_HEIGHT 1080*0.4
 
 Core::Core()
 {
