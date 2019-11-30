@@ -14,7 +14,7 @@ public:
 
     virtual void Init(uint32_t Width, uint32_t Height);
 
-    virtual VkSurfaceKHR CreateSurface(VkInstance& inst);
+    virtual VkSurfaceKHR CreateSurface(VkInstance& inst) override;
 
 private:
 

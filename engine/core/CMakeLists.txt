@@ -80,7 +80,7 @@ target_link_libraries(${PROJECT_NAME}
     )
 
 #X11
-IF (NOT WIN32)
+IF (UNIX AND NOT APPLE)
   # use pkg-config to get the directories and then use these values
   # in the FIND_PATH() and FIND_LIBRARY() calls
   FIND_PACKAGE(PkgConfig)
@@ -95,16 +95,19 @@ IF (NOT WIN32)
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(X11_XCB DEFAULT_MSG X11_XCB_LIBRARIES X11_XCB_INCLUDE_DIR)
 
   MARK_AS_ADVANCED(X11_XCB_INCLUDE_DIR X11_XCB_LIBRARIES)
-ENDIF (NOT WIN32)
+
+  include_directories(${X11_XCB_INCLUDE_DIR})
+  target_link_libraries(${PROJECT_NAME}
+      ${X11_XCB_LIBRARIES}
+      )
+
+ENDIF (UNIX AND NOT APPLE)
 #X11_END
 
-include_directories(${X11_XCB_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME}
-    ${X11_XCB_LIBRARIES}
-    )
+
 
 #XCB
-IF (NOT WIN32)
+IF (UNIX AND NOT APPLE)
     find_package(PkgConfig)
 
     if(NOT XCB_FIND_COMPONENTS)
@@ -153,10 +156,12 @@ IF (NOT WIN32)
 
         list(REMOVE_DUPLICATES XCB_INCLUDE_DIRS)
 
-ENDIF (NOT WIN32)
+        include_directories(${XCB_INCLUDE_DIRS})
+        target_link_libraries(${PROJECT_NAME}
+            ${XCB_LIBRARIES}
+            )
+
+ENDIF (UNIX AND NOT APPLE)
 #XCB_END
 
-include_directories(${XCB_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME}
-    ${XCB_LIBRARIES}
-    )
+
