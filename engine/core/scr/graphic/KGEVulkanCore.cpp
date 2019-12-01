@@ -468,7 +468,7 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
                 m_device,
                 VK_IMAGE_TYPE_2D,
                 VK_FORMAT_R8G8B8A8_UNORM,
-                { width,height,1 },
+    { width,height,1 },
                 VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                 VK_IMAGE_ASPECT_COLOR_BIT,
                 VK_IMAGE_LAYOUT_PREINITIALIZED,
@@ -512,7 +512,7 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
                 m_device,
                 VK_IMAGE_TYPE_2D,
                 VK_FORMAT_R8G8B8A8_UNORM,
-                { width,height, 1 },
+    { width,height, 1 },
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                 VK_IMAGE_ASPECT_COLOR_BIT,
                 VK_IMAGE_LAYOUT_PREINITIALIZED,
@@ -676,31 +676,40 @@ VkInstance KGEVulkanCore::InitInstance(
         std::vector<const char*> extensionsRequired,
         std::vector<const char*> validationLayersRequired)
 {
+    // Структура с информацией о создаваемом приложении
+    // Здесь содержиться информация о названии, версии приложения и движка. Эта информация может быть полезна разработчикам драйверов
     VkApplicationInfo applicationInfo = {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     applicationInfo.pApplicationName = applicationName.c_str();
     applicationInfo.pEngineName = engineName.c_str();
     applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.apiVersion = VK_API_VERSION_1_0;
 
+    // Структура с информацией о создаваемом экземпляре vulkan
+    // Здесь можно указать информацию о приложении (ссылка на структуру выше) а так же указать используемые расширения
     VkInstanceCreateInfo instanceCreateInfo = {};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
     bool validationQueried = false;
-    //Если есть запрашиваемые расширения инстанса
+    // Если запрашиваются расширения
     if (!extensionsRequired.empty())
     {
+        // Если не все запрашиваемые расширения доступны - ошибка
         if (!kge::vkutility::CheckInstanceExtensionsSupported(extensionsRequired)) {
             throw std::runtime_error("Vulkan: Not supported required instance extensions!");
         }
 
+        // Указать запрашиваемые расширения и их кол-во
         instanceCreateInfo.ppEnabledExtensionNames = extensionsRequired.data();
         instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensionsRequired.size());
 
         //Проверка на наличие запрошенного расширения Debug
         bool debugReportExtensionQueried = false;
 
+        // Если среди запрашиваемых расш. (которые точно поддерживаются, ппрверка была выше) есть EXT_DEBUG_REPORT
+        // значит расширение для обработки ошибок запрошено (и точно поддерживается)
         for (auto* extensionName : extensionsRequired)
         {
             if (strcmp(VK_EXT_DEBUG_REPORT_EXTENSION_NAME, extensionName) == 0) {
@@ -709,17 +718,19 @@ VkInstance KGEVulkanCore::InitInstance(
             }
         }
 
-        //Было запрошено расширения
+        // Если запрашивается расширение для обработки ошибок и предупреждений,
+        // есть ссмысл проверить поддержку запрашиваемых слоев валидации
         if (debugReportExtensionQueried && !validationLayersRequired.empty()) {
 
-            //Есть слои валидации
+            // Если какие-то слои валидации не поддерживаются - ошибка
             if (!kge::vkutility::CheckValidationLayersSupported(validationLayersRequired)) {
                 throw std::runtime_error("Vulkan: Not all required layers supporeted!");
             }
-
-            instanceCreateInfo.enabledLayerCount = (uint32_t)validationLayersRequired.size();
+            // Указать слои валидации и их кол-во
+            instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayersRequired.size());
             instanceCreateInfo.ppEnabledLayerNames = validationLayersRequired.data();
 
+            // Валидация запрашивается (поскольку есть и расширение и необходимые слои)
             validationQueried = true;
             std::cout << "Vulkan: Validation enabled"  << std::endl;
         }
@@ -727,25 +738,31 @@ VkInstance KGEVulkanCore::InitInstance(
 
     VkInstance vkInstance;
 
+    // Создание экземпляра
+    // Передается указатель на структуру CreateInfo, которую заполнили выше, и указатель на переменную хендла
+    // instance'а, куда и будет помещен сам хендл. Если функция не вернула VK_SUCCESS - ошибка
     if (vkCreateInstance(&instanceCreateInfo, nullptr, &(vkInstance)) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in the 'vkCreateInstance' function");
     }
 
     std::cout << "Vulkan: Instance sucessfully created" << std::endl;
 
+    // Если запрошена валидация - создать callback метод для обработки исключений
     if (validationQueried){
+
+        // Конфигурация callback'а
         VkDebugReportCallbackCreateInfoEXT debugReportCallbackCreateInfo = {};
         debugReportCallbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
         debugReportCallbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
         debugReportCallbackCreateInfo.pfnCallback = kge::vkutility::DebugVulkanCallback; //????????? ?? ???????, ??????? ????? ?????????? ??? ??????????? ??????
 
-        //Получаем адрес функции создания обьекта
+        // Получить адрес функции создания callback'а (поскольку это функция расширения)
         PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT =
                 (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(
                     vkInstance, "vkCreateDebugReportCallbackEXT");
 
-        //Если получили адрес и успешно создали
-        if (vkCreateDebugReportCallbackEXT(vkInstance, &debugReportCallbackCreateInfo, nullptr, &(m_validationReportCallback)) != VK_SUCCESS){
+        // Создать debug report callback для вывода сообщений об ошибках
+        if (vkCreateDebugReportCallbackEXT(vkInstance, &debugReportCallbackCreateInfo, nullptr, &m_validationReportCallback) != VK_SUCCESS){
             throw std::runtime_error("Vulkan: Error in the 'vkCreateDebugReportCallbackEXT'");
         }
 
@@ -825,12 +842,14 @@ kge::vkstructs::Device KGEVulkanCore::InitDevice(VkInstance vkInstance,
                                                  std::vector<const char *> validationLayersRequired,
                                                  bool uniqueQueueFamilies)
 {
+    // Устройство которое будет отдано (пустое)
     kge::vkstructs::Device resultDevice = {};
 
     //Проверяем количество доступных физических устройств
     unsigned int deviceCount = 0;
     vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
 
+    // Если не нашлось видео-карт работающих с vulkan - ошибка
     if(deviceCount == 0){
         throw std::runtime_error("Vulkan: Can`t detect device with Vulkan support");
     }
@@ -839,115 +858,112 @@ kge::vkstructs::Device KGEVulkanCore::InitDevice(VkInstance vkInstance,
     std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
     vkEnumeratePhysicalDevices(vkInstance, &deviceCount, physicalDevices.data());
 
+    // Пройтись по всем видео-картам и проверить каждую на соответствие минимальным требованиям, устройство должно поддерживать:
+    // - Запрашиваемые расширения vulkan
+    // - Семейтсва очередей поддерживающие отрисовку и представление
+    // - Совместимость swap-chain с поверхностью отображения
     for(const auto& physicalDevice : physicalDevices){
 
-        resultDevice.queueFamilies = kge::vkutility::GetQueueFamilyInfo(
-                    physicalDevice,
-                    surface,
-                    uniqueQueueFamilies);
+        // Получить информацию об очередях поддерживаемых устройством
+        resultDevice.queueFamilies = kge::vkutility::GetQueueFamilyInfo(physicalDevice, surface, uniqueQueueFamilies);
 
-        //Поддерживает ли набор рендеринг
-        if(!resultDevice.queueFamilies.IsRenderingCompatible()){
+        // Если очереди данного устройства не совместимы с рендерингом - переходим к следующему
+        if (!(resultDevice.queueFamilies.IsRenderingCompatible())) {
             continue;
         }
 
-        //Проверяем поддержку запрошенных расширений
-        if(!deviceExtensionsRequired.empty() && !kge::vkutility::CheckDeviceExtensionSupported(physicalDevice, deviceExtensionsRequired)){
+        // Если данное устройство не поддерживает запрашиваемые расширения - переходим к следующему
+        if (deviceExtensionsRequired.size() > 0 && !kge::vkutility::CheckDeviceExtensionSupported(physicalDevice, deviceExtensionsRequired)) {
             continue;
         }
 
-        //Получаем информацию о поверхности
+        // Получить информацию о том как устройство может работать с поверхностью
+        // Если для поверхности нет форматов и режимов показа (представления) - переходим к след. устройству
         kge::vkstructs::SurfaceInfo si = kge::vkutility::GetSurfaceInfo(physicalDevice, surface);
-        //Если пусты форматы или представления для данного физического устройства
-        if(si.formats.empty() || si.presentModes.empty()){
+        if (si.formats.empty() || si.presentModes.empty()) {
             continue;
         }
 
-        //Все проверки пройдены, в хендл физического устройства присваиваем данный хендл который проверяем
+        // Записать хендл физического устройства, которое прошло все проверки
         resultDevice.physicalDevice = physicalDevice;
     }
 
-    //если в результирующем девайсе physicalDevice == nullptr
-    if(resultDevice.physicalDevice == nullptr){
-        throw std::runtime_error("Vulkan: Error in the 'InitDevice' function! Cant detect device");
+    // Если не нашлось видео-карт которые удовлетворяют всем требованиям - ошибка
+    if (resultDevice.physicalDevice == nullptr) {
+        throw std::runtime_error("Vulkan: Error in the 'InitDevice' function! Can't detect suitable device");
     }
 
-    //Структуры, которые описывают очереди, которые мы собираемся в дальнейшем получить от устройства после того как его создадим
+    // Массив объектов структуры VkDeviceQueueCreateInfo содержащих информацию для инициализации очередей
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-    //Массивы индексов семейств очередей, очереди которых мы хотим в дальнейшем получить
-    uint32_t queueFamilies[2] = {
-        static_cast<uint32_t>(resultDevice.queueFamilies.graphics),
-        static_cast<uint32_t>(resultDevice.queueFamilies.present)
-    };
+    // Массив инедксов семейств (2 индекса - графич. семейство и семейство представления.
+    // Индексы могут совпадать, семейство у обеих очередей может быть одно и то же)
+    uint32_t queueFamilies[2] = { (uint32_t)resultDevice.queueFamilies.graphics, (uint32_t)resultDevice.queueFamilies.present };
 
-    //TODO
-    for(unsigned int i = 0; i < (uniqueQueueFamilies ? 2 : 1); i++){
-
+    // Если графич. семейство и семейство представления - одно и то же (тот же индекс),
+    // нет смысла создавать две очереди одного и того же семейства, можно обойтись одной
+    for (int i = 0; i < (uniqueQueueFamilies ? 2 : 1); i++) {
         VkDeviceQueueCreateInfo queueCreateInfo = {};
-
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = queueFamilies[i];
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = nullptr;
-
-        queueCreateInfos.push_back(queueCreateInfo);
+        queueCreateInfo.queueCount = 1;                                      // Выделяем одну очередь для каждого семейства
+        queueCreateInfo.pQueuePriorities = nullptr;                          // Массив пр-тетов очередей в плане выделения ресурсов (одинаковые пр-теты, не используем)
+        queueCreateInfos.push_back(queueCreateInfo);                         // Помещаем структуру в массив
     }
 
-    VkDeviceCreateInfo deviceCreateInfo = {};
 
+    // Информация о создаваемом логическом устройстве
+    // Указываем структуры для создания очередей (queueCreateInfos) и используемые устройством расширения (deviceExtensionsRequired_)
+    VkDeviceCreateInfo deviceCreateInfo = {};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
-    deviceCreateInfo.queueCreateInfoCount = static_cast<unsigned int>(queueCreateInfos.size());
+    deviceCreateInfo.queueCreateInfoCount = (unsigned int)queueCreateInfos.size();
 
-    if(!deviceExtensionsRequired.empty()){
-        if(!kge::vkutility::CheckDeviceExtensionSupported(resultDevice.physicalDevice, deviceExtensionsRequired)){
-            throw std::runtime_error("Vulkan: Not all required device extensions supported. Error!");
+    // Проверка запрашиваемых расширений, указать если есть (если не доступны - ошибка)
+    if (!deviceExtensionsRequired.empty()) {
+        if (!kge::vkutility::CheckDeviceExtensionSupported(resultDevice.physicalDevice, deviceExtensionsRequired)) {
+            throw std::runtime_error("Vulkan: Not all required device extensions supported. Can't initialize renderer");
         }
 
-        deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensionsRequired.size());
+        deviceCreateInfo.enabledExtensionCount = (uint32_t)deviceExtensionsRequired.size();
         deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionsRequired.data();
     }
 
-    if(!validationLayersRequired.empty()){
-        if(!kge::vkutility::CheckValidationLayersSupported(validationLayersRequired)) {
-            throw std::runtime_error("Vulkan: Not all required layers supported. Error!");
+    // Проверка запрашиваемых слоев валидации, указать если есть (если не доступны - ошибка)
+    if (!validationLayersRequired.empty()) {
+        if (!kge::vkutility::CheckValidationLayersSupported(validationLayersRequired)) {
+            throw std::runtime_error("Vulkan: Not all required validation layers supported. Can't initialize renderer");
         }
 
-        deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayersRequired.size());
+        deviceCreateInfo.enabledLayerCount = (uint32_t)validationLayersRequired.size();
         deviceCreateInfo.ppEnabledLayerNames = validationLayersRequired.data();
     }
 
+    // Особенности устройства (пока-что пустая структура)
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
-    //Создаем логическое устройство
-    if(vkCreateDevice(resultDevice.physicalDevice, &deviceCreateInfo, nullptr, &resultDevice.logicalDevice) != VK_SUCCESS  ){
-        throw std::runtime_error("Vulkan: Failed to create logical device.");
+    // Создание логического устройства
+    if (vkCreateDevice(resultDevice.physicalDevice, &deviceCreateInfo, nullptr, &(resultDevice.logicalDevice)) != VK_SUCCESS) {
+        throw std::runtime_error("Vulkan: Failed to create logical device. Can't initialize renderer");
     }
 
-    //Получение очереди логичнского устройства для графических команд
-    vkGetDeviceQueue(
-                resultDevice.logicalDevice, //Хендл логического устройства
-                static_cast<uint32_t>(resultDevice.queueFamilies.graphics), //Индекс семейства очередей
-                0,  //Индекс очереди - первая
-                &resultDevice.queues.graphics //Указатель на переменную, в которую будет записан хендл очереди
-                );
-    //Получение очереди логичнского устройства для представлений
-    vkGetDeviceQueue(
-                resultDevice.logicalDevice, //Хендл логического устройства
-                static_cast<uint32_t>(resultDevice.queueFamilies.present), //Индекс семейства очередей
-                0,  //Индекс очереди - первая
-                &resultDevice.queues.present //Указатель на переменную, в которую будет записан хендл очереди
-                );
+    // Получить хендлы очередей устройства (графической очереди и очереди представления)
+    // Если использовано одно семейство, то индексы первых (нулевых) очередей для Graphics и Present будут одинаковы
+    vkGetDeviceQueue(resultDevice.logicalDevice, resultDevice.queueFamilies.graphics, 0, &(resultDevice.queues.graphics));
+    vkGetDeviceQueue(resultDevice.logicalDevice, resultDevice.queueFamilies.present, 0, &(resultDevice.queues.present));
 
-    if(!resultDevice.IsReady()){
-        throw std::runtime_error("Vulkan: Failed to initialize devicd");
+    // Если в итоге устройство не готово - ошибка
+    if (!resultDevice.IsReady()) {
+        throw std::runtime_error("Vulkan: Failed to initialize device and queues. Can't initialize renderer");
     }
 
-    std::cout << "Vulkan: Device successfully initialized ("
-              << resultDevice.GetProperties().deviceName << ")" <<std::endl;
+    // Сообщение об успешной инициализации устройства
+    std::string deviceName = std::string(resultDevice.GetProperties().deviceName);
+    std::string message = "Vulkan: Device successfully initialized (" + deviceName + ")";
+    kge::tools::LogMessage(message);
 
+    // Вернуть устройство
     return resultDevice;
 }
 
@@ -973,10 +989,7 @@ void KGEVulkanCore::DeinitDevice(kge::vkstructs::Device *device)
 * Проход состоит из под-проходов, и у каждого под-прохода может быть своя конфигурация конвейера. Конфигурация же прохода
 * определяет в каком состоянии (размещении памяти) будет вложение (цветовое, глубины и тд)
 */
-VkRenderPass KGEVulkanCore::InitRenderPass(const kge::vkstructs::Device &device,
-                                           VkSurfaceKHR surface,
-                                           VkFormat colorAttachmentFormat,
-                                           VkFormat depthStencilFormat)
+VkRenderPass KGEVulkanCore::InitRenderPass(const kge::vkstructs::Device &device, VkSurfaceKHR surface, VkFormat colorAttachmentFormat, VkFormat depthStencilFormat)
 {
     // Проверка доступности формата вложений (изображений)
     kge::vkstructs::SurfaceInfo si = kge::vkutility::GetSurfaceInfo(device.physicalDevice, surface);
@@ -1037,7 +1050,7 @@ VkRenderPass KGEVulkanCore::InitRenderPass(const kge::vkstructs::Device &device,
     // Описание единственного под-прохода
     VkSubpassDescription subpassDescription = {};
     subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpassDescription.colorAttachmentCount = static_cast<uint32_t>(colorAttachmentReferences.size());  // Кол-во цветовых вложений
+    subpassDescription.colorAttachmentCount = (uint32_t)colorAttachmentReferences.size();  // Кол-во цветовых вложений
     subpassDescription.pColorAttachments = colorAttachmentReferences.data();               // Цветовые вложения (вложения для записи)
     subpassDescription.pDepthStencilAttachment = &depthStencilAttachemntReference;         // Глубина-трафарет (не используется)
     subpassDescription.inputAttachmentCount = 0;                                           // Кол-во входных вложений (не используются)
@@ -1078,11 +1091,11 @@ VkRenderPass KGEVulkanCore::InitRenderPass(const kge::vkstructs::Device &device,
     // Создать проход
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<unsigned int>(attachments.size());              //Кол-во описаний вложений
+    renderPassInfo.attachmentCount = (unsigned int)attachments.size();              //Кол-во описаний вложений
     renderPassInfo.pAttachments = attachments.data();                               //Описания вложений
     renderPassInfo.subpassCount = 1;                                                //Кол-вл под-проходов
     renderPassInfo.pSubpasses = &subpassDescription;                                //Описание под-проходов
-    renderPassInfo.dependencyCount = static_cast<unsigned int>(dependencies.size());             //Кол-во зависимсотей
+    renderPassInfo.dependencyCount = (unsigned int)dependencies.size();             //Кол-во зависимсотей
     renderPassInfo.pDependencies = dependencies.data();                             //Зависимости
 
     //Создание прохода
@@ -1119,13 +1132,14 @@ void KGEVulkanCore::DeinitRenderPass(const kge::vkstructs::Device &device,
 * @return kge::vkstructs::Swapchain структура описывающая swap-chain cодержащая необходимые хендлы
 * @note - в одно изображение может происходить запись (рендеринг) в то время как другое будет показываться (презентация)
 */
-kge::vkstructs::Swapchain KGEVulkanCore::InitSwapChain(const kge::vkstructs::Device &device,
-                                                       VkSurfaceKHR surface,
-                                                       VkSurfaceFormatKHR surfaceFormat,
-                                                       VkFormat depthStencilFormat,
-                                                       VkRenderPass renderPass,
-                                                       unsigned int bufferCount,
-                                                       kge::vkstructs::Swapchain *oldSwapchain)
+kge::vkstructs::Swapchain KGEVulkanCore::InitSwapChain(
+    const kge::vkstructs::Device &device,
+    VkSurfaceKHR surface,
+    VkSurfaceFormatKHR surfaceFormat,
+    VkFormat depthStencilFormat,
+    VkRenderPass renderPass,
+    unsigned int bufferCount,
+    kge::vkstructs::Swapchain * oldSwapchain)
 {
     // Возвращаемый результат (структура содержит хендлы свопчейна, изображений, фрейм-буферов и тд)
     kge::vkstructs::Swapchain resultSwapchain;

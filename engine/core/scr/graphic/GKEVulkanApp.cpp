@@ -40,7 +40,7 @@ void GKEVulkanApp::Init()
 //    m_windowControl = new MacOSWindowControl("Window Name");
 
 //#else
-    m_windowControl = new GLFWWindowControl("Window Name");
+    m_windowControl = /*new WindowsWindowControl("Window Name");//*/new GLFWWindowControl("Window Name");
     m_windowControl->Init(m_appWidth,m_appHeigh);
     //Запрос необходимых glfw расширений
     uint32_t glfwExtensionCount = 0;
@@ -60,7 +60,7 @@ void GKEVulkanApp::Init()
     m_KGEVulkanCore = new KGEVulkanCore(m_appWidth,
                                         m_appHeigh,
                                         m_windowControl,
-                                        10000,
+                                        1000,
                                         m_instanceExtensions,
                                         m_deviceExtensions,
                                         m_validationLayersExtensions);
@@ -68,5 +68,5 @@ void GKEVulkanApp::Init()
 
 void GKEVulkanApp::Run()
 {
-    //std::cout << "app tick" << std::endl;
+    std::cout << "app tick" << std::endl;
 }

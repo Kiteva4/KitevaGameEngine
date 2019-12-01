@@ -167,17 +167,15 @@ private:
     void DeinitRenderPass(const kge::vkstructs::Device &device,
                           VkRenderPass * renderPass);
 
-
-    /* Swap chain */
-    kge::vkstructs::Swapchain m_swapchain;                    // Своп-чейн (набор показа, набор сменяющихся буферов кадра)
+    kge::vkstructs::Swapchain m_swapchain;
     kge::vkstructs::Swapchain InitSwapChain(
-            const kge::vkstructs::Device &device,
-            VkSurfaceKHR surface,
-            VkSurfaceFormatKHR surfaceFormat,
-            VkFormat depthStencilFormat,
-            VkRenderPass renderPass,
-            unsigned int bufferCount,
-            kge::vkstructs::Swapchain * oldSwapchain = nullptr);
+        const kge::vkstructs::Device &device,
+        VkSurfaceKHR surface,
+        VkSurfaceFormatKHR surfaceFormat,
+        VkFormat depthStencilFormat,
+        VkRenderPass renderPass,
+        unsigned int bufferCount,
+        kge::vkstructs::Swapchain * oldSwapchain = nullptr);
     void DeinitSwapchain(const kge::vkstructs::Device &device,
                          kge::vkstructs::Swapchain * swapchain);
 

@@ -265,7 +265,20 @@ kge::vkstructs::SurfaceInfo kge::vkutility::GetSurfaceInfo(VkPhysicalDevice phys
 */
 int kge::vkutility::GetMemoryTypeIndex(VkPhysicalDevice physicalDevice, unsigned int typeFlags, VkMemoryPropertyFlags properties)
 {
+    // Получить настройки памяти физического устройства
+    VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &deviceMemoryProperties);
 
+    // Пройтись по всем типам и найти подходящий
+    // Для опредения нужного индекса типа памяти использются побитовые операции, подробнее о побитовых операциях - https://ravesli.com/urok-45-pobitovye-operatory/
+    for (unsigned int i = 0; i < deviceMemoryProperties.memoryTypeCount; i++) {
+        if ((typeFlags & (1 << i)) && (deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i;
+        }
+    }
+
+    // Отрицательное значение в случае отсутствия необходимого индекса
+    return -1;
 }
 
 /**
