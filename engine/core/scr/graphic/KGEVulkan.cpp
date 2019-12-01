@@ -225,7 +225,7 @@ kge::vkstructs::SurfaceInfo kge::vkutility::GetSurfaceInfo(VkPhysicalDevice phys
     vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 
     if(presentModeCount > 0){
-        surfaceInfo.formats.resize(presentModeCount);
+        surfaceInfo.presentModes.resize(presentModeCount);
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, surfaceInfo.presentModes.data());
     }
 
