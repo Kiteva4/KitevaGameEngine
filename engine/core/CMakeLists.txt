@@ -23,10 +23,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE")
 include_directories(${CMAKE_SOURCE_DIR}/external/glfw/include)
 target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES})
 
-message(--- glfw includes = ${GLFW_INCLUDE_DIRS})
-message(--- glfw static libs = ${GLFW_STATIC_LIBRARIES})
-message(--- glfw libs = ${GLFW_LIBRARIES})
-
 #VULKAN
 if(WIN32)
     find_path(

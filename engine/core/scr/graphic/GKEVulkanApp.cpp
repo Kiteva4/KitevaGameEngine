@@ -46,17 +46,24 @@ void GKEVulkanApp::Init()
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions{};
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    std::vector<const char*> extensions (glfwExtensions, glfwExtensions+glfwExtensionCount);
-    if(enableValidationLayers){
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    std::vector<const char*> instanceExtensions (glfwExtensions, glfwExtensions+glfwExtensionCount);
+    if(IS_VK_DEBUG){
+        instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
-    m_extensions = std::move(extensions);
+
+    m_instanceExtensions         = std::move(instanceExtensions);
+    m_deviceExtensions           = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    m_validationLayersExtensions = {"VK_LAYER_LUNARG_standard_validation"};
 //#endif
+
 
     m_KGEVulkanCore = new KGEVulkanCore(m_appWidth,
                                         m_appHeigh,
                                         m_windowControl,
-                                        m_extensions);
+                                        10000,
+                                        m_instanceExtensions,
+                                        m_deviceExtensions,
+                                        m_validationLayersExtensions);
 }
 
 void GKEVulkanApp::Run()

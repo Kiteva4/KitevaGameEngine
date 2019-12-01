@@ -1,0 +1,9 @@
+[2019-12-01 19:54:47] Vulkan: Render pass successfully initialized
+[2019-12-01 19:55:40] Vulkan: Render pass successfully initialized
+[2019-12-01 19:56:20] Vulkan: Render pass successfully initialized
+[2019-12-01 19:56:46] Vulkan: Render pass successfully initialized
+[2019-12-01 19:57:53] Vulkan: Render pass successfully initialized
+[2019-12-01 19:58:02] Vulkan: Render pass successfully initialized
+[2019-12-01 19:58:16] Vulkan: Render pass successfully initialized
+[2019-12-01 19:58:44] Vulkan: Render pass successfully initialized
+[2019-12-01 20:04:19] Vulkan: Render pass successfully initialized

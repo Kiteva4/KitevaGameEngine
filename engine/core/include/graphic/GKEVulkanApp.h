@@ -21,5 +21,7 @@ private:
     uint32_t m_appHeigh{};
     IVulkanWindowControl* m_windowControl{};
     KGEVulkanCore* m_KGEVulkanCore{};
-    std::vector<const char* > m_extensions{};
+    std::vector<const char* > m_instanceExtensions{};
+    std::vector<const char* > m_deviceExtensions{};
+    std::vector<const char* > m_validationLayersExtensions{};
 };
