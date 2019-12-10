@@ -6,7 +6,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <glm.hpp>
-#include <gtc\matrix_transform.hpp>
+#include <gtc/matrix_transform.hpp>
 
 #include <string>
 #include <fstream>
@@ -623,7 +623,7 @@ namespace kge
         * @return std::string - строка с отформатированным временем
         * @note подробнее о форматах - http://www.cplusplus.com/reference/ctime/strftime/
         */
-        std::string TimeToStr(std::time_t * time, const char * format);
+        std::string TimeToStr(const std::time_t & time, const char * format);
 
         /**
         * Логирование. Пишет в файл и консоль (если она еть) строку со временем и указанным сообщением
@@ -647,7 +647,7 @@ namespace kge
         * @return std::wstring - wide (широкая) строка
         * @note это обертка winapi метода MultiByteToWideChar - https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072(v=vs.85).aspx
         */
-        std::wstring StrToWide(const std::string& str, UINT codePage = CP_ACP, DWORD dwFlags = MB_PRECOMPOSED);
+        //std::wstring StrToWide(const std::string& str, unsigned int codePage = CP_ACP, DWORD dwFlags = MB_PRECOMPOSED);
 
         /**
         * Конвертация из "широкой" wstring-строки в обычную string
@@ -657,7 +657,7 @@ namespace kge
         * @return std::wstring - string строка
         * @note это обертка winapi метода WideCharToMultiByte - https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130(v=vs.85).aspx
         */
-        std::string WideToStr(const std::wstring& wstr, UINT codePage = CP_ACP, DWORD dwFlags = WC_COMPOSITECHECK);
+        //std::string WideToStr(const std::wstring& wstr, UINT codePage = CP_ACP, DWORD dwFlags = WC_COMPOSITECHECK);
 
         /**
         * Загрузка бинарных данных из файла

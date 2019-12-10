@@ -11,3 +11,5 @@ include_directories(external)
 add_subdirectory(engine)
 add_subdirectory(external/glfw)
 add_subdirectory(external/glm)
+add_subdirectory(external/utility)
+

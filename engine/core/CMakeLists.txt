@@ -3,6 +3,42 @@ project(KGECore CXX)
 
 file(GLOB_RECURSE HDRS *.h)
 file(GLOB_RECURSE SRCS *.cpp)
+set(HDRS
+    include/core.h
+    include/graphic/GKEVulkanApp.h
+    include/graphic/KGEVulkan.h
+    include/graphic/KGEVulkanCore.h
+    include/graphic/VulkanWindowControl/GLFWWindowControl.h
+    include/graphic/VulkanWindowControl/IVulkanWindowControl.h
+    include/graphic/VulkanWindowControl/LinuxXCBWindowControl.h
+    include/graphic/VulkanWindowControl/MacOSWindowControl.h
+    include/graphic/VulkanWindowControl/WindowsWindowControl.h
+    include/graphic/VulkanCoreModules/KGEVkInstance.h
+    include/graphic/VulkanCoreModules/KGEVkSurface.h
+    include/graphic/VulkanCoreModules/KGEVkDevice.h
+    include/graphic/VulkanCoreModules/KGEVkRenderPass.h
+    include/graphic/VulkanCoreModules/KGEVkSwapChain.h
+    include/graphic/VulkanCoreModules/KGECommandPool.h
+    include/graphic/VulkanCoreModules/KGEVkCommandBuffer.h
+    )
+
+set(SRCS
+    src/core.cpp
+    src/graphic/GKEVulkanApp.cpp
+    src/graphic/KGEVulkan.cpp
+    src/graphic/KGEVulkanCore.cpp
+    src/graphic/VulkanWindowControl/GLFWWindowControl.cpp
+    src/graphic/VulkanWindowControl/LinuxXCBWindowControl.cpp
+    src/graphic/VulkanWindowControl/MacOSWindowControl.cpp
+    src/graphic/VulkanWindowControl/WindowsWindowControl.cpp
+    src/graphic/VulkanCoreModules/KGEVkInstance.cpp
+    src/graphic/VulkanCoreModules/KGEVkSurface.cpp
+    src/graphic/VulkanCoreModules/KGEVkDevice.cpp
+    src/graphic/VulkanCoreModules/KGEVkRenderPass.cpp
+    src/graphic/VulkanCoreModules/KGEVkSwapChain.cpp
+    src/graphic/VulkanCoreModules/KGECommandPool.cpp
+    src/graphic/VulkanCoreModules/KGEVkCommandBuffer.cpp
+    )
 
 add_library(${PROJECT_NAME} STATIC ${SRCS} ${HDRS})
 
@@ -20,8 +56,8 @@ include_directories(${CMAKE_SOURCE_DIR}/engine/lib/include)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE")
 
-include_directories(${CMAKE_SOURCE_DIR}/external/glfw/include)
 target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} stdc++fs)
 
 #VULKAN
 if(WIN32)
@@ -110,8 +146,6 @@ target_link_libraries(${PROJECT_NAME}
 ENDIF (UNIX AND NOT APPLE)
 #X11_END
 
-
-
 #XCB
 IF (UNIX AND NOT APPLE)
 find_package(PkgConfig)
@@ -169,5 +203,4 @@ target_link_libraries(${PROJECT_NAME}
 
 ENDIF (UNIX AND NOT APPLE)
 #XCB_END
-
 

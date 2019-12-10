@@ -167,6 +167,7 @@ private:
     void DeinitRenderPass(const kge::vkstructs::Device &device,
                           VkRenderPass * renderPass);
 
+    /* Swap chain */
     kge::vkstructs::Swapchain m_swapchain;
     kge::vkstructs::Swapchain InitSwapChain(
         const kge::vkstructs::Device &device,

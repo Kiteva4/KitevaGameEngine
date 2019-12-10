@@ -29,7 +29,7 @@ LinuxXCBWindowControl::~LinuxXCBWindowControl()
 
 void LinuxXCBWindowControl::Init(uint32_t Width, uint32_t Height)
 {
-    m_pXCBConn = xcb_connect(NULL, NULL);
+    m_pXCBConn = xcb_connect(nullptr, nullptr);
 
     int error = xcb_connection_has_error(m_pXCBConn);
 
@@ -61,7 +61,7 @@ void LinuxXCBWindowControl::Init(uint32_t Width, uint32_t Height)
       XCB_WINDOW_CLASS_INPUT_OUTPUT,          // класс окна, не смог найти документации
       m_pXCBScreen->root_visual,              // определяет отображения цвета
       0,
-      0);
+      nullptr);
 
     xcb_map_window(m_pXCBConn, m_xcbWindow);
 
@@ -80,8 +80,9 @@ VkSurfaceKHR LinuxXCBWindowControl::CreateSurface(VkInstance &vkInstance)
 
     VkSurfaceKHR surface;
 
-    VkResult res = vkCreateXcbSurfaceKHR(vkInstance, &surfaceCreateInfo, NULL, &surface);
-    CHECK_VULKAN_ERROR("vkCreateXcbSurfaceKHR error %d\n", res);
+    if(vkCreateXcbSurfaceKHR(vkInstance, &surfaceCreateInfo, nullptr, &surface) != VK_SUCCESS){
+        throw std::runtime_error("Vulkan: Error creating XCB Linux window!");
+    }
 
     return surface;
 }

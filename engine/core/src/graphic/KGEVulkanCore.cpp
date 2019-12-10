@@ -1,4 +1,5 @@
 #include "graphic/KGEVulkanCore.h"
+#include <cstdlib>
 
 /**
 * Конструктор рендерера
@@ -34,7 +35,6 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
     m_pipeline(nullptr),
     m_primitivesMaxCount(primitivesMaxCount),
     m_uboModels(nullptr)
-
 {
     // Присвоить параметры камеры по умолчанию
     m_camera.fFar  = DEFAULT_FOV;
@@ -1957,7 +1957,7 @@ kge::vkstructs::UboModelArray KGEVulkanCore::AllocateUboModels(const kge::vkstru
     std::size_t bufferSize = static_cast<size_t>(dynamicAlignment * maxObjects);
 
     // Аллоцировать память с учетом выравнивания
-    kge::vkstructs::UboModelArray result = static_cast<kge::vkstructs::UboModelArray>(_aligned_malloc(bufferSize, dynamicAlignment));
+    kge::vkstructs::UboModelArray result = static_cast<kge::vkstructs::UboModelArray>(aligned_alloc(bufferSize, dynamicAlignment));
 
     kge::tools::LogMessage("Vulkan: Dynamic UBO satage-buffer successfully allocated");
 
@@ -1970,7 +1970,7 @@ kge::vkstructs::UboModelArray KGEVulkanCore::AllocateUboModels(const kge::vkstru
 */
 void KGEVulkanCore::FreeUboModels(kge::vkstructs::UboModelArray *uboModels)
 {
-    _aligned_free(*uboModels);
+    free(*uboModels);
     *uboModels = nullptr;
     kge::tools::LogMessage("Vulkan: Dynamic UBO satage-buffer successfully freed");
 }

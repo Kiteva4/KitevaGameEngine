@@ -1,6 +1,9 @@
 #include "graphic/KGEVulkan.h"
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
+#include <filesystem>
+#include <cstring>
+#include <ctime>
+
+namespace fs = std::filesystem;
 
 /**
 * Проверка поддержки расширений устройства
@@ -751,10 +754,10 @@ std::time_t kge::tools::CurrentTime()
 * @return std::string - строка с отформатированным временем
 * @note подробнее о форматах - http://www.cplusplus.com/reference/ctime/strftime/
 */
-std::string kge::tools::TimeToStr(std::time_t * time, const char * format)
+std::string kge::tools::TimeToStr(const std::time_t& time, const char * format)
 {
     tm timeInfo;
-    localtime_s(&timeInfo, time);
+    localtime_r(&time, &timeInfo);
     char strTime[32];
     strftime(strTime, 32, format, &timeInfo);
     return strTime;
@@ -770,8 +773,8 @@ void kge::tools::LogMessage(std::string message, bool printTime)
     std::string result = "";
 
     if (printTime) {
-        time_t time = tools::CurrentTime();
-        result += tools::TimeToStr(&time, "[%Y-%m-%d %H:%M:%S] ");
+         time_t time = tools::CurrentTime();
+        result += tools::TimeToStr(time, "[%Y-%m-%d %H:%M:%S] ");
     }
 
     result += message + '\n';
@@ -812,15 +815,15 @@ void kge::tools::LogError(std::string message, bool printTime)
 * @return std::wstring - wide (широкая) строка
 * @note это обертка winapi метода MultiByteToWideChar - https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072(v=vs.85).aspx
 */
-std::wstring kge::tools::StrToWide(const std::string& str, UINT codePage, DWORD dwFlags)
-{
-    std::wstring result;
-    wchar_t* newString = new wchar_t[str.length() + 1];
-    MultiByteToWideChar(codePage, dwFlags, str.c_str(), static_cast<int>(str.length()) + 1, newString, static_cast<int>(str.length()) + 1);
-    result.append(newString);
-    delete[] newString;
-    return result;
-}
+//std::wstring kge::tools::StrToWide(const std::string& str, UINT codePage, DWORD dwFlags)
+//{
+//    std::wstring result;
+//    wchar_t* newString = new wchar_t[str.length() + 1];
+//    MultiByteToWideChar(codePage, dwFlags, str.c_str(), static_cast<int>(str.length()) + 1, newString, static_cast<int>(str.length()) + 1);
+//    result.append(newString);
+//    delete[] newString;
+//    return result;
+//}
 
 /**
 * Конвертация из "широкой" wstring-строки в обычную string
@@ -830,15 +833,15 @@ std::wstring kge::tools::StrToWide(const std::string& str, UINT codePage, DWORD 
 * @return std::wstring - string строка
 * @note это обертка winapi метода WideCharToMultiByte - https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130(v=vs.85).aspx
 */
-std::string kge::tools::WideToStr(const std::wstring& wstr, UINT codePage, DWORD dwFlags)
-{
-    std::string result;
-    char* newString = new char[wstr.length() + 1];
-    WideCharToMultiByte(codePage, dwFlags, wstr.c_str(), static_cast<int>(wstr.length()) + 1, newString, static_cast<int>(wstr.length()) + 1, nullptr, FALSE);
-    result.append(newString);
-    delete[] newString;
-    return result;
-}
+//std::string kge::tools::WideToStr(const std::wstring& wstr, UINT codePage, DWORD dwFlags)
+//{
+//    std::string result;
+//    char* newString = new char[wstr.length() + 1];
+//    WideCharToMultiByte(codePage, dwFlags, wstr.c_str(), static_cast<int>(wstr.length()) + 1, newString, static_cast<int>(wstr.length()) + 1, nullptr, FALSE);
+//    result.append(newString);
+//    delete[] newString;
+//    return result;
+//}
 
 /**
 * Загрузка бинарных данных из файла
