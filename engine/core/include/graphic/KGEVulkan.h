@@ -5,13 +5,13 @@
 #include <iostream>
 #include <vector>
 #include <vulkan/vulkan.h>
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
 #include <fstream>
-#include <ctime>
 #include <time.h>
+#include <ctime>
 #include <chrono>
 
 // Необходимо для функций получения путей к файлу

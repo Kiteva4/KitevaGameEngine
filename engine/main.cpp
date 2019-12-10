@@ -1,13 +1,10 @@
 #include <iostream>
 #include <thread>
 #include <core.h>
-//#include <graphic/KGEVulkanCore.h>
-using namespace std;
-
-//KGEVulkanCore* renderer = nullptr;
 
 int main()
 {
+    std::cout <<"Start" << std::endl;
     Core core;
     return 0;
 }

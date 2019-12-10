@@ -685,7 +685,7 @@ VkInstance KGEVulkanCore::InitInstance(
     applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.apiVersion = VK_API_VERSION_1_0;
-
+std::cout << "appVer = "<< applicationInfo.applicationVersion << std::endl;
     // Структура с информацией о создаваемом экземпляре vulkan
     // Здесь можно указать информацию о приложении (ссылка на структуру выше) а так же указать используемые расширения
     VkInstanceCreateInfo instanceCreateInfo = {};

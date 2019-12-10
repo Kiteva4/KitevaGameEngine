@@ -1,17 +1,14 @@
 #include <core.h>
-#include "graphic/GKEVulkanApp.h"
 
-//#include "graphic/VulkanWindowControl/LinuxXCBWindowControl.h"
-//#include "graphic/VulkanWindowControl/WindowsWindowControl.h"
-
-#define WINDOW_WIDTH 1920*0.4
-#define WINDOW_HEIGHT 1080*0.4
-
-Core::Core()
+Core::Core():
+    m_kgeAppData{},
+    m_kgeAppication{
+        m_kgeAppData.applicationWidth(),
+        m_kgeAppData.applicationHeight()
+        }
 {
-    GKEVulkanApp app(WINDOW_WIDTH, WINDOW_HEIGHT);
-    app.Init();
-    app.Run();
+    m_kgeAppication.Init();
+    m_kgeAppication.Run();
 }
 
 Core::~Core() {}

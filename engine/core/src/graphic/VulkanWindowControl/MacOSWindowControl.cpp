@@ -20,7 +20,7 @@ void MacOSWindowControl::Init(uint32_t Width, uint32_t Height)
 
 VkSurfaceKHR MacOSWindowControl::CreateSurface(VkInstance &vkInstance)
 {
-    VkSurfaceKHR vkSurface;
+    //VkSurfaceKHR vkSurface;
 }
 
 #endif

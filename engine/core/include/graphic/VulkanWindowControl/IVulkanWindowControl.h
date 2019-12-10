@@ -1,10 +1,9 @@
 #ifndef IVULKANWINDOWCONTROL_H
 #define IVULKANWINDOWCONTROL_H
+
 #include <stdexcept>
 #include "vulkan/vulkan.h"
 #include "vulkan/vk_sdk_platform.h"
-
-#include "KGEutilityl.h"
 
 class IVulkanWindowControl
 {

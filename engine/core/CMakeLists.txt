@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 project(KGECore CXX)
 
-file(GLOB_RECURSE HDRS *.h)
-file(GLOB_RECURSE SRCS *.cpp)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++fs")
+#set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -lstdc++fs")
+
+
 set(HDRS
     include/core.h
     include/graphic/GKEVulkanApp.h
@@ -20,6 +22,7 @@ set(HDRS
     include/graphic/VulkanCoreModules/KGEVkSwapChain.h
     include/graphic/VulkanCoreModules/KGECommandPool.h
     include/graphic/VulkanCoreModules/KGEVkCommandBuffer.h
+    include/application/KGEAppData.h
     )
 
 set(SRCS
@@ -38,6 +41,7 @@ set(SRCS
     src/graphic/VulkanCoreModules/KGEVkSwapChain.cpp
     src/graphic/VulkanCoreModules/KGECommandPool.cpp
     src/graphic/VulkanCoreModules/KGEVkCommandBuffer.cpp
+    src/application/KGEAppData.cpp
     )
 
 add_library(${PROJECT_NAME} STATIC ${SRCS} ${HDRS})
@@ -50,14 +54,14 @@ include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 include_directories(${CMAKE_SOURCE_DIR}/external)
-include_directories(${CMAKE_SOURCE_DIR}/external/glm/glm)
+#include_directories(${CMAKE_SOURCE_DIR}/external/glm/glm)
 include_directories(${CMAKE_SOURCE_DIR}/external/glfw/include)
 include_directories(${CMAKE_SOURCE_DIR}/engine/lib/include)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE")
 
 target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} stdc++fs)
+target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES})
 
 #VULKAN
 if(WIN32)
@@ -118,8 +122,11 @@ endif()
 
 include_directories(${Vulkan_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}
+    PUBLIC
     ${Vulkan_LIBRARIES}
     )
+target_include_directories(${PROJECT_NAME}
+    PUBLIC ${Vulkan_INCLUDE_DIRS})
 
 #X11
 IF (UNIX AND NOT APPLE)

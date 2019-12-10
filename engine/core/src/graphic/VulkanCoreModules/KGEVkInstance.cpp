@@ -1,6 +1,6 @@
 #include "graphic/VulkanCoreModules/KGEVkInstance.h"
 #include "graphic/KGEVulkan.h"
-#include <cstring>
+#include <string>
 
 KGEVkInstance::KGEVkInstance(std::string applicationName,
                              std::string engineName,
