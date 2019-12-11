@@ -1,8 +1,16 @@
 #ifndef KGEAPPLICATION_H
 #define KGEAPPLICATION_H
 
+#include <graphic/KGEVulkan.h>
 #include <filesystem>
-#include <string>
+#include <string>+
+
+typedef struct APP_VERSION
+{
+    uint32_t major;
+    uint32_t minor;
+    uint32_t patch;
+};
 
 namespace fs = std::filesystem;
 //fs::path appPath = fs::current_path();
@@ -15,7 +23,7 @@ public:
                std::string applicationName,
                uint32_t applicationWidth,
                uint32_t applicationHeight,
-               uint32_t applicationVersion);
+               APP_VERSION applicationVersion);
 
     fs::path applicationPath() const;
     std::string applicationName() const;
@@ -24,12 +32,11 @@ public:
     uint32_t applicationVersion() const;
 
 private:
-
     std::string m_applicationPath{};
     std::string m_applicationName{};
     uint32_t m_applicationWidth{};
     uint32_t m_applicationHeight{};
-    uint32_t m_applicationVersion{};
+    APP_VERSION m_applicationVersion;
 };
 
 #endif // KGEAPPLICATION_H

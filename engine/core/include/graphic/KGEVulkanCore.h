@@ -7,6 +7,10 @@
 #include <graphic/KGEVulkan.h>
 #include <graphic/VulkanWindowControl/IVulkanWindowControl.h>
 
+#include <graphic/VulkanCoreModules/KGEVkInstance.h>
+#include <graphic/VulkanCoreModules/KGEVkSurface.h>
+#include <graphic/VulkanCoreModules/KGEVkDevice.h>
+
 // Параметры камеры по умолчанию (угол обзора, границы отсечения)
 #define DEFAULT_FOV 60.0f
 #define DEFAULT_NEAR 0.1f
@@ -17,20 +21,12 @@
 // на построении матриц проекции, которые используются в шейдере
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-
-// Переменная IS_VK_DEBUG будет true если используется debug конфиуграция
-// В зависимости от данной переменной некоторое поведение может меняться
-#ifdef NDEBUG
-const bool IS_VK_DEBUG = false;
-#else
-const bool IS_VK_DEBUG = true;
-#endif
-
 class KGEVulkanCore
 {
 public:
     KGEVulkanCore(uint32_t width,
                   uint32_t heigh,
+                  std::string applicationName,
                   IVulkanWindowControl* windowControl,
                   unsigned int primitivesMaxCount,
                   std::vector <const char*> instanceExtensionsRequired,
@@ -132,31 +128,16 @@ private:
     uint32_t m_heigh;
 
     /* Instance*/
-    VkInstance m_instance{}; // Хендл instance'а vulkan'а
-    VkInstance InitInstance(
-            std::string appName,                                /*! Наименование приложения         */
-            std::string engineName,                             /*! Наименование среды(движка)      */
-            std::vector<const char*> extensionsRequired,        /*! Список запрашиваемых расширений */
-            std::vector<const char*> validationLayersRequired); /*! Список слоев валидации          */
-    void DeinitInstance(VkInstance* instance);
-
-    VkDebugReportCallbackEXT m_validationReportCallback; // Хендл объекта callback'а
+    KGEVkInstance m_kgeVkInstance;
+    VkInstance m_vkInstance{}; // Хендл instance'а vulkan'а
 
     /* Surface */
+    KGEVkSurface m_kgeVkSurface;
     VkSurfaceKHR m_vkSurface;// Хендл поверхности отображения
-    VkSurfaceKHR InitWindowSurface(IVulkanWindowControl* windowControl);
-    void DeinitWindowSurface(VkInstance vkInstance, VkSurfaceKHR * surface);
 
     /* Device */
     kge::vkstructs::Device m_device;// Устройство (структура с хендлами физ-го и лог-го ус-ва, очередей)
-    kge::vkstructs::Device InitDevice(VkInstance vkInstance,
-                                      VkSurfaceKHR surface,
-                                      std::vector<const char*> deviceExtensionsRequired,
-                                      std::vector<const char*> validationLayersRequired,
-                                      bool uniqueQueueFamilies);
-    void DeinitDevice(kge::vkstructs::Device* device);
-
-
+    KGEVkDevice m_kgeVkDevice;
 
     /* RenderPass */
     VkRenderPass                    m_renderPass;                   // Основной проход рендеринга

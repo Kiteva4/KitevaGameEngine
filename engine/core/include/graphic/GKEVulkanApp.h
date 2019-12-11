@@ -4,12 +4,13 @@
 #include <graphic/KGEVulkanCore.h>
 
 #include <vector>
+#include <string>
 
 class GKEVulkanApp
 {
 public:
 
-    GKEVulkanApp(uint32_t width, uint32_t heigh);
+    GKEVulkanApp(uint32_t width, uint32_t heigh, std::string applicationName);
     ~GKEVulkanApp();
 
     void Init();
@@ -19,6 +20,7 @@ private:
 
     uint32_t m_appWidth{};
     uint32_t m_appHeigh{};
+    std::string m_applicationName;
     IVulkanWindowControl* m_windowControl{};
     KGEVulkanCore* m_KGEVulkanCore{};
     std::vector<const char* > m_instanceExtensions{};

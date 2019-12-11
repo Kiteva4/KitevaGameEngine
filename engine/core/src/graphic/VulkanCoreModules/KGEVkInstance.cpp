@@ -1,6 +1,6 @@
 #include "graphic/VulkanCoreModules/KGEVkInstance.h"
 #include "graphic/KGEVulkan.h"
-#include <string>
+#include <cstring>
 
 KGEVkInstance::KGEVkInstance(std::string applicationName,
                              std::string engineName,
@@ -99,6 +99,11 @@ KGEVkInstance::KGEVkInstance(std::string applicationName,
         std::cout << "Vulkan: Report callback sucessfully created" << std::endl;
     }
 }
+
+KGEVkInstance::KGEVkInstance():
+    m_vkInstance(nullptr),
+    m_validationReportCallback(nullptr)
+{}
 
 KGEVkInstance::~KGEVkInstance()
 {

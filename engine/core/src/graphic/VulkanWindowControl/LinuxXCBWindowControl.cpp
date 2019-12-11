@@ -34,8 +34,7 @@ void LinuxXCBWindowControl::Init(uint32_t Width, uint32_t Height)
     int error = xcb_connection_has_error(m_pXCBConn);
 
     if  (error) {
-        OGLDEV_ERROR("Error opening xcb connection error %d\n", error);
-        assert(0);
+        throw std::runtime_error("Vulkan: Error opening xcb connection error %d\n");
     }
 
     printf("XCB connection opened\n");

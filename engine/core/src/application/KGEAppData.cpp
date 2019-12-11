@@ -5,7 +5,7 @@ KGEAppData::KGEAppData():
     m_applicationName{"KGEApp"},
     m_applicationWidth{1024},
     m_applicationHeight{1024},
-    m_applicationVersion{(((1) << 22) | ((0) << 12) | (0))}
+    m_applicationVersion{1,0,0}
 {
 
 }
@@ -14,7 +14,7 @@ KGEAppData::KGEAppData(std::filesystem::path applicationPath,
                        std::string applicationName,
                        uint32_t applicationWidth,
                        uint32_t applicationHeight,
-                       uint32_t applicationVersion) :
+                       APP_VERSION applicationVersion) :
     m_applicationPath{applicationPath},
     m_applicationName{applicationName},
     m_applicationWidth{applicationWidth},
@@ -44,5 +44,7 @@ uint32_t KGEAppData::applicationHeight() const
 
 uint32_t KGEAppData::applicationVersion() const
 {
-    return m_applicationVersion;
+    return KGE_MAKE_VERSION(m_applicationVersion.major,
+                            m_applicationVersion.minor,
+                            m_applicationVersion.patch);
 }

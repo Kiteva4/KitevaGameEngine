@@ -5,8 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <vulkan/vulkan.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm/glm.hpp>
+#include <glm/glm/gtc/matrix_transform.hpp>
 
 #include <string>
 #include <fstream>
@@ -23,6 +23,9 @@
 #ifndef LOG_FILENAME
 #define LOG_FILENAME "log.txt"
 #endif
+
+#define KGE_MAKE_VERSION(major, minor, patch) \
+    (((major) << 22) | ((minor) << 12) | (patch))
 
 namespace kge
 {
