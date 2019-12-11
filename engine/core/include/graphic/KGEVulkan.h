@@ -128,6 +128,7 @@ namespace kge
 
             void Deinit(){
                 if(logicalDevice != nullptr){
+                    vkDeviceWaitIdle(logicalDevice) != VK_SUCCESS ? throw std::runtime_error("Vulkan: Logical device suspend error") : std::cout << "Vulkan: Logical device suspend successful" << std::endl;
                     vkDestroyDevice(logicalDevice, nullptr);
                     logicalDevice = nullptr;
                 }

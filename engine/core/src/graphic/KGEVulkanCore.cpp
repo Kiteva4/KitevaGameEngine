@@ -1,5 +1,4 @@
 #include "graphic/KGEVulkanCore.h"
-#include <cstdlib>
 #include <cstring>
 /**
 * Конструктор рендерера
@@ -25,16 +24,20 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
     m_width(width),
     m_heigh(heigh),
     // Инициализация экземпляра
-    m_kgeVkInstance{applicationName, "KGEngine", instanceExtensionsRequired, validationLayersRequired},
-    m_vkInstance(m_kgeVkInstance.vkInstance()),
+    m_vkInstance{},
+    m_kgeVkInstance{&m_vkInstance, applicationName, "KGEngine", instanceExtensionsRequired, validationLayersRequired},
     // Инициализация поверхности отображения
-    m_kgeVkSurface{windowControl, m_vkInstance},
-    m_vkSurface{m_kgeVkSurface.vkSurface()},
+    m_vkSurface{},
+    m_kgeVkSurface{&m_vkSurface, windowControl, m_vkInstance},
     // Инициализация устройства
     m_device{},
     m_kgeVkDevice{&m_device, m_vkInstance, m_vkSurface, deviceExtensionsRequired, validationLayersRequired, false},
 
     m_renderPass(nullptr),
+    // Инициализация swap-chain
+    m_swapchain{},
+    m_kgeSwapChain{new KGEVkSwapChain{&m_swapchain, m_device, m_vkSurface, { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }, VK_FORMAT_D32_SFLOAT_S8_UINT, m_renderPass, 3}},
+
     m_commandPoolDraw(nullptr),
     m_descriptorSetLayoutMain(nullptr),
     m_descriptorSetLayoutTextures(nullptr),
@@ -51,11 +54,11 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
 
 
     // Инициализация устройства
-//    m_device     = InitDevice( m_instance, m_vkSurface, deviceExtensionsRequired, validationLayersRequired, false);
+    //    m_device     = InitDevice( m_instance, m_vkSurface, deviceExtensionsRequired, validationLayersRequired, false);
     // Инициализация прохода рендеринга
     m_renderPass = InitRenderPass(m_device, m_vkSurface, VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT);
     // Инициализация swap-chain
-    m_swapchain = InitSwapChain(m_device, m_vkSurface, { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }, VK_FORMAT_D32_SFLOAT_S8_UINT, m_renderPass, 3, nullptr);
+    //m_swapchain = InitSwapChain(m_device, m_vkSurface, { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }, VK_FORMAT_D32_SFLOAT_S8_UINT, m_renderPass, 3, nullptr);
     // Инициализация командного пула
     m_commandPoolDraw = InitCommandPool(m_device, static_cast<unsigned int>(m_device.queueFamilies.graphics));
     // Аллокация командных буферов (получение хендлов)
@@ -149,18 +152,18 @@ void KGEVulkanCore::VideoSettingsChanged()
     // Ре-инициализация swap-cahin.
     // В начале получаем старый swap-chain
     kge::vkstructs::Swapchain oldSwapChain = m_swapchain;
-    // Инициализируем обновленный
-    m_swapchain = InitSwapChain(
-                m_device,
-                m_vkSurface,
-    { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR },
-                VK_FORMAT_D32_SFLOAT_S8_UINT,
-                m_renderPass,
-                3,
-                &oldSwapChain);
+    delete m_kgeSwapChain;
 
-    // Уничтожаем старый
-    DeinitSwapchain(m_device, &(oldSwapChain));
+    // Инициализируем обновленный
+    m_kgeSwapChain = new KGEVkSwapChain{
+            &m_swapchain,
+            m_device,
+            m_vkSurface,
+    {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR },
+            VK_FORMAT_D32_SFLOAT_S8_UINT,
+            m_renderPass,
+            3,
+            &oldSwapChain};
 
     // Инициализация графического конвейера
     m_pipeline = InitGraphicsPipeline(m_device, m_pipelineLayout, m_swapchain, m_renderPass);
@@ -306,7 +309,7 @@ void KGEVulkanCore::Update()
         }
 
         // Копировать данные в uniform-буфер
-        memcpy(m_uniformBufferModels.pMapped, m_uboModels, (size_t)(m_uniformBufferModels.size));
+        memcpy(m_uniformBufferModels.pMapped, m_uboModels, static_cast<size_t>(m_uniformBufferModels.size));
 
         // Гарантировать видимость обновленной памяти устройством
         VkMappedMemoryRange memoryRange = {};
@@ -403,7 +406,10 @@ unsigned int KGEVulkanCore::AddPrimitive(const std::vector<kge::vkstructs::Verte
         unsigned int indexCount = static_cast<unsigned int>(indexBuffer.size());
 
         // Cоздать буфер индексов в памяти хоста
-        tmp = kge::vkutility::CreateBuffer(m_device, indexBufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        tmp = kge::vkutility::CreateBuffer(m_device,
+                                           indexBufferSize,
+                                           VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         primitive.indexBuffer.vkBuffer = tmp.vkBuffer;
         primitive.indexBuffer.vkDeviceMemory = tmp.vkDeviceMemory;
         primitive.indexBuffer.size = tmp.size;
@@ -645,20 +651,20 @@ KGEVulkanCore::~KGEVulkanCore()
     // Деинициализация командного пула
     DeinitCommandPool(m_device, &m_commandPoolDraw);
 
-    // Деинициализация swap-chain'а
-    DeinitSwapchain(m_device, &m_swapchain);
+    //    // Деинициализация swap-chain'а
+    //    DeinitSwapchain(m_device, &m_swapchain);
 
     // Деинциализация прохода рендеринга
     DeinitRenderPass(m_device, &m_renderPass);
 
-//    // Динициализация устройства
-//    DeinitDevice(&m_device);
+    //    // Динициализация устройства
+    //    DeinitDevice(&m_device);
 
-//    // Деинициализация поверзности
-//    DeinitWindowSurface(m_instance, &m_vkSurface);
+    //    // Деинициализация поверзности
+    //    DeinitWindowSurface(m_instance, &m_vkSurface);
 
-//    // Деинициализация экземпляра Vulkan
-//    DeinitInstance(&m_instance);
+    //    // Деинициализация экземпляра Vulkan
+    //    DeinitInstance(&m_instance);
 }
 
 /**
@@ -805,285 +811,6 @@ void KGEVulkanCore::DeinitRenderPass(const kge::vkstructs::Device &device,
 }
 
 /**
-* Swap-chain (список показа, цепочка свопинга) - представляет из себя набор сменяемых изображений
-* @param const kge::vkstructs::Device &device - устройство, необходимо для создания
-* @param VkSurfaceKHR surface - хкндл поверхоности, необходимо для создания объекта swap-chain и для проверки поддержки формата
-* @param VkSurfaceFormatKHR surfaceFormat - формат изображений и цветовое пространство (должен поддерживаться поверхностью)
-* @param VkFormat depthStencilFormat - формат вложений глубины (должен поддерживаться устройством)
-* @param VkRenderPass renderPass - хендл прохода рендеринга, нужен для создания фрейм-буферов swap-chain
-* @param unsigned int bufferCount - кол-во буферов кадра (напр. для тройной буферизации - 3)
-* @param kge::vkstructs::Swapchain * oldSwapchain - передыдуший swap-chain (полезно в случае пересоздания свап-чейна, например, сменив размеро поверхности)
-* @return kge::vkstructs::Swapchain структура описывающая swap-chain cодержащая необходимые хендлы
-* @note - в одно изображение может происходить запись (рендеринг) в то время как другое будет показываться (презентация)
-*/
-kge::vkstructs::Swapchain KGEVulkanCore::InitSwapChain(
-        const kge::vkstructs::Device &device,
-        VkSurfaceKHR surface,
-        VkSurfaceFormatKHR surfaceFormat,
-        VkFormat depthStencilFormat,
-        VkRenderPass renderPass,
-        unsigned int bufferCount,
-        kge::vkstructs::Swapchain * oldSwapchain)
-{
-    // Возвращаемый результат (структура содержит хендлы свопчейна, изображений, фрейм-буферов и тд)
-    kge::vkstructs::Swapchain resultSwapchain;
-
-    // Информация о поверхности
-    kge::vkstructs::SurfaceInfo si = kge::vkutility::GetSurfaceInfo(device.physicalDevice, surface);
-
-    // Проверка доступности формата и цветового пространства изображений
-    if (!si.IsSurfaceFormatSupported(surfaceFormat)) {
-        throw std::runtime_error("Vulkan: Required surface format is not supported. Can't initialize swap-chain");
-    }
-
-    // Проверка доступности формата глубины
-    if (!device.IsDepthFormatSupported(depthStencilFormat)) {
-        throw std::runtime_error("Vulkan: Required depth-stencil format is not supported. Can't initialize render-pass");
-    }
-
-    // Если кол-во буферов задано
-    if (bufferCount > 0) {
-        // Проверить - возможно ли использовать запрашиваемое кол-во буферов (и изоображений соответственно)
-        if (bufferCount < si.capabilities.minImageCount || bufferCount > si.capabilities.maxImageCount) {
-            std::string message = "Vulkan: Surface don't support " + std::to_string(bufferCount) + " images/buffers in swap-chain";
-            throw std::runtime_error(message);
-        }
-    }
-    // В противном случае попытаться найти оптимальное кол-во
-    else {
-        bufferCount = (si.capabilities.minImageCount + 1) > si.capabilities.maxImageCount ? si.capabilities.maxImageCount : (si.capabilities.minImageCount + 1);
-    }
-
-    // Выбор режима представления (FIFO_KHR по умолчнию, самый простой)
-    VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-
-    // Если запрашиваемое кол-во буферов больше единицы - есть смысл выбрать более сложный режим,
-    // но перед этим необходимо убедиться что поверхность его поддерживает
-    if (bufferCount > 1) {
-        for (const VkPresentModeKHR& availablePresentMode : si.presentModes) {
-            //Если возможно - использовать VK_PRESENT_MODE_MAILBOX_KHR (вертикальная синхронизация)
-            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-                presentMode = availablePresentMode;
-                break;
-            }
-        }
-    }
-
-    // Информация о создаваемом swap-chain
-    VkSwapchainCreateInfoKHR swapchainCreateInfo = {};
-    swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    swapchainCreateInfo.surface = m_vkSurface;
-    swapchainCreateInfo.minImageCount = bufferCount;                        // Минимальное кол-во изображений
-    swapchainCreateInfo.imageFormat = surfaceFormat.format;					// Формат изображения
-    swapchainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;			// Цветовое пространство
-    swapchainCreateInfo.imageExtent = si.capabilities.currentExtent;        // Резрешение (расширение) изображений
-    swapchainCreateInfo.imageArrayLayers = 1;                               // Слои (1 слой, не стереоскопический рендер)
-    swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;   // Как используются изображения (как цветовые вложения)
-
-    // Добавить информацию о формате и расширении в результирующий объект swap-chain'а (он будет отдан функцией)
-    resultSwapchain.imageFormat = swapchainCreateInfo.imageFormat;
-    resultSwapchain.imageExtent = swapchainCreateInfo.imageExtent;
-
-    // Если старый swap-chain был передан - очистить его информацию о формате и расширении
-    if (oldSwapchain != nullptr) {
-        oldSwapchain->imageExtent = {};
-        oldSwapchain->imageFormat = {};
-    }
-
-    // Индексы семейств
-    std::vector<unsigned int> queueFamilyIndices = {
-        static_cast<unsigned int>(device.queueFamilies.graphics),
-        static_cast<unsigned int>(device.queueFamilies.present)
-    };
-
-    // Если для команд графики и представления используются разные семейства, значит доступ к ресурсу (в данном случае к буферам изображений)
-    // должен быть распараллелен (следует использовать VK_SHARING_MODE_CONCURRENT, указав при этом кол-во семейств и их индексы)
-    if (device.queueFamilies.graphics != device.queueFamilies.present) {
-        swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-        swapchainCreateInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
-        swapchainCreateInfo.pQueueFamilyIndices = queueFamilyIndices.data();
-    }
-    // В противном случае подходящим будет VK_SHARING_MODE_EXCLUSIVE (с ресурсом работают команды одного семейства)
-    else {
-        swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    }
-
-    swapchainCreateInfo.preTransform = si.capabilities.currentTransform;                                        // Не используем трансформацмию изображения (трансформация поверхности по умолчнию) (???)
-    swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;                                     // Смешивание альфа канала с другими окнами в системе (нет смешивания)
-    swapchainCreateInfo.presentMode = presentMode;                                                              // Установка режима представления (тот что выбрали ранее)
-    swapchainCreateInfo.clipped = VK_TRUE;                                                                      // Не рендерить перекрываемые другими окнами пиксели
-    swapchainCreateInfo.oldSwapchain = (oldSwapchain != nullptr ? oldSwapchain->vkSwapchain : nullptr);  // Старый swap-chain (для более эффективного пересоздания можно указывать старый swap-chain)
-
-    // Создание swap-chain (записать хендл в результирующий объект)
-    if (vkCreateSwapchainKHR(device.logicalDevice, &swapchainCreateInfo, nullptr, &(resultSwapchain.vkSwapchain)) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error in vkCreateSwapchainKHR function. Failed to create swapchain");
-    }
-
-    // Уничтожение предыдущего swap-chain, если он был передан
-    if (oldSwapchain != nullptr) {
-        vkDestroySwapchainKHR(device.logicalDevice, oldSwapchain->vkSwapchain, nullptr);
-        oldSwapchain->vkSwapchain = nullptr;
-    }
-
-    // Получить хендлы изображений swap-chain
-    // Кол-во изображений по сути равно кол-ву буферов (за это отвечает bufferCount при создании swap-chain)
-    unsigned int swapChainImageCount = 0;
-    vkGetSwapchainImagesKHR(device.logicalDevice, resultSwapchain.vkSwapchain, &swapChainImageCount, nullptr);
-    resultSwapchain.images.resize(swapChainImageCount);
-    vkGetSwapchainImagesKHR(device.logicalDevice, resultSwapchain.vkSwapchain, &swapChainImageCount, resultSwapchain.images.data());
-
-    // Теперь необходимо создать image-views для каждого изображения (своеобразный интерфейс объектов изображений предостовляющий нужные возможности)
-    // Если был передан старый swap-chain - предварительно очистить все его image-views
-    if (oldSwapchain != nullptr) {
-        if (!oldSwapchain->imageViews.empty()) {
-            for (VkImageView const &swapchainImageView : oldSwapchain->imageViews) {
-                vkDestroyImageView(device.logicalDevice, swapchainImageView, nullptr);
-            }
-            oldSwapchain->imageViews.clear();
-        }
-    }
-
-    // Для каждого изображения (image) swap-chain'а создать свой imageView объект
-    for (unsigned int i = 0; i < resultSwapchain.images.size(); i++) {
-
-        // Идентификатор imageView (будт добавлен в массив)
-        VkImageView swapChainImageCount;
-
-        // Информация для инициализации
-        VkImageViewCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = resultSwapchain.images[i];                       // Связь с изображением swap-chain
-        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;                        // Тип изображения (2Д текстура)
-        createInfo.format = surfaceFormat.format;							// Формат изображения
-        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;			// По умолчанию
-        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        createInfo.subresourceRange.baseMipLevel = 0;
-        createInfo.subresourceRange.levelCount = 1;
-        createInfo.subresourceRange.baseArrayLayer = 0;
-        createInfo.subresourceRange.layerCount = 1;
-
-        // Создать и добавить в массив
-        if (vkCreateImageView(device.logicalDevice, &createInfo, nullptr, &swapChainImageCount) == VK_SUCCESS) {
-            resultSwapchain.imageViews.push_back(swapChainImageCount);
-        }
-        else {
-            throw std::runtime_error("Vulkan: Error in vkCreateImageView function. Failed to create image views");
-        }
-    }
-
-
-    // Буфер глубины (Z-буфер)
-    // Буфер может быть один для всех фрейм-буферов, даже при двойной/тройной буферизации (в отличии от изображений swap-chain)
-    // поскольку он не учавствует в презентации (память из него непосредственно не отображается на экране).
-
-    // Если это пересоздание swap-chain (передан старый) следует очистить компоненты прежнего буфера глубины
-    if (oldSwapchain != nullptr) {
-        oldSwapchain->depthStencil.Deinit(device.logicalDevice);
-    }
-
-    // Создать буфер глубины-трафарета (обычное 2D-изображение с требуемым форматом)
-    resultSwapchain.depthStencil = kge::vkutility::CreateImageSingle(
-                device,
-                VK_IMAGE_TYPE_2D,
-                depthStencilFormat,
-    { si.capabilities.currentExtent.width, si.capabilities.currentExtent.height, 1 },
-                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,
-                VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                VK_IMAGE_TILING_OPTIMAL,
-                swapchainCreateInfo.imageSharingMode);
-
-
-    // Теперь необходимо создать фрейм-буферы привязанные к image-views объектам изображений и буфера глубины (изображения глубины)
-    // Перед этим стоит очистить буферы старого swap-сhain (если он был передан)
-    if (oldSwapchain != nullptr) {
-        if (!oldSwapchain->framebuffers.empty()) {
-            for (VkFramebuffer const &frameBuffer : oldSwapchain->framebuffers) {
-                vkDestroyFramebuffer(device.logicalDevice, frameBuffer, nullptr);
-            }
-            oldSwapchain->framebuffers.clear();
-        }
-    }
-
-    // Пройтись по всем image views и создать фрейм-буфер для каждого
-    for (unsigned int i = 0; i < resultSwapchain.imageViews.size(); i++) {
-
-        // Хендл нового фреймбуфера
-        VkFramebuffer framebuffer;
-
-        std::vector<VkImageView> attachments(2);
-        attachments[0] = resultSwapchain.imageViews[i];                             // Цветовое вложение (на каждый фрейм-буфер свое)
-        attachments[1] = resultSwapchain.depthStencil.vkImageView;                  // Буфер глубины (один на все фрейм-буферы)
-
-        // Описание нового фреймбуфера
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = renderPass;                          // Указание прохода рендера
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());   // Кол-во вложений
-        framebufferInfo.pAttachments = attachments.data();                // Связь с image-views объектом изображения swap-chain'а
-        framebufferInfo.width = resultSwapchain.imageExtent.width;        // Разрешение (ширина)
-        framebufferInfo.height = resultSwapchain.imageExtent.height;      // Разрешение (высота)
-        framebufferInfo.layers = 1;                                       // Один слой
-
-        // В случае успешного создания - добавить в массив
-        if (vkCreateFramebuffer(device.logicalDevice, &framebufferInfo, nullptr, &framebuffer) == VK_SUCCESS) {
-            resultSwapchain.framebuffers.push_back(framebuffer);
-        }
-        else {
-            throw std::runtime_error("Vulkan: Error in vkCreateFramebuffer function. Failed to create frame buffers");
-        }
-    }
-
-    kge::tools::LogMessage("Vulkan: Swap-chain successfully initialized");
-
-    return resultSwapchain;
-}
-
-/**
-* Деинициализация swap-chain
-* @param const kge::vkstructs::Device &device - устройство которое принимало участие в создании swap-chain
-* @param kge::vkstructs::Swapchain * swapchain - указатель на объект своп-чейна
-*/
-void KGEVulkanCore::DeinitSwapchain(const kge::vkstructs::Device &device,
-                                    kge::vkstructs::Swapchain *swapchain)
-{
-    // Очистить фрейм-буферы
-    if (!swapchain->framebuffers.empty()) {
-        for (VkFramebuffer const &frameBuffer : swapchain->framebuffers) {
-            vkDestroyFramebuffer(device.logicalDevice, frameBuffer, nullptr);
-        }
-        swapchain->framebuffers.clear();
-    }
-
-    // Очистить image-views объекты
-    if (!swapchain->imageViews.empty()) {
-        for (VkImageView const &imageView : swapchain->imageViews) {
-            vkDestroyImageView(device.logicalDevice, imageView, nullptr);
-        }
-        swapchain->imageViews.clear();
-    }
-
-    // Очиска компонентов Z-буфера
-    swapchain->depthStencil.Deinit(device.logicalDevice);
-
-    // Очистить swap-chain
-    if (swapchain->vkSwapchain != nullptr) {
-        vkDestroySwapchainKHR(device.logicalDevice, swapchain->vkSwapchain, nullptr);
-        swapchain->vkSwapchain = nullptr;
-    }
-
-    // Сбросить расширение и формат
-    swapchain->imageExtent = {};
-    swapchain->imageFormat = {};
-
-    kge::tools::LogMessage("Vulkan: Swap-chain successfully deinitialized");
-}
-
-/**
 * Инциализация командного пула
 * @param const kge::vkstructs::Device &device - устройство
 * @param unsigned int queueFamilyIndex - индекс семейства очередей команды которого будут передаваться в аллоцированных их пуда буферах
@@ -1225,7 +952,7 @@ kge::vkstructs::UniformBuffer KGEVulkanCore::InitUnformBufferWorld(const kge::vk
 * @param unsigned int maxObjects - максимальное кол-во отдельных объектов на сцене
 * @return kge::vkstructs::UniformBuffer - буфер, структура с хендлами буфера, его памяти, а так же доп. свойствами
 *
-* @note - в отличии от мирового uniform-буфера, uniform-буфер моделей содержит отдельные матрицы для кадой модели (по сути массив)
+* @note - в отличии от мирового uniform-буфера, uniform-буфер моделей содержит отдельные матрицы для каждой модели (по сути массив)
 * и выделение памяти под передаваемый в такой буфер объект должно использовать выравнивание. У устройства есть определенные лимиты
 * на выравнивание памяти, поэтому размер такого буфера вычисляется с учетом допустимого шага выравивания и кол-ва объектов которые
 * могут быть на сцене.

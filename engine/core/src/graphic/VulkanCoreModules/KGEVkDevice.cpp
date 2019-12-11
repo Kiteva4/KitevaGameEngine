@@ -22,6 +22,7 @@ KGEVkDevice::KGEVkDevice(
     unsigned int deviceCount = 0;
     vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
 
+    std::cout << "Vulcan: Support device count " << deviceCount  << std::endl;
     // Если не нашлось видео-карт работающих с vulkan - ошибка
     if(deviceCount == 0){
         throw std::runtime_error("Vulkan: Can`t detect device with Vulkan support");
@@ -72,6 +73,7 @@ KGEVkDevice::KGEVkDevice(
     // Массив инедксов семейств (2 индекса - графич. семейство и семейство представления.
     // Индексы могут совпадать, семейство у обеих очередей может быть одно и то же)
     uint32_t queueFamilies[2] = { static_cast<uint32_t>(m_device->queueFamilies.graphics), static_cast<uint32_t>(m_device->queueFamilies.present) };
+    const float defaultQueuePriority(0.0f);
 
     // Если графич. семейство и семейство представления - одно и то же (тот же индекс),
     // нет смысла создавать две очереди одного и того же семейства, можно обойтись одной
@@ -80,7 +82,7 @@ KGEVkDevice::KGEVkDevice(
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = queueFamilies[i];
         queueCreateInfo.queueCount = 1;                                      // Выделяем одну очередь для каждого семейства
-        queueCreateInfo.pQueuePriorities = nullptr;                          // Массив пр-тетов очередей в плане выделения ресурсов (одинаковые пр-теты, не используем)
+        queueCreateInfo.pQueuePriorities = &defaultQueuePriority;                          // Массив пр-тетов очередей в плане выделения ресурсов (одинаковые пр-теты, не используем)
         queueCreateInfos.push_back(queueCreateInfo);                         // Помещаем структуру в массив
     }
 
@@ -100,6 +102,8 @@ KGEVkDevice::KGEVkDevice(
 
         deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensionsRequired.size());
         deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionsRequired.data();
+
+        std::cout << "Vulkan: Device extensions: " << deviceCreateInfo.enabledExtensionCount << " " <<  *deviceCreateInfo.ppEnabledExtensionNames << std::endl;
     }
 
     // Проверка запрашиваемых слоев валидации, указать если есть (если не доступны - ошибка)
@@ -115,9 +119,10 @@ KGEVkDevice::KGEVkDevice(
     // Особенности устройства (пока-что пустая структура)
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-
+    std::cout << "try create device" << std::endl;
     // Создание логического устройства
-    if (vkCreateDevice(m_device->physicalDevice, &deviceCreateInfo, nullptr, &(m_device->logicalDevice)) != VK_SUCCESS) {
+    if (vkCreateDevice(device->physicalDevice, &deviceCreateInfo, nullptr, &device->logicalDevice) != VK_SUCCESS) {
+        std::cout << "cant create device" << std::endl;
         throw std::runtime_error("Vulkan: Failed to create logical device. Can't initialize renderer");
     }
 

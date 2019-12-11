@@ -131,7 +131,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL kge::vkutility::DebugVulkanCallback(
         const char* msg,
         void* userData)
 {
-    std::cout << "Vulkan validation layer :" << std::endl;
+//    std::cout << "VkError callback:" << "layerPrefix :" << layerPrefix << std::endl;
+//    std::cout << "VkError callback:" << "msg         :" << msg         << std::endl;
+//    std::cout << "VkError callback:" << "objType     :" << objType     << std::endl;
     return VK_FALSE;
 }
 
@@ -657,7 +659,7 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::string filename,
     VkShaderModuleCreateInfo moduleCreateInfo{};
     moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     moduleCreateInfo.codeSize = shaderSize;
-    moduleCreateInfo.pCode = (unsigned int*)shaderCode;
+    moduleCreateInfo.pCode = reinterpret_cast<unsigned int*>(shaderCode);
 
     // Создать шейдерный модуль
     VkShaderModule shaderModule;

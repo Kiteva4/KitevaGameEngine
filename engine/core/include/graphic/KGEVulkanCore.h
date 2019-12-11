@@ -10,6 +10,8 @@
 #include <graphic/VulkanCoreModules/KGEVkInstance.h>
 #include <graphic/VulkanCoreModules/KGEVkSurface.h>
 #include <graphic/VulkanCoreModules/KGEVkDevice.h>
+//#include <graphic/VulkanCoreModules/KGEVkRenderPass.h>
+#include <graphic/VulkanCoreModules/KGEVkSwapChain.h>
 
 // Параметры камеры по умолчанию (угол обзора, границы отсечения)
 #define DEFAULT_FOV 60.0f
@@ -128,15 +130,15 @@ private:
     uint32_t m_heigh;
 
     /* Instance*/
-    KGEVkInstance m_kgeVkInstance;
     VkInstance m_vkInstance{}; // Хендл instance'а vulkan'а
+    KGEVkInstance m_kgeVkInstance;
 
     /* Surface */
+    VkSurfaceKHR m_vkSurface{};// Хендл поверхности отображения
     KGEVkSurface m_kgeVkSurface;
-    VkSurfaceKHR m_vkSurface;// Хендл поверхности отображения
 
     /* Device */
-    kge::vkstructs::Device m_device;// Устройство (структура с хендлами физ-го и лог-го ус-ва, очередей)
+    kge::vkstructs::Device m_device{};// Устройство (структура с хендлами физ-го и лог-го ус-ва, очередей)
     KGEVkDevice m_kgeVkDevice;
 
     /* RenderPass */
@@ -149,18 +151,8 @@ private:
                           VkRenderPass * renderPass);
 
     /* Swap chain */
-    kge::vkstructs::Swapchain m_swapchain;
-    kge::vkstructs::Swapchain InitSwapChain(
-        const kge::vkstructs::Device &device,
-        VkSurfaceKHR surface,
-        VkSurfaceFormatKHR surfaceFormat,
-        VkFormat depthStencilFormat,
-        VkRenderPass renderPass,
-        unsigned int bufferCount,
-        kge::vkstructs::Swapchain * oldSwapchain = nullptr);
-    void DeinitSwapchain(const kge::vkstructs::Device &device,
-                         kge::vkstructs::Swapchain * swapchain);
-
+    kge::vkstructs::Swapchain m_swapchain{};
+    KGEVkSwapChain* m_kgeSwapChain;
 
     /* Command Pool */
     VkCommandPool m_commandPoolDraw;              // Командный пул (для выделения командных буферов)

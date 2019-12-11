@@ -2,11 +2,13 @@
 #include "graphic/KGEVulkan.h"
 #include <cstring>
 
-KGEVkInstance::KGEVkInstance(std::string applicationName,
-                             std::string engineName,
-                             std::vector<const char*> extensionsRequired,
-                             std::vector<const char*> validationLayersRequired) :
-    m_vkInstance(nullptr),
+KGEVkInstance::KGEVkInstance(
+        VkInstance  *vkInstance,
+        std::string applicationName,
+        std::string engineName,
+        std::vector<const char*> extensionsRequired,
+        std::vector<const char*> validationLayersRequired) :
+    m_vkInstance{vkInstance},
     m_validationReportCallback(nullptr)
 {
     // Структура с информацией о создаваемом приложении
@@ -72,7 +74,7 @@ KGEVkInstance::KGEVkInstance(std::string applicationName,
 
     // Передается указатель на структуру CreateInfo, которую заполнили выше, и указатель на переменную хендла
     // instance'а, куда и будет помещен сам хендл. Если функция не вернула VK_SUCCESS - ошибка
-    if (vkCreateInstance(&instanceCreateInfo, nullptr, &(m_vkInstance)) != VK_SUCCESS) {
+    if (vkCreateInstance(&instanceCreateInfo, nullptr, m_vkInstance) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in the 'vkCreateInstance' function");
     }
 
@@ -85,14 +87,14 @@ KGEVkInstance::KGEVkInstance(std::string applicationName,
         VkDebugReportCallbackCreateInfoEXT debugReportCallbackCreateInfo = {};
         debugReportCallbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
         debugReportCallbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-        debugReportCallbackCreateInfo.pfnCallback = kge::vkutility::DebugVulkanCallback; //????????? ?? ???????, ??????? ????? ?????????? ??? ??????????? ??????
+        debugReportCallbackCreateInfo.pfnCallback = kge::vkutility::DebugVulkanCallback;
 
         // Получить адрес функции создания callback'а (поскольку это функция расширения)
         PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT =
-                reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(m_vkInstance, "vkCreateDebugReportCallbackEXT"));
+                reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(*m_vkInstance, "vkCreateDebugReportCallbackEXT"));
 
         // Создать debug report callback для вывода сообщений об ошибках
-        if (vkCreateDebugReportCallbackEXT(m_vkInstance, &debugReportCallbackCreateInfo, nullptr, &m_validationReportCallback) != VK_SUCCESS){
+        if (vkCreateDebugReportCallbackEXT(*m_vkInstance, &debugReportCallbackCreateInfo, nullptr, &m_validationReportCallback) != VK_SUCCESS){
             throw std::runtime_error("Vulkan: Error in the 'vkCreateDebugReportCallbackEXT'");
         }
 
@@ -100,20 +102,15 @@ KGEVkInstance::KGEVkInstance(std::string applicationName,
     }
 }
 
-KGEVkInstance::KGEVkInstance():
-    m_vkInstance(nullptr),
-    m_validationReportCallback(nullptr)
-{}
-
 KGEVkInstance::~KGEVkInstance()
 {
     //Если был создан обьект m_validationReportCallback
     if (m_validationReportCallback != nullptr) {
         //Получаем адрес функции для его уничтожения
-        PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(m_vkInstance, "vkCreateDebugReportCallbackEXT"));
+        PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(*m_vkInstance, "vkCreateDebugReportCallbackEXT"));
 
         vkDestroyDebugReportCallbackEXT(
-                    m_vkInstance,
+                    *m_vkInstance,
                     m_validationReportCallback,
                     nullptr);
 
@@ -123,16 +120,11 @@ KGEVkInstance::~KGEVkInstance()
     }
 
     if (m_vkInstance != nullptr) {
-        vkDestroyInstance(m_vkInstance, nullptr);
+        vkDestroyInstance(*m_vkInstance, nullptr);
         m_vkInstance = nullptr;
 
         std::cout << "Vulkan: Instance sucessfully destroyed" << std::endl;
     }
-}
-
-const VkInstance &KGEVkInstance::vkInstance()
-{
-    return m_vkInstance;
 }
 
 const VkDebugReportCallbackEXT &KGEVkInstance::validationReportCallback()

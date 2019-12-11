@@ -3,9 +3,9 @@
 
 #include <graphic/KGEVulkan.h>
 #include <filesystem>
-#include <string>+
+#include <string>
 
-typedef struct APP_VERSION
+struct APP_VERSION
 {
     uint32_t major;
     uint32_t minor;
