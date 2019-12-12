@@ -10,7 +10,7 @@
 #include <graphic/VulkanCoreModules/KGEVkInstance.h>
 #include <graphic/VulkanCoreModules/KGEVkSurface.h>
 #include <graphic/VulkanCoreModules/KGEVkDevice.h>
-//#include <graphic/VulkanCoreModules/KGEVkRenderPass.h>
+#include <graphic/VulkanCoreModules/KGEVkRenderPass.h>
 #include <graphic/VulkanCoreModules/KGEVkSwapChain.h>
 
 // Параметры камеры по умолчанию (угол обзора, границы отсечения)
@@ -142,13 +142,8 @@ private:
     KGEVkDevice m_kgeVkDevice;
 
     /* RenderPass */
-    VkRenderPass                    m_renderPass;                   // Основной проход рендеринга
-    VkRenderPass InitRenderPass(const kge::vkstructs::Device &device,
-                                VkSurfaceKHR surface,
-                                VkFormat colorAttachmentFormat,
-                                VkFormat depthStencilFormat);
-    void DeinitRenderPass(const kge::vkstructs::Device &device,
-                          VkRenderPass * renderPass);
+    VkRenderPass m_renderPass; // Основной проход рендеринга
+    KGEVkRenderPass* m_kgeRenderPass;
 
     /* Swap chain */
     kge::vkstructs::Swapchain m_swapchain{};

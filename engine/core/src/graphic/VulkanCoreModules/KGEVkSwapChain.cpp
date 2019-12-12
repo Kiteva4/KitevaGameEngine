@@ -211,18 +211,18 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
         VkFramebuffer framebuffer;
 
         std::vector<VkImageView> attachments(2);
-        attachments[0] = m_swapchain->imageViews[i];                             // Цветовое вложение (на каждый фрейм-буфер свое)
-        attachments[1] = m_swapchain->depthStencil.vkImageView;                  // Буфер глубины (один на все фрейм-буферы)
+        attachments[0] = m_swapchain->imageViews[i];                                    // Цветовое вложение (на каждый фрейм-буфер свое)
+        attachments[1] = m_swapchain->depthStencil.vkImageView;                         // Буфер глубины (один на все фрейм-буферы)
 
         // Описание нового фреймбуфера
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = renderPass;                          // Указание прохода рендера
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());   // Кол-во вложений
-        framebufferInfo.pAttachments = attachments.data();                // Связь с image-views объектом изображения swap-chain'а
-        framebufferInfo.width = m_swapchain->imageExtent.width;        // Разрешение (ширина)
-        framebufferInfo.height = m_swapchain->imageExtent.height;      // Разрешение (высота)
-        framebufferInfo.layers = 1;                                       // Один слой
+        framebufferInfo.renderPass = renderPass;                                        // Указание прохода рендера
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());    // Кол-во вложений
+        framebufferInfo.pAttachments = attachments.data();                              // Связь с image-views объектом изображения swap-chain'а
+        framebufferInfo.width = m_swapchain->imageExtent.width;                         // Разрешение (ширина)
+        framebufferInfo.height = m_swapchain->imageExtent.height;                       // Разрешение (высота)
+        framebufferInfo.layers = 1;                                                     // Один слой
 
         // В случае успешного создания - добавить в массив
         if (vkCreateFramebuffer(device.logicalDevice, &framebufferInfo, nullptr, &framebuffer) == VK_SUCCESS) {
