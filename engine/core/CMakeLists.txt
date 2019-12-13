@@ -22,6 +22,7 @@ set(HDRS
     include/graphic/VulkanCoreModules/KGEVkSwapChain.h
     include/graphic/VulkanCoreModules/KGECommandPool.h
     include/graphic/VulkanCoreModules/KGEVkCommandBuffer.h
+    include/graphic/VulkanCoreModules/KGEVkGraphicsPipeline.h
     include/application/KGEAppData.h
     )
 
@@ -41,6 +42,7 @@ set(SRCS
     src/graphic/VulkanCoreModules/KGEVkSwapChain.cpp
     src/graphic/VulkanCoreModules/KGECommandPool.cpp
     src/graphic/VulkanCoreModules/KGEVkCommandBuffer.cpp
+    src/graphic/VulkanCoreModules/KGEVkGraphicsPipeline.cpp
     src/application/KGEAppData.cpp
     )
 

@@ -8,15 +8,14 @@ class KGEVkSwapChain
     kge::vkstructs::Swapchain *m_swapchain;
     const kge::vkstructs::Device &m_device;
 public:
-    KGEVkSwapChain(
-            kge::vkstructs::Swapchain *swapchain,
-            const kge::vkstructs::Device &device,
-            VkSurfaceKHR surface,
-            VkSurfaceFormatKHR surfaceFormat,
-            VkFormat depthStencilFormat,
-            VkRenderPass renderPass,
-            unsigned int bufferCount,
-            kge::vkstructs::Swapchain * oldSwapchain = nullptr);
+    KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
+                   const kge::vkstructs::Device &device,
+                   VkSurfaceKHR surface,
+                   VkSurfaceFormatKHR surfaceFormat,
+                   VkFormat depthStencilFormat,
+                   VkRenderPass renderPass,
+                   unsigned int bufferCount,
+                   kge::vkstructs::Swapchain * oldSwapchain = nullptr);
     ~KGEVkSwapChain();
 };
 

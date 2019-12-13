@@ -334,7 +334,7 @@ kge::vkstructs::Buffer kge::vkutility::CreateBuffer(const kge::vkstructs::Device
     VkMemoryAllocateInfo memoryAllocateInfo = {};
     memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     memoryAllocateInfo.allocationSize = memRequirements.size;
-    memoryAllocateInfo.memoryTypeIndex = (unsigned int)memoryTypeIndex;
+    memoryAllocateInfo.memoryTypeIndex = static_cast<unsigned int>(memoryTypeIndex);
 
     // Выделение памяти для буфера
     if (vkAllocateMemory(device.logicalDevice, &memoryAllocateInfo, nullptr, &(resultBuffer.vkDeviceMemory)) != VK_SUCCESS) {
@@ -645,9 +645,9 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::string filename,
     // Содержимое файла (код шейдера)
     char* shaderCode = nullptr;
 
-    std::cout << "D:\\GitHub\\KitevaGameEngine\\shaders\\" + filename << std::endl;
+    std::cout << "~/KitevaGameEngine/shaders/" + filename << std::endl;
     // Загрузить код шейдера
-    bool loaded = tools::LoadBytesFromFile("D:\\GitHub\\KitevaGameEngine\\shaders\\" + filename, &shaderCode, &shaderSize);
+    bool loaded = tools::LoadBytesFromFile("~/KitevaGameEngine/shaders/" + filename, &shaderCode, &shaderSize);
 
     // Если не удалось загрузить или файл пуст
     if (!loaded || shaderSize == 0){
@@ -783,7 +783,7 @@ void kge::tools::LogMessage(std::string message, bool printTime)
     std::cout << result;
 
     try {
-        std::string filePath = std::string("D:\\GitHub\\KitevaGameEngine\\") + LOG_FILENAME;
+        std::string filePath = std::string("~/KitevaGameEngine/shaders/") + LOG_FILENAME;
 
         std::fstream fs;
         fs.exceptions(std::ios::failbit | std::ios::badbit);

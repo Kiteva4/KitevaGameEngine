@@ -12,6 +12,7 @@
 #include <graphic/VulkanCoreModules/KGEVkDevice.h>
 #include <graphic/VulkanCoreModules/KGEVkRenderPass.h>
 #include <graphic/VulkanCoreModules/KGEVkSwapChain.h>
+#include <graphic/VulkanCoreModules/KGEVkGraphicsPipeline.h>
 
 // Параметры камеры по умолчанию (угол обзора, границы отсечения)
 #define DEFAULT_FOV 60.0f
@@ -230,12 +231,7 @@ private:
 
     /* Pipeline */
     VkPipeline m_pipeline; // Основной графический конвейер
-    VkPipeline InitGraphicsPipeline(const kge::vkstructs::Device &device,
-                                    VkPipelineLayout pipelineLayout,
-                                    const kge::vkstructs::Swapchain &swapchain,
-                                    VkRenderPass renderPass);
-    void DeinitGraphicsPipeline(const kge::vkstructs::Device &device,
-                                VkPipeline * pipeline);
+    KGEVkGraphicsPipeline* m_kgeVkGraphicsPipeline;
 
     unsigned int m_primitivesMaxCount;           // Максимальное кол-во примитивов (необходимо для аллокации динамического UBO буфера)
 
