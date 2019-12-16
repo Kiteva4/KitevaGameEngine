@@ -21,6 +21,7 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
                              std::vector <const char*> validationLayersRequired) :
     m_isReady(false),
     m_isRendering(true),
+    m_primitivesMaxCount(primitivesMaxCount),
 
     // Ширина и высота
     m_width(width),
@@ -36,22 +37,45 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
     m_kgeVkDevice{&m_device, m_vkInstance, m_vkSurface, deviceExtensionsRequired, validationLayersRequired, false},
     // Инициализация прохода рендеринга
     m_renderPass{},
-    m_kgeRenderPass{new KGEVkRenderPass{&m_renderPass, m_device, m_vkSurface, VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT}},
+    m_kgeRenderPass{new KGEVkRenderPass{&m_renderPass, &m_device, m_vkSurface, VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT}},
     // Инициализация swap-chain
     m_swapchain{},
-    m_kgeSwapChain{new KGEVkSwapChain{&m_swapchain, m_device, m_vkSurface, { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }, VK_FORMAT_D32_SFLOAT_S8_UINT, m_renderPass, 3}},
+    m_kgeSwapChain{new KGEVkSwapChain{&m_swapchain, &m_device, m_vkSurface, { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }, VK_FORMAT_D32_SFLOAT_S8_UINT, m_renderPass, 3}},
+    // Инциализация командного пула
+    m_commandPoolDraw{},
+    m_kgeVkCommandPool{&m_commandPoolDraw, &m_device, static_cast<unsigned int>(m_device.queueFamilies.graphics)},
+    // Аллокация командных буферов (получение хендлов)
+    m_commandBuffersDraw{},
+    m_kgeVkCommandBuffer{new KGEVkCommandBuffer{&m_commandBuffersDraw, &m_device, &m_commandPoolDraw, static_cast<unsigned int>(m_swapchain.framebuffers.size())}},
+    //Аллокация глобального uniform-буфера
+    m_uniformBufferWorld{},
+    m_kgeVkUniformBufferWorld{&m_uniformBufferWorld, &m_device},
+    // Аллокация uniform-буфера отдельных объектов (динамический буфер)
+    m_uniformBufferModels{},
+    m_kgeVkUniformBufferModels{&m_uniformBufferModels, &m_device, m_primitivesMaxCount},
+    // Создание дескрипторного пула для выделения основного набора (для unform-буфера)
+    m_descriptorPoolMain{},
+    m_kgeVkDescriptorPoolMain{&m_descriptorPoolMain, &m_device},
+    // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
+    m_descriptorPoolTextures{},
+    m_kgeVkDescriptorPoolTextures{&m_descriptorPoolTextures, &m_device, 1000},
+    // Инициализация размещения основного дескрипторного набора
+    m_descriptorSetLayoutMain{},
+    m_kgeVkDescriptorSetLayoutMain{&m_descriptorSetLayoutMain, &m_device, SetLayoutMain},
+    // Инициализация размещения теккстурного набора
+    m_descriptorSetLayoutTextures{},
+    m_kgeVkDescriptorSetLayoutTextures{&m_descriptorSetLayoutTextures, &m_device, SetLayoutTextures},
 
-    m_commandPoolDraw(nullptr),
-    m_descriptorSetLayoutMain(nullptr),
-    m_descriptorSetLayoutTextures(nullptr),
     m_descriptorSetMain(nullptr),
-    m_pipelineLayout(nullptr),
+
+    // Инициализация размещения графического конвейера
+    m_pipelineLayout{},
+    m_kgeVkPipelineLayout{&m_pipelineLayout, &m_device, { m_descriptorSetLayoutMain, m_descriptorSetLayoutTextures}},
 
     // Инициализация графического конвейера
     m_pipeline{},
-    m_kgeVkGraphicsPipeline{ new KGEVkGraphicsPipeline{&m_pipeline, m_device, m_pipelineLayout, m_swapchain, m_renderPass}},
+    m_kgeVkGraphicsPipeline{ new KGEVkGraphicsPipeline{&m_pipeline, &m_device, m_pipelineLayout, m_swapchain, m_renderPass}},
 
-    m_primitivesMaxCount(primitivesMaxCount),
     m_uboModels(nullptr)
 {
     // Присвоить параметры камеры по умолчанию
@@ -59,21 +83,21 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
     m_camera.fFar  = DEFAULT_FAR;
     m_camera.fNear = DEFAULT_NEAR;
 
-    m_commandPoolDraw = InitCommandPool(m_device, static_cast<unsigned int>(m_device.queueFamilies.graphics));
+    //m_commandPoolDraw = InitCommandPool(m_device, static_cast<unsigned int>(m_device.queueFamilies.graphics));
     // Аллокация командных буферов (получение хендлов)
-    m_commandBuffersDraw = InitCommandBuffers(m_device, m_commandPoolDraw, static_cast<unsigned int>(m_swapchain.framebuffers.size()));
+    //m_commandBuffersDraw = InitCommandBuffers(m_device, m_commandPoolDraw, static_cast<unsigned int>(m_swapchain.framebuffers.size()));
     // Аллокация глобального uniform-буфера
-    m_uniformBufferWorld = InitUnformBufferWorld(m_device);
+    //m_uniformBufferWorld = InitUnformBufferWorld(m_device);
     // Аллокация uniform-буфера отдельных объектов (динамический буфер)
-    m_uniformBufferModels = InitUniformBufferModels(m_device, m_primitivesMaxCount);
+   // m_uniformBufferModels = InitUniformBufferModels(m_device, m_primitivesMaxCount);
     // Создание дескрипторного пула для выделения основного набора (для unform-буфера)
-    m_descriptorPoolMain = InitDescriptorPoolMain(m_device);
+    //m_descriptorPoolMain = InitDescriptorPoolMain(m_device);
     // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
-    m_descriptorPoolTextures = InitDescriptorPoolTextures(m_device);
+    //m_descriptorPoolTextures = InitDescriptorPoolTextures(m_device);
     // Инициализация размещения основного дескрипторного набора
-    m_descriptorSetLayoutMain = InitDescriptorSetLayoutMain(m_device);
+//    m_descriptorSetLayoutMain = InitDescriptorSetLayoutMain(m_device);
     // Инициализация размещения теккстурного набора
-    m_descriptorSetLayoutTextures = InitDescriptorSetLayoutTextures(m_device);
+//    m_descriptorSetLayoutTextures = InitDescriptorSetLayoutTextures(m_device);
     // Инициализация текстурного семплера
     m_textureSampler = InitTextureSampler(m_device);
     // Инициализация дескрипторного набора
@@ -86,8 +110,7 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
 
     // Аллокация памяти массива ubo-объектов отдельных примитивов
     m_uboModels = AllocateUboModels(m_device, m_primitivesMaxCount);
-    // Инициализация размещения графического конвейера
-    m_pipelineLayout = InitPipelineLayout(m_device, { m_descriptorSetLayoutMain, m_descriptorSetLayoutTextures});
+
     // Примитивы синхронизации
     m_sync = InitSynchronization(m_device);
     // Подготовка базовых комманд
@@ -136,18 +159,12 @@ void KGEVulkanCore::VideoSettingsChanged()
 {
     // Оставноить выполнение команд
     Pause();
-
-    // В начале деинициализировать компоненты зависимые от swap-chain
-    DeinitCommandBuffers(m_device, m_commandPoolDraw, &m_commandBuffersDraw);
-
+    delete m_kgeVkCommandBuffer;
     delete m_kgeVkGraphicsPipeline;// DeinitGraphicsPipeline(m_device, &m_pipeline);
-
-    // Render pass не зависит от swap-chain, но поскольку поверхность могла сменить свои свойства - следует пересоздать
-    // по новой, проверив формат цветового вложения
     delete m_kgeRenderPass;
     m_kgeRenderPass = new KGEVkRenderPass{
             &m_renderPass,
-            m_device,
+            &m_device,
             m_vkSurface,
             VK_FORMAT_B8G8R8A8_UNORM,
             VK_FORMAT_D32_SFLOAT_S8_UINT};
@@ -160,7 +177,7 @@ void KGEVulkanCore::VideoSettingsChanged()
     // Инициализируем обновленный
     m_kgeSwapChain = new KGEVkSwapChain{
             &m_swapchain,
-            m_device,
+            &m_device,
             m_vkSurface,
     {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR },
             VK_FORMAT_D32_SFLOAT_S8_UINT,
@@ -169,11 +186,9 @@ void KGEVulkanCore::VideoSettingsChanged()
             &oldSwapChain};
 
     // Инициализация графического конвейера
-    m_kgeVkGraphicsPipeline = new KGEVkGraphicsPipeline{&m_pipeline, m_device, m_pipelineLayout, m_swapchain, m_renderPass};
+    m_kgeVkGraphicsPipeline = new KGEVkGraphicsPipeline{&m_pipeline, &m_device, m_pipelineLayout, m_swapchain, m_renderPass};
     // Аллокация командных буферов (получение хендлов)
-    m_commandBuffersDraw = InitCommandBuffers(m_device,
-                                              m_commandPoolDraw,
-                                              static_cast<unsigned int>(m_swapchain.framebuffers.size()));
+    m_kgeVkCommandBuffer = new KGEVkCommandBuffer{&m_commandBuffersDraw, &m_device, &m_commandPoolDraw, static_cast<unsigned int>(m_swapchain.framebuffers.size())};
 
     // Подготовка базовых комманд
     PrepareDrawCommands(
@@ -618,7 +633,7 @@ KGEVulkanCore::~KGEVulkanCore()
     //DeinitGraphicsPipeline(m_device, &m_pipeline);
 
     // Деинициализация графического конвейера
-    DeinitPipelineLayout(m_device, &m_pipelineLayout);
+    //DeinitPipelineLayout(&m_device, &m_pipelineLayout);
 
     // Очистка памяти массива ubo-объектов отдельных примитивов
     FreeUboModels(&(m_uboModels));
@@ -630,28 +645,28 @@ KGEVulkanCore::~KGEVulkanCore()
     DeinitTextureSampler(m_device, &m_textureSampler);
 
     // Деинициализация размещения текстурного дескрипторного набора
-    DeinitDescriporSetLayout(m_device, &m_descriptorSetLayoutTextures);
+    //DeinitDescriporSetLayout(m_device, &m_descriptorSetLayoutTextures);
 
     // Деинициализация размещения основоного дескрипторного набора
-    DeinitDescriporSetLayout(m_device, &m_descriptorSetLayoutMain);
+   // DeinitDescriporSetLayout(m_device, &m_descriptorSetLayoutMain);
 
     // Уничтожение ntrcnehyjuj дескрипторного пула
-    DeinitDescriptorPool(m_device, &m_descriptorPoolTextures);
+    //DeinitDescriptorPool(m_device, &m_descriptorPoolTextures);
 
     // Уничтожение основного дескрипторного пула
-    DeinitDescriptorPool(m_device, &m_descriptorPoolMain);
+    //DeinitDescriptorPool(m_device, &m_descriptorPoolMain);
 
     // Деинициализация uniform-буффера объектов
-    DeinitUniformBuffer(m_device, &m_uniformBufferModels);
+    //DeinitUniformBuffer(m_device, &m_uniformBufferModels);
 
     // Деинициализация глобального uniform-буффера
-    DeinitUniformBuffer(m_device, &m_uniformBufferWorld);
+    //DeinitUniformBuffer(m_device, &m_uniformBufferWorld);
 
     // Деинициализация командных буферов
-    DeinitCommandBuffers(m_device, m_commandPoolDraw, &m_commandBuffersDraw);
+    //DeinitCommandBuffers(m_device, m_commandPoolDraw, &m_commandBuffersDraw);
 
     // Деинициализация командного пула
-    DeinitCommandPool(m_device, &m_commandPoolDraw);
+    // DeinitCommandPool(m_device, &m_commandPoolDraw);
 
     //    // Деинициализация swap-chain'а
     //    DeinitSwapchain(m_device, &m_swapchain);
@@ -669,420 +684,6 @@ KGEVulkanCore::~KGEVulkanCore()
     //    DeinitInstance(&m_instance);
 }
 
-/**
-* Инициализация прохода рендеринга.
-* @param const vktoolkit::Device &device - устройство
-* @param VkSurfaceKHR surface - хендл поверхности, передается лишь для проверки поддержки запрашиваемого формата
-* @param VkFormat colorAttachmentFormat - формат цветовых вложений/изображений, должен поддерживаться поверхностью
-* @param VkFormat depthStencilFormat - формат вложений глубины, должен поддерживаться устройством
-* @return VkRenderPass - хендл прохода рендеринга
-*
-* @note - Проход рендеринга можно понимать как некую стадию на которой выполняются все команды рендерига и происходит цикл конвейера
-* Проход состоит из под-проходов, и у каждого под-прохода может быть своя конфигурация конвейера. Конфигурация же прохода
-* определяет в каком состоянии (размещении памяти) будет вложение (цветовое, глубины и тд)
-*/
-
-/**
-* Инциализация командного пула
-* @param const kge::vkstructs::Device &device - устройство
-* @param unsigned int queueFamilyIndex - индекс семейства очередей команды которого будут передаваться в аллоцированных их пуда буферах
-* @return VkCommandPool - хендл командного пула
-* @note - из командных пулов осуществляется аллокация буферов команд, следует учитывать что для отедльных очередей нужны отдельные пулы
-*/
-VkCommandPool KGEVulkanCore::InitCommandPool(const kge::vkstructs::Device &device,
-                                             unsigned int queueFamilyIndex)
-{
-    // Результат
-    VkCommandPool resultPool = nullptr;
-
-    // Описание пула
-    VkCommandPoolCreateInfo commandPoolCreateInfo = {};
-    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    commandPoolCreateInfo.queueFamilyIndex = static_cast<unsigned int>(queueFamilyIndex);
-    commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-    // Создание пула
-    if (vkCreateCommandPool(device.logicalDevice, &commandPoolCreateInfo, nullptr, &resultPool) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error in vkCreateCommandPool function. Failed to create command pool");
-    }
-
-    kge::tools::LogMessage("Vulkan: Command pool successfully initialized");
-
-    // Вернуть pool
-    return resultPool;
-}
-
-/**
-* Деинциализация командного пула
-* @param const kge::vkstructs::Device &device - устройство
-* @param VkCommandPool * commandPool - указатель на хендл командного пула
-*/
-void KGEVulkanCore::DeinitCommandPool(const kge::vkstructs::Device &device,
-                                      VkCommandPool *commandPool)
-{
-    if (commandPool != nullptr && *commandPool != nullptr) {
-        vkDestroyCommandPool(device.logicalDevice, *commandPool, nullptr);
-        *commandPool = nullptr;
-        kge::tools::LogMessage("Vulkan: Command pool successfully deinitialized");
-    }
-}
-
-/**
-* Аллокация командных буферов
-* @param const kge::vkstructs::Device &device - устройство
-* @param VkCommandPool commandPool - хендл командного пула из которого будет осуществляться аллокация
-* @param unsigned int count - кол-во аллоцируемых буферов
-* @return std::vector<VkCommandBuffer> массив хендлов командных буферов
-*/
-std::vector<VkCommandBuffer> KGEVulkanCore::InitCommandBuffers(const kge::vkstructs::Device &device,
-                                                               VkCommandPool commandPool,
-                                                               unsigned int count)
-{
-    // Результат
-    std::vector<VkCommandBuffer> resultBuffers(count);
-
-    // Конфигурация аллокации буферов
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;                               // Указание командного пула
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;                 // Передается в очередь непосредственно
-    allocInfo.commandBufferCount = static_cast<unsigned int>(resultBuffers.size()); // Кол-во командных буферов
-
-    // Аллоцировать буферы команд
-    if (vkAllocateCommandBuffers(device.logicalDevice, &allocInfo, resultBuffers.data()) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error in vkAllocateCommandBuffers function. Failed to allocate command buffers");
-    }
-
-    kge::tools::LogMessage("Vulkan: Command buffers successfully allocated");
-
-    // Вернуть массив хендлов
-    return resultBuffers;
-}
-
-/**
-* Деинициализация (очистка) командных буферов
-* @param const kge::vkstructs::Device &device - устройство
-* @param VkCommandPool commandPool - хендл командного пула из которого были аллоцированы буферы
-* @param std::vector<VkCommandBuffer> * buffers - указатель на массив с хендлами буферов (он будет обнулен после очистки)
-*/
-void KGEVulkanCore::DeinitCommandBuffers(const kge::vkstructs::Device &device,
-                                         VkCommandPool commandPool,
-                                         std::vector<VkCommandBuffer> *buffers)
-{
-    // Если массив индентификаторов буферов команд рисования не пуст
-    if (device.logicalDevice != nullptr && buffers != nullptr && !buffers->empty()) {
-        // Очистисть память
-        vkFreeCommandBuffers(device.logicalDevice, commandPool, static_cast<unsigned int>(buffers->size()), buffers->data());
-        // Очистить массив
-        buffers->clear();
-
-        kge::tools::LogMessage("Vulkan: Command buffers successfully freed");
-    }
-}
-
-/**
-* Создание мирового (глобального) unform-buffer'а
-* @param const kge::vkstructs::Device &device - устройство
-* @return kge::vkstructs::UniformBuffer - буфер, структура с хендлами буфера, его памяти, а так же доп. свойствами
-*
-* @note - unform-буфер это буфер доступный для шейдера посредством дескриптороа. В нем содержится информация о матрицах используемых
-* для преобразования координат вершин сцены. В буфер помещается UBO объект содержащий необходимые матрицы. При каждом обновлении сцены
-* можно отправлять объект с новыми данными (например, если сменилось положение камеры, либо угол ее поворота). Таким образом шейдер будет
-* использовать для преобразования координат вершины новые данные.
-*/
-kge::vkstructs::UniformBuffer KGEVulkanCore::InitUnformBufferWorld(const kge::vkstructs::Device &device)
-{
-    // Результирующий объект
-    kge::vkstructs::UniformBuffer resultBuffer = {};
-
-    // Создать буфер, выделить память, привязать память к буферу
-    kge::vkstructs::Buffer buffer = kge::vkutility::CreateBuffer(
-                device,
-                sizeof(kge::vkstructs::UboWorld),
-                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    // Основная конфиуграция результирущего буфера
-    resultBuffer.vkBuffer = buffer.vkBuffer;
-    resultBuffer.vkDeviceMemory = buffer.vkDeviceMemory;
-    resultBuffer.size = buffer.size;
-
-    // Настройка информации для дескриптора
-    resultBuffer.configDescriptorInfo(buffer.size, 0);
-
-    // Разметить буфер (сделать его доступным для копирования информации)
-    resultBuffer.map(device.logicalDevice, buffer.size, 0);
-
-    kge::tools::LogMessage("Vulkan: Uniform buffer for world scene successfully allocated");
-
-    return resultBuffer;
-}
-
-/**
-* Создание буфера для моделей (динамический uniform-bufer)
-* @param const kge::vkstructs::Device &device - устройство
-* @param unsigned int maxObjects - максимальное кол-во отдельных объектов на сцене
-* @return kge::vkstructs::UniformBuffer - буфер, структура с хендлами буфера, его памяти, а так же доп. свойствами
-*
-* @note - в отличии от мирового uniform-буфера, uniform-буфер моделей содержит отдельные матрицы для каждой модели (по сути массив)
-* и выделение памяти под передаваемый в такой буфер объект должно использовать выравнивание. У устройства есть определенные лимиты
-* на выравнивание памяти, поэтому размер такого буфера вычисляется с учетом допустимого шага выравивания и кол-ва объектов которые
-* могут быть на сцене.
-*/
-kge::vkstructs::UniformBuffer KGEVulkanCore::InitUniformBufferModels(const kge::vkstructs::Device &device,
-                                                                     unsigned int maxObjects)
-{
-    // Результирующий объект
-    kge::vkstructs::UniformBuffer resultBuffer = {};
-
-    // Вычислить размер буфера учитывая доступное вырванивание памяти (для типа glm::mat4 размером в 64 байта)
-    VkDeviceSize bufferSize = device.GetDynamicAlignment<glm::mat4>() * maxObjects;
-
-    kge::vkstructs::Buffer buffer = kge::vkutility::CreateBuffer(
-                device,
-                bufferSize,
-                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
-    // Настройка результирубщего буфера (uniform-буфер)
-    resultBuffer.vkBuffer = buffer.vkBuffer;
-    resultBuffer.vkDeviceMemory = buffer.vkDeviceMemory;
-    resultBuffer.size = buffer.size;
-
-    // Настройка информации для дескриптора
-    resultBuffer.configDescriptorInfo(VK_WHOLE_SIZE);
-
-    // Разметить буфер (сделать его доступным для копирования информации)
-    resultBuffer.map(device.logicalDevice, VK_WHOLE_SIZE, 0);
-
-    kge::tools::LogMessage("Vulkan: Uniform buffer for models successfully allocated");
-
-    return resultBuffer;
-}
-
-/**
-* Деинициализация (очистка) командного буфера
-* @param const kge::vkstructs::Device &device - устройство
-* @param kge::vkstructs::UniformBuffer * uniformBuffer - указатель на структуру буфера
-*/
-void KGEVulkanCore::DeinitUniformBuffer(const kge::vkstructs::Device &device,
-                                        kge::vkstructs::UniformBuffer *uniformBuffer)
-{
-    if (uniformBuffer != nullptr) {
-
-        uniformBuffer->unmap(device.logicalDevice);
-
-        if (uniformBuffer->vkBuffer != nullptr) {
-            vkDestroyBuffer(device.logicalDevice, uniformBuffer->vkBuffer, nullptr);
-            uniformBuffer->vkBuffer = nullptr;
-        }
-
-        if (uniformBuffer->vkDeviceMemory != nullptr) {
-            vkFreeMemory(device.logicalDevice, uniformBuffer->vkDeviceMemory, nullptr);
-            uniformBuffer->vkDeviceMemory = nullptr;
-        }
-
-        uniformBuffer->descriptorBufferInfo = {};
-        *uniformBuffer = {};
-
-        kge::tools::LogMessage("Vulkan: Uniform buffer successfully deinitialized");
-    }
-}
-
-/**
-* Инициализация основного декскрипторного пула
-* @param const kge::vkstructs::Device &device - устройство
-* @return VkDescriptorPool - хендл дескрипторного пула
-* @note - дескрипторный пул позволяет выделять специальные наборы дескрипторов, обеспечивающие доступ к определенным буферам из шейдера
-*/
-VkDescriptorPool KGEVulkanCore::InitDescriptorPoolMain(const kge::vkstructs::Device &device)
-{
-    // Хендл нового дескрипторого пула
-    VkDescriptorPool descriptorPoolResult = nullptr;
-
-    // Парамтеры размеров пула
-    std::vector<VkDescriptorPoolSize> descriptorPoolSizes =
-    {
-        // Один дескриптор для глобального uniform-буфера
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER , 1 },
-        // Один дескриптор для unform-буферов отдельных объектов (динамический)
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 }
-    };
-
-
-    // Конфигурация пула
-    VkDescriptorPoolCreateInfo poolInfo = {};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size());
-    poolInfo.pPoolSizes = descriptorPoolSizes.data();
-    poolInfo.maxSets = 1;
-
-    // Создание дескрипторного пула
-    if (vkCreateDescriptorPool(device.logicalDevice, &poolInfo, nullptr, &descriptorPoolResult) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error in vkCreateDescriptorPool function. Cant't create descriptor pool");
-    }
-
-    kge::tools::LogMessage("Vulkan: Main descriptor pool successfully initialized");
-
-    // Отдать результат
-    return descriptorPoolResult;
-}
-
-/**
-* Инициализация декскрипторного пула под текстурные наборы дескрипторов
-* @param const kge::vkstructs::Device &device - устройство
-* @param uint32_t maxDescriptorSets - максимальное кол-во наборов
-* @return VkDescriptorPool - хендл дескрипторного пула
-* @note - дескрипторный пул позволяет выделять специальные наборы дескрипторов, обеспечивающие доступ к определенным буферам из шейдера
-*/
-VkDescriptorPool KGEVulkanCore::InitDescriptorPoolTextures(const kge::vkstructs::Device &device,
-                                                           uint32_t maxDescriptorSets)
-{
-    // Хендл нового дескрипторого пула
-    VkDescriptorPool descriptorPoolResult = nullptr;
-
-    // Парамтеры размеров пула
-    std::vector<VkDescriptorPoolSize> descriptorPoolSizes =
-    {
-        // Один дескриптор для текстурного семплера
-        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER , 1 },
-    };
-
-    // Конфигурация пула
-    VkDescriptorPoolCreateInfo poolInfo = {};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size());
-    poolInfo.pPoolSizes = descriptorPoolSizes.data();
-    poolInfo.maxSets = maxDescriptorSets;
-
-    // Создание дескрипторного пула
-    if (vkCreateDescriptorPool(device.logicalDevice, &poolInfo, nullptr, &descriptorPoolResult) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error in vkCreateDescriptorPool function. Cant't create descriptor pool");
-    }
-
-    kge::tools::LogMessage("Vulkan: Texture descriptor pool successfully initialized");
-
-    // Отдать результат
-    return descriptorPoolResult;
-}
-
-/**
-* Деинициализация дескрипторного пула
-* @param const kge::vkstructs::Device &device - устройство
-* @VkDescriptorPool * descriptorPool - указатель на хендл дескрипторного пула
-*/
-void KGEVulkanCore::DeinitDescriptorPool(const kge::vkstructs::Device &device,
-                                         VkDescriptorPool *descriptorPool)
-{
-    if (descriptorPool != nullptr && *descriptorPool != nullptr) {
-        vkDestroyDescriptorPool(device.logicalDevice, *descriptorPool, nullptr);
-        *descriptorPool = nullptr;
-        kge::tools::LogMessage("Vulkan: Descriptor pool successfully deinitialized");
-    }
-}
-
-/**
-* Инициализация описания размещения дескрипторного пула (под основной дескрипторный набор)
-* @param const kge::vkstructs::Device &device - устройство
-* @return VkDescriptorSetLayout - хендл размещения дескрипторного пула
-* @note - Размещение - информация о том сколько и каких именно (какого типа) дескрипторов следует ожидать на определенных этапах конвейера
-*/
-VkDescriptorSetLayout KGEVulkanCore::InitDescriptorSetLayoutMain(const kge::vkstructs::Device &device)
-{
-    // Результирующий хендл
-    VkDescriptorSetLayout layoutResult = nullptr;
-
-    // Необходимо описать привязки дескрипторов к этапам конвейера
-    // Каждая привязка соостветствует типу дескриптора и может относиться к определенному этапу графического конвейера
-    std::vector<VkDescriptorSetLayoutBinding> bindings =
-    {
-        {
-            0,                                            // Индекс привязки
-            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,            // Тип дескриптора (буфер формы, обычный)
-            1,                                            // Кол-во дескрипторов
-            VK_SHADER_STAGE_VERTEX_BIT,                   // Этап конвейера (вершинный шейдер)
-            nullptr
-        },
-        {
-            1,                                            // Индекс привязки
-            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,    // Тип дескриптора (буфер формы, динамический)
-            1,                                            // Кол-во дескрипторов
-            VK_SHADER_STAGE_VERTEX_BIT,                   // Этап конвейера (вершинный шейдер)
-            nullptr
-        },
-    };
-
-    // Инициализировать размещение дескрипторного набора
-    VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo = {};
-    descriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    descriptorLayoutInfo.pNext = nullptr;
-    descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    descriptorLayoutInfo.pBindings = bindings.data();
-
-    if (vkCreateDescriptorSetLayout(device.logicalDevice, &descriptorLayoutInfo, nullptr, &layoutResult) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error in vkCreateDescriptorSetLayout. Can't initialize descriptor set layout");
-    }
-
-    kge::tools::LogMessage("Vulkan: Main descriptor set layout successfully initialized");
-
-    return layoutResult;
-}
-
-/**
-* Инициализация описания размещения дескрипторного пула (под текстурные наборы дескрипторов)
-* @param const kge::vkstructs::Device &device - устройство
-* @return VkDescriptorSetLayout - хендл размещения дескрипторного пула
-* @note - Размещение - информация о том сколько и каких именно (какого типа) дескрипторов следует ожидать на определенных этапах конвейера
-*/
-VkDescriptorSetLayout KGEVulkanCore::InitDescriptorSetLayoutTextures(const kge::vkstructs::Device &device)
-{
-    // Результирующий хендл
-    VkDescriptorSetLayout layoutResult = nullptr;
-
-    // Необходимо описать привязки дескрипторов к этапам конвейера
-    // Каждая привязка соостветствует типу дескриптора и может относиться к определенному этапу графического конвейера
-    std::vector<VkDescriptorSetLayoutBinding> bindings =
-    {
-        {
-            0,                                            // Индекс привязки
-            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,    // Тип дескриптора (семплер изображения)
-            1,                                            // Кол-во дескрипторов
-            VK_SHADER_STAGE_FRAGMENT_BIT,                 // Этап конвейера (вершинный шейдер)
-            nullptr
-        },
-    };
-
-    // Инициализировать размещение дескрипторного набора
-    VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo = {};
-    descriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    descriptorLayoutInfo.pNext = nullptr;
-    descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    descriptorLayoutInfo.pBindings = bindings.data();
-
-    if (vkCreateDescriptorSetLayout(device.logicalDevice, &descriptorLayoutInfo, nullptr, &layoutResult) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error in vkCreateDescriptorSetLayout. Can't initialize descriptor set layout");
-    }
-
-    kge::tools::LogMessage("Vulkan: Texture descriptor set layout successfully initialized");
-
-    return layoutResult;
-}
-
-/**
-* Деинициализация размещения
-* @param const kge::vkstructs::Device &device - устройство
-* @VkDescriptorSetLayout * descriptorSetLayout - указатель на хендл размещения
-*/
-void KGEVulkanCore::DeinitDescriporSetLayout(const kge::vkstructs::Device &device,
-                                             VkDescriptorSetLayout *descriptorSetLayout)
-{
-    if (device.logicalDevice != nullptr && descriptorSetLayout != nullptr && *descriptorSetLayout != nullptr) {
-        vkDestroyDescriptorSetLayout(device.logicalDevice, *descriptorSetLayout, nullptr);
-        *descriptorSetLayout = nullptr;
-
-        kge::tools::LogMessage("Vulkan: Descriptor set layout successfully deinitialized");
-    }
-}
 
 /**
 * Инициализация текстурного семплера
@@ -1256,48 +857,6 @@ void KGEVulkanCore::FreeUboModels(kge::vkstructs::UboModelArray *uboModels)
     free(*uboModels);
     *uboModels = nullptr;
     kge::tools::LogMessage("Vulkan: Dynamic UBO satage-buffer successfully freed");
-}
-
-/**
-* Инициализация размещения графического конвейера
-* @param const vktoolkit::Device &device - устройство
-* @param std::vector<VkDescriptorSetLayout> descriptorSetLayouts - хендлы размещениий дискрипторного набора (дает конвейеру инфу о дескрипторах)
-* @return VkPipelineLayout - хендл размещения конвейера
-*/
-VkPipelineLayout KGEVulkanCore::InitPipelineLayout(const kge::vkstructs::Device &device,
-                                                   std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
-{
-    VkPipelineLayout resultLayout;
-
-    VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
-    pPipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pPipelineLayoutCreateInfo.pNext = nullptr;
-    pPipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-    pPipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
-
-    if (vkCreatePipelineLayout(device.logicalDevice, &pPipelineLayoutCreateInfo, nullptr, &resultLayout) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error while creating pipeline layout");
-    }
-
-    kge::tools::LogMessage("Vulkan: Pipeline layout successfully initialized");
-
-    return resultLayout;
-}
-
-/**
-* Деинициализация размещения графического конвейера
-* @param const vktoolkit::Device &device - устройство
-* @param VkPipelineLayout * pipelineLayout - указатель на хендл размещения
-*/
-void KGEVulkanCore::DeinitPipelineLayout(const kge::vkstructs::Device &device,
-                                         VkPipelineLayout *pipelineLayout)
-{
-    if (device.logicalDevice != nullptr && pipelineLayout != nullptr && *pipelineLayout != nullptr) {
-        vkDestroyPipelineLayout(device.logicalDevice, *pipelineLayout, nullptr);
-        *pipelineLayout = nullptr;
-
-        kge::tools::LogMessage("Vulkan: Pipeline layout successfully deinitialized");
-    }
 }
 
 /**

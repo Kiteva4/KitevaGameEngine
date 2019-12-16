@@ -20,9 +20,14 @@ set(HDRS
     include/graphic/VulkanCoreModules/KGEVkDevice.h
     include/graphic/VulkanCoreModules/KGEVkRenderPass.h
     include/graphic/VulkanCoreModules/KGEVkSwapChain.h
-    include/graphic/VulkanCoreModules/KGECommandPool.h
     include/graphic/VulkanCoreModules/KGEVkCommandBuffer.h
     include/graphic/VulkanCoreModules/KGEVkGraphicsPipeline.h
+    include/graphic/VulkanCoreModules/KGEVkPipelineLayout.h
+    include/graphic/VulkanCoreModules/KGEVkCommandPool.h
+    include/graphic/VulkanCoreModules/KGEVkUniformBufferWorld.h
+    include/graphic/VulkanCoreModules/KGEVkUniformBufferModels.h
+    include/graphic/VulkanCoreModules/KGEVkDescriptorPool.h
+    include/graphic/VulkanCoreModules/KGEVkDescriptorSetLayout.h
     include/application/KGEAppData.h
     )
 
@@ -40,9 +45,14 @@ set(SRCS
     src/graphic/VulkanCoreModules/KGEVkDevice.cpp
     src/graphic/VulkanCoreModules/KGEVkRenderPass.cpp
     src/graphic/VulkanCoreModules/KGEVkSwapChain.cpp
-    src/graphic/VulkanCoreModules/KGECommandPool.cpp
     src/graphic/VulkanCoreModules/KGEVkCommandBuffer.cpp
     src/graphic/VulkanCoreModules/KGEVkGraphicsPipeline.cpp
+    src/graphic/VulkanCoreModules/KGEVkPipelineLayout.cpp
+    src/graphic/VulkanCoreModules/KGEVkCommandPool.cpp
+    src/graphic/VulkanCoreModules/KGEVkUniformBufferWorld.cpp
+    src/graphic/VulkanCoreModules/KGEVkUniformBufferModels.cpp
+    src/graphic/VulkanCoreModules/KGEVkDescriptorPool.cpp
+    src/graphic/VulkanCoreModules/KGEVkDescriptorSetLayout.cpp
     src/application/KGEAppData.cpp
     )
 

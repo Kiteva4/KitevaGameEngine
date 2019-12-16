@@ -5,11 +5,11 @@
 class KGEVkSwapChain
 {
     //Структура содержит хендлы свопчейна, изображений, фрейм-буферов и тд
-    kge::vkstructs::Swapchain *m_swapchain;
-    const kge::vkstructs::Device &m_device;
+    kge::vkstructs::Swapchain* m_swapchain;
+    const kge::vkstructs::Device* m_device;
 public:
     KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
-                   const kge::vkstructs::Device &device,
+                   const kge::vkstructs::Device* device,
                    VkSurfaceKHR surface,
                    VkSurfaceFormatKHR surfaceFormat,
                    VkFormat depthStencilFormat,

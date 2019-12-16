@@ -120,6 +120,7 @@ bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char*> ins
     return true;
 }
 
+#include <sstream>
 //Функция, которая будет вызываться слоем валидации при обнаружении ошибок
 VKAPI_ATTR VkBool32 VKAPI_CALL kge::vkutility::DebugVulkanCallback(
         VkDebugReportFlagsEXT msgFlags,
@@ -674,6 +675,8 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::filesystem::path shaderFileP
 
     // Загрузить код шейдера
     bool loaded = tools::LoadBytesFromFile(shaderFilePath, &shaderCode, &shaderSize);
+
+    std::cout << "--- " << shaderFilePath.filename().c_str() << " size is " << std::filesystem::file_size(shaderFilePath) << std::endl;
 
     // Если не удалось загрузить или файл пуст
     if (!loaded || shaderSize == 0){

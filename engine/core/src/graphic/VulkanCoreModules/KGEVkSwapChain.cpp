@@ -13,7 +13,7 @@
 * @note - в одно изображение может происходить запись (рендеринг) в то время как другое будет показываться (презентация)
 */
 KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
-                               const kge::vkstructs::Device &device,
+                               const kge::vkstructs::Device* device,
                                VkSurfaceKHR surface,
                                VkSurfaceFormatKHR surfaceFormat,
                                VkFormat depthStencilFormat,
@@ -24,7 +24,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     m_device{device}
 {
     // Информация о поверхности
-    kge::vkstructs::SurfaceInfo si = kge::vkutility::GetSurfaceInfo(device.physicalDevice, surface);
+    kge::vkstructs::SurfaceInfo si = kge::vkutility::GetSurfaceInfo(device->physicalDevice, surface);
 
     // Проверка доступности формата и цветового пространства изображений
     if (!si.IsSurfaceFormatSupported(surfaceFormat)) {
@@ -32,7 +32,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     }
 
     // Проверка доступности формата глубины
-    if (!device.IsDepthFormatSupported(depthStencilFormat)) {
+    if (!device->IsDepthFormatSupported(depthStencilFormat)) {
         throw std::runtime_error("Vulkan: Required depth-stencil format is not supported. Can't initialize render-pass");
     }
 
@@ -87,13 +87,13 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
 
     // Индексы семейств
     std::vector<unsigned int> queueFamilyIndices = {
-        static_cast<unsigned int>(device.queueFamilies.graphics),
-        static_cast<unsigned int>(device.queueFamilies.present)
+        static_cast<unsigned int>(device->queueFamilies.graphics),
+        static_cast<unsigned int>(device->queueFamilies.present)
     };
 
     // Если для команд графики и представления используются разные семейства, значит доступ к ресурсу (в данном случае к буферам изображений)
     // должен быть распараллелен (следует использовать VK_SHARING_MODE_CONCURRENT, указав при этом кол-во семейств и их индексы)
-    if (device.queueFamilies.graphics != device.queueFamilies.present) {
+    if (device->queueFamilies.graphics != device->queueFamilies.present) {
         swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         swapchainCreateInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
         swapchainCreateInfo.pQueueFamilyIndices = queueFamilyIndices.data();
@@ -110,29 +110,29 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     swapchainCreateInfo.oldSwapchain = (oldSwapchain != nullptr ? oldSwapchain->vkSwapchain : nullptr);  // Старый swap-chain (для более эффективного пересоздания можно указывать старый swap-chain)
 
     // Создание swap-chain (записать хендл в результирующий объект)
-    if (vkCreateSwapchainKHR(device.logicalDevice, &swapchainCreateInfo, nullptr, &(m_swapchain->vkSwapchain)) != VK_SUCCESS) {
+    if (vkCreateSwapchainKHR(device->logicalDevice, &swapchainCreateInfo, nullptr, &(m_swapchain->vkSwapchain)) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in vkCreateSwapchainKHR function. Failed to create swapchain");
     }
 
     // Уничтожение предыдущего swap-chain, если он был передан
     if (oldSwapchain != nullptr) {
-        vkDestroySwapchainKHR(device.logicalDevice, oldSwapchain->vkSwapchain, nullptr);
+        vkDestroySwapchainKHR(device->logicalDevice, oldSwapchain->vkSwapchain, nullptr);
         oldSwapchain->vkSwapchain = nullptr;
     }
 
     // Получить хендлы изображений swap-chain
     // Кол-во изображений по сути равно кол-ву буферов (за это отвечает bufferCount при создании swap-chain)
     unsigned int swapChainImageCount = 0;
-    vkGetSwapchainImagesKHR(device.logicalDevice, m_swapchain->vkSwapchain, &swapChainImageCount, nullptr);
+    vkGetSwapchainImagesKHR(device->logicalDevice, m_swapchain->vkSwapchain, &swapChainImageCount, nullptr);
     m_swapchain->images.resize(swapChainImageCount);
-    vkGetSwapchainImagesKHR(device.logicalDevice, m_swapchain->vkSwapchain, &swapChainImageCount, m_swapchain->images.data());
+    vkGetSwapchainImagesKHR(device->logicalDevice, m_swapchain->vkSwapchain, &swapChainImageCount, m_swapchain->images.data());
 
     // Теперь необходимо создать image-views для каждого изображения (своеобразный интерфейс объектов изображений предостовляющий нужные возможности)
     // Если был передан старый swap-chain - предварительно очистить все его image-views
     if (oldSwapchain != nullptr) {
         if (!oldSwapchain->imageViews.empty()) {
             for (VkImageView const &swapchainImageView : oldSwapchain->imageViews) {
-                vkDestroyImageView(device.logicalDevice, swapchainImageView, nullptr);
+                vkDestroyImageView(device->logicalDevice, swapchainImageView, nullptr);
             }
             oldSwapchain->imageViews.clear();
         }
@@ -161,7 +161,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
         createInfo.subresourceRange.layerCount = 1;
 
         // Создать и добавить в массив
-        if (vkCreateImageView(device.logicalDevice, &createInfo, nullptr, &swapChainImageCount) == VK_SUCCESS) {
+        if (vkCreateImageView(device->logicalDevice, &createInfo, nullptr, &swapChainImageCount) == VK_SUCCESS) {
             m_swapchain->imageViews.push_back(swapChainImageCount);
         }
         else {
@@ -176,12 +176,12 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
 
     // Если это пересоздание swap-chain (передан старый) следует очистить компоненты прежнего буфера глубины
     if (oldSwapchain != nullptr) {
-        oldSwapchain->depthStencil.Deinit(device.logicalDevice);
+        oldSwapchain->depthStencil.Deinit(device->logicalDevice);
     }
 
     // Создать буфер глубины-трафарета (обычное 2D-изображение с требуемым форматом)
     m_swapchain->depthStencil = kge::vkutility::CreateImageSingle(
-                device,
+                *device,
                 VK_IMAGE_TYPE_2D,
                 depthStencilFormat,
     { si.capabilities.currentExtent.width, si.capabilities.currentExtent.height, 1 },
@@ -198,7 +198,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     if (oldSwapchain != nullptr) {
         if (!oldSwapchain->framebuffers.empty()) {
             for (VkFramebuffer const &frameBuffer : oldSwapchain->framebuffers) {
-                vkDestroyFramebuffer(device.logicalDevice, frameBuffer, nullptr);
+                vkDestroyFramebuffer(device->logicalDevice, frameBuffer, nullptr);
             }
             oldSwapchain->framebuffers.clear();
         }
@@ -225,7 +225,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
         framebufferInfo.layers = 1;                                                     // Один слой
 
         // В случае успешного создания - добавить в массив
-        if (vkCreateFramebuffer(device.logicalDevice, &framebufferInfo, nullptr, &framebuffer) == VK_SUCCESS) {
+        if (vkCreateFramebuffer(device->logicalDevice, &framebufferInfo, nullptr, &framebuffer) == VK_SUCCESS) {
             m_swapchain->framebuffers.push_back(framebuffer);
         }
         else {
@@ -241,7 +241,7 @@ KGEVkSwapChain::~KGEVkSwapChain()
     // Очистить фрейм-буферы
     if (!m_swapchain->framebuffers.empty()) {
         for (VkFramebuffer const &frameBuffer : m_swapchain->framebuffers) {
-            vkDestroyFramebuffer(m_device.logicalDevice, frameBuffer, nullptr);
+            vkDestroyFramebuffer(m_device->logicalDevice, frameBuffer, nullptr);
         }
         m_swapchain->framebuffers.clear();
     }
@@ -249,17 +249,17 @@ KGEVkSwapChain::~KGEVkSwapChain()
     // Очистить image-views объекты
     if (!m_swapchain->imageViews.empty()) {
         for (VkImageView const &imageView : m_swapchain->imageViews) {
-            vkDestroyImageView(m_device.logicalDevice, imageView, nullptr);
+            vkDestroyImageView(m_device->logicalDevice, imageView, nullptr);
         }
         m_swapchain->imageViews.clear();
     }
 
     // Очиска компонентов Z-буфера
-    m_swapchain->depthStencil.Deinit(m_device.logicalDevice);
+    m_swapchain->depthStencil.Deinit(m_device->logicalDevice);
 
     // Очистить swap-chain
     if (m_swapchain->vkSwapchain != nullptr) {
-        vkDestroySwapchainKHR(m_device.logicalDevice, m_swapchain->vkSwapchain, nullptr);
+        vkDestroySwapchainKHR(m_device->logicalDevice, m_swapchain->vkSwapchain, nullptr);
         m_swapchain->vkSwapchain = nullptr;
     }
 

@@ -13,7 +13,7 @@
 * загрузка шейдеров, настройка конвейера.
 */
 KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
-                                             const kge::vkstructs::Device &device,
+                                             const kge::vkstructs::Device* device,
                                              VkPipelineLayout pipelineLayout,
                                              const kge::vkstructs::Swapchain &swapchain,
                                              VkRenderPass renderPass):
@@ -51,7 +51,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
             nullptr,
             0,
             VK_SHADER_STAGE_VERTEX_BIT,
-            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/home/vxuser/GitHub/KitevaGameEngine/shaders/vert.spv"), device.logicalDevice),
+            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/Users/avetikmanvelan/GitHub/KitevaGameEngine/shaders/vert.spv"), device->logicalDevice),
             "main",
             nullptr
         },
@@ -60,7 +60,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
             nullptr,
             0,
             VK_SHADER_STAGE_FRAGMENT_BIT,
-            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/home/vxuser/GitHub/KitevaGameEngine/shaders/frag.spv"), device.logicalDevice),
+            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/Users/avetikmanvelan/GitHub/KitevaGameEngine/shaders/frag.spv"), device->logicalDevice),
             "main",
             nullptr
         }
@@ -174,7 +174,11 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
 
     std::cout << "try create graphics pipeline" << std::endl;
     // Создание графического конвейера
-    if (vkCreateGraphicsPipelines(device.logicalDevice, nullptr, 1, &pipelineInfo, nullptr, m_pipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(device->logicalDevice,
+                                  nullptr, 1,
+                                  &pipelineInfo,
+                                  nullptr,
+                                  m_pipeline) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error while creating pipeline");
     }
 
@@ -182,14 +186,14 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
 
     // Шейдерные модули больше не нужны после создания конвейера
     for (VkPipelineShaderStageCreateInfo &shaderStageInfo : shaderStages) {
-        vkDestroyShaderModule(device.logicalDevice, shaderStageInfo.module, nullptr);
+        vkDestroyShaderModule(device->logicalDevice, shaderStageInfo.module, nullptr);
     }
 }
 
 KGEVkGraphicsPipeline::~KGEVkGraphicsPipeline()
 {
-    if (m_device.logicalDevice != nullptr && m_pipeline != nullptr && *m_pipeline != nullptr) {
-        vkDestroyPipeline(m_device.logicalDevice, *m_pipeline, nullptr);
+    if (m_device->logicalDevice != nullptr && m_pipeline != nullptr && *m_pipeline != nullptr) {
+        vkDestroyPipeline(m_device->logicalDevice, *m_pipeline, nullptr);
         m_pipeline = nullptr;
         kge::tools::LogMessage("Vulkan: Pipeline sucessfully deinitialized");
     }

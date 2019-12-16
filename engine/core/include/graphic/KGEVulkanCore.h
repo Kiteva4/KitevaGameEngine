@@ -13,6 +13,13 @@
 #include <graphic/VulkanCoreModules/KGEVkRenderPass.h>
 #include <graphic/VulkanCoreModules/KGEVkSwapChain.h>
 #include <graphic/VulkanCoreModules/KGEVkGraphicsPipeline.h>
+#include <graphic/VulkanCoreModules/KGEVkPipelineLayout.h>
+#include <graphic/VulkanCoreModules/KGEVkCommandPool.h>
+#include <graphic/VulkanCoreModules/KGEVkCommandBuffer.h>
+#include <graphic/VulkanCoreModules/KGEVkUniformBufferWorld.h>
+#include <graphic/VulkanCoreModules/KGEVkUniformBufferModels.h>
+#include <graphic/VulkanCoreModules/KGEVkDescriptorPool.h>
+#include <graphic/VulkanCoreModules/KGEVkDescriptorSetLayout.h>
 
 // Параметры камеры по умолчанию (угол обзора, границы отсечения)
 #define DEFAULT_FOV 60.0f
@@ -126,6 +133,7 @@ private:
 
     bool m_isReady;                      // Состояние готовности к рендерингу
     bool m_isRendering;                  // В процессе ли рендеринг
+    unsigned int m_primitivesMaxCount;   // Максимальное кол-во примитивов (необходимо для аллокации динамического UBO буфера)
 
     uint32_t m_width;
     uint32_t m_heigh;
@@ -152,51 +160,35 @@ private:
 
     /* Command Pool */
     VkCommandPool m_commandPoolDraw;              // Командный пул (для выделения командных буферов)
-    VkCommandPool InitCommandPool(const kge::vkstructs::Device &device,
-                                  unsigned int queueFamilyIndex);
-    void DeinitCommandPool(const kge::vkstructs::Device &device,
-                           VkCommandPool * commandPool);
-
+    KGEVkCommandPool m_kgeVkCommandPool;
 
     /*Command Buffer*/
     std::vector<VkCommandBuffer> m_commandBuffersDraw;           // Командные буферы (свой на каждое изобр. swap-chain, с набором команд что и в других, в целях синхронизации)
-    std::vector<VkCommandBuffer> InitCommandBuffers(const kge::vkstructs::Device &device,
-                                                    VkCommandPool commandPool,
-                                                    unsigned int count);
-    void DeinitCommandBuffers(const kge::vkstructs::Device &device,
-                              VkCommandPool commandPool,
-                              std::vector<VkCommandBuffer> * buffers);
+    KGEVkCommandBuffer* m_kgeVkCommandBuffer;
 
-
-
-    /* Uniform Buffers */
+    //Аллокация глобального uniform-буфера
     kge::vkstructs::UniformBuffer m_uniformBufferWorld;           // Буфер формы сцены (содержит хендлы буфера, памяти, инфо для дескриптора)
-    kge::vkstructs::UniformBuffer InitUnformBufferWorld(const kge::vkstructs::Device &device);
+    KGEVkUniformBufferWorld m_kgeVkUniformBufferWorld;
+
+    // Аллокация uniform-буфера отдельных объектов (динамический буфер)
     kge::vkstructs::UniformBuffer m_uniformBufferModels;          // Буфер формы объектов (содержит хендлы буфера, памяти, инфо для дескриптора)
-    kge::vkstructs::UniformBuffer InitUniformBufferModels(const kge::vkstructs::Device &device,
-                                                          unsigned int maxObjects);
-    void DeinitUniformBuffer(const kge::vkstructs::Device &device,
-                             kge::vkstructs::UniformBuffer * uniformBuffer);
+    KGEVkUniformBufferModels m_kgeVkUniformBufferModels;
 
-
-
-    /* Descriptor Pool  */
+    // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
     VkDescriptorPool m_descriptorPoolMain; // Пул дескрипторов (для основного набора)
-    VkDescriptorPool InitDescriptorPoolMain(const kge::vkstructs::Device &device);
+    KGEVkDescriptorPool m_kgeVkDescriptorPoolMain;
+
+    // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
     VkDescriptorPool m_descriptorPoolTextures;// Пул дескрипторов (для наборов под текстуры)
-    VkDescriptorPool InitDescriptorPoolTextures(const kge::vkstructs::Device &device,
-                                                uint32_t maxDescriptorSets = 1000);
-    void DeinitDescriptorPool(const kge::vkstructs::Device &device,
-                              VkDescriptorPool * descriptorPool);
+    KGEVkDescriptorPool m_kgeVkDescriptorPoolTextures;
 
 
     /* Descriptor set layout*/
     VkDescriptorSetLayout m_descriptorSetLayoutMain;// Размещение набора дескрипторов (для основного набора)
-    VkDescriptorSetLayout InitDescriptorSetLayoutMain(const kge::vkstructs::Device &device);
+    KGEVkDescriptorSetLayout m_kgeVkDescriptorSetLayoutMain;
+
     VkDescriptorSetLayout m_descriptorSetLayoutTextures;// Размещение набора дескрипторов (для наборов под текстуры)
-    VkDescriptorSetLayout InitDescriptorSetLayoutTextures(const kge::vkstructs::Device &device);
-    void DeinitDescriporSetLayout(const kge::vkstructs::Device &device,
-                                  VkDescriptorSetLayout * descriptorSetLayout);
+    KGEVkDescriptorSetLayout m_kgeVkDescriptorSetLayoutTextures;
 
     /* Texture Sampler */
     VkSampler m_textureSampler; // Текстурный семплер (описывает как данные подаются в шейдер и как интерпретируются координаты)
@@ -222,10 +214,12 @@ private:
 
     /* Pipeline Layout */
     VkPipelineLayout m_pipelineLayout; // Размещение конвейера
-    VkPipelineLayout InitPipelineLayout(const kge::vkstructs::Device &device,
-                                        std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
-    void DeinitPipelineLayout(const kge::vkstructs::Device &device,
-                              VkPipelineLayout * pipelineLayout);
+    KGEVkPipelineLayout m_kgeVkPipelineLayout;
+
+//    VkPipelineLayout InitPipelineLayout(const kge::vkstructs::Device &device,
+//                                        std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
+//    void DeinitPipelineLayout(const kge::vkstructs::Device &device,
+//                              VkPipelineLayout * pipelineLayout);
 
 
 
@@ -233,7 +227,6 @@ private:
     VkPipeline m_pipeline; // Основной графический конвейер
     KGEVkGraphicsPipeline* m_kgeVkGraphicsPipeline;
 
-    unsigned int m_primitivesMaxCount;           // Максимальное кол-во примитивов (необходимо для аллокации динамического UBO буфера)
 
     /* Ubo */
     kge::vkstructs::UboModelArray m_uboModels; // Массив матриц (указатель на него) для отдельный объектов (матрицы модели, передаются в буфер формы объектов)

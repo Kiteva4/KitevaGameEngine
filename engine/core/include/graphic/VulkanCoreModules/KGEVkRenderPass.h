@@ -5,11 +5,11 @@
 class KGEVkRenderPass
 {
     VkRenderPass *m_renderPass;
-    const kge::vkstructs::Device &m_device;
+    const kge::vkstructs::Device* m_device;
 
 public:
     KGEVkRenderPass(VkRenderPass *renderPass,
-                    const kge::vkstructs::Device &device,
+                    const kge::vkstructs::Device* device,
                     VkSurfaceKHR surface,
                     VkFormat colorAttachmentFormat,
                     VkFormat depthStencilFormat);
