@@ -21,6 +21,8 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
                              std::vector <const char*> validationLayersRequired) :
     m_isReady(false),
     m_isRendering(true),
+
+    // Ширина и высота
     m_width(width),
     m_heigh(heigh),
     // Инициализация экземпляра

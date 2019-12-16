@@ -5,6 +5,6 @@
 int main()
 {
     std::cout <<"Start" << std::endl;
-    Core core;
+    Core core{};
     return 0;
 }

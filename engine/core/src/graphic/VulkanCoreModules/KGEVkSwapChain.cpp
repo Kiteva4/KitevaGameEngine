@@ -39,7 +39,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     // Если кол-во буферов задано
     if (bufferCount > 0) {
         // Проверить - возможно ли использовать запрашиваемое кол-во буферов (и изоображений соответственно)
-        if (bufferCount < si.capabilities.minImageCount || bufferCount > si.capabilities.maxImageCount) {
+        if (bufferCount < si.capabilities.minImageCount || (bufferCount > si.capabilities.maxImageCount && si.capabilities.maxImageCount !=0)) {
             std::string message = "Vulkan: Surface don't support " + std::to_string(bufferCount) + " images/buffers in swap-chain";
             throw std::runtime_error(message);
         }

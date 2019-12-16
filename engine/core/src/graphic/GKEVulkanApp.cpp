@@ -8,12 +8,11 @@
 
 // Переменная IS_VK_DEBUG будет true если используется debug конфиуграция
 // В зависимости от данной переменной некоторое поведение может меняться
-#ifdef NDEBUG
+#ifdef DEBUG
 const bool IS_VK_DEBUG = false;
 #else
 const bool IS_VK_DEBUG = true;
 #endif
-
 
 GKEVulkanApp::GKEVulkanApp(uint32_t width, uint32_t heigh, std::string applicationName):
     m_appWidth{width},
@@ -30,7 +29,6 @@ GKEVulkanApp::~GKEVulkanApp()
     delete m_windowControl;
     delete m_KGEVulkanCore;
 }
-
 
 void GKEVulkanApp::Init()
 {
@@ -67,6 +65,7 @@ void GKEVulkanApp::Init()
 
     // Если это DEBUG конфигурация - запросить еще расширения и слои для валидации
     if(IS_VK_DEBUG){
+        std::cout << "DEBUG: debug extensions included!" << std::endl;
         m_instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         m_instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         m_validationLayersExtensions.push_back("VK_LAYER_LUNARG_standard_validation");

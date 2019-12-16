@@ -1,62 +1,45 @@
-[2019-12-01 19:54:47] Vulkan: Render pass successfully initialized
-[2019-12-01 19:55:40] Vulkan: Render pass successfully initialized
-[2019-12-01 19:56:20] Vulkan: Render pass successfully initialized
-[2019-12-01 19:56:46] Vulkan: Render pass successfully initialized
-[2019-12-01 19:57:53] Vulkan: Render pass successfully initialized
-[2019-12-01 19:58:02] Vulkan: Render pass successfully initialized
-[2019-12-01 19:58:16] Vulkan: Render pass successfully initialized
-[2019-12-01 19:58:44] Vulkan: Render pass successfully initialized
-[2019-12-01 20:04:19] Vulkan: Render pass successfully initialized
-[2019-12-01 21:35:01] Vulkan: Render pass successfully initialized
-[2019-12-01 21:36:54] Vulkan: Render pass successfully initialized
-[2019-12-01 21:38:18] Vulkan: Render pass successfully initialized
-[2019-12-01 21:54:03] Vulkan: Render pass successfully initialized
-[2019-12-01 21:54:34] Vulkan: Render pass successfully initialized
-[2019-12-01 21:54:56] Vulkan: Render pass successfully initialized
-[2019-12-01 21:55:49] Vulkan: Render pass successfully initialized
-[2019-12-01 22:10:44] Vulkan: Device successfully initialized (GeForce GTX 1070)
-[2019-12-01 22:10:44] Vulkan: Render pass successfully initialized
-[2019-12-01 22:10:57] Vulkan: Device successfully initialized (GeForce GTX 1070)
-[2019-12-01 22:10:57] Vulkan: Render pass successfully initialized
-[2019-12-01 22:14:36] Vulkan: Device successfully initialized (GeForce GTX 1070)
-[2019-12-01 22:14:36] Vulkan: Render pass successfully initialized
-[2019-12-01 22:25:22] Vulkan: Device successfully initialized (GeForce GTX 1070)
-[2019-12-01 22:25:22] Vulkan: Render pass successfully initialized
-[2019-12-01 22:26:10] Vulkan: Device successfully initialized (GeForce GTX 1070)
-[2019-12-01 22:26:11] Vulkan: Render pass successfully initialized
-[2019-12-01 22:27:18] Vulkan: Device successfully initialized (GeForce GTX 1070)
-[2019-12-01 22:27:18] Vulkan: Render pass successfully initialized
-[2019-12-01 22:32:24] Vulkan: Device successfully initialized (GeForce GTX 1070)
-[2019-12-01 22:32:24] Vulkan: Render pass successfully initialized
-[2019-12-01 22:35:14] Vulkan: Device successfully initialized (GeForce GTX 1070)
-[2019-12-01 22:35:14] Vulkan: Render pass successfully initialized
-[2019-12-01 22:35:14] Vulkan: Swap-chain successfully initialized
-[2019-12-01 22:35:14] Vulkan: Command pool successfully initialized
-[2019-12-01 22:35:14] Vulkan: Command buffers successfully allocated
-[2019-12-01 22:35:14] Vulkan: Uniform buffer for world scene successfully allocated
-[2019-12-01 22:35:14] Vulkan: Uniform buffer for models successfully allocated
-[2019-12-01 22:35:14] Vulkan: Main descriptor pool successfully initialized
-[2019-12-01 22:35:14] Vulkan: Texture descriptor pool successfully initialized
-[2019-12-01 22:35:14] Vulkan: Main descriptor set layout successfully initialized
-[2019-12-01 22:35:14] Vulkan: Texture descriptor set layout successfully initialized
-[2019-12-01 22:35:14] Vulkan: Texture sampler successfully initialized
-[2019-12-01 22:35:14] Vulkan: Descriptor set successfully initialized
-[2019-12-01 22:35:14] Vulkan: Dynamic UBO satage-buffer successfully allocated
-[2019-12-01 22:35:14] Vulkan: Pipeline layout successfully initialized
-[2019-12-01 22:35:14] Vulkan: Pipeline sucessfully initialized
-[2019-12-01 22:35:14] Vulkan: Synchronization primitives sucessfully initialized
-[2019-12-01 22:35:14] Vulkan: Synchronization primitives sucessfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Pipeline sucessfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Pipeline layout successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Dynamic UBO satage-buffer successfully freed
-[2019-12-01 22:35:14] Vulkan: Descriptor set successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Descriptor set layout successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Descriptor set layout successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Descriptor pool successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Descriptor pool successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Uniform buffer successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Uniform buffer successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Command buffers successfully freed
-[2019-12-01 22:35:14] Vulkan: Command pool successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Swap-chain successfully deinitialized
-[2019-12-01 22:35:14] Vulkan: Render pass successfully deinitialized
+[2019-12-16 14:35:28] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:35:28] Vulkan: Render pass successfully initialized
+[2019-12-16 14:35:28] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:36:13] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:36:13] Vulkan: Render pass successfully initialized
+[2019-12-16 14:36:13] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:36:22] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:36:22] Vulkan: Render pass successfully initialized
+[2019-12-16 14:36:22] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:37:03] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:37:03] Vulkan: Render pass successfully initialized
+[2019-12-16 14:37:03] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:38:31] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:38:31] Vulkan: Render pass successfully initialized
+[2019-12-16 14:38:31] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:38:57] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:38:57] Vulkan: Render pass successfully initialized
+[2019-12-16 14:38:57] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:40:06] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:40:06] Vulkan: Render pass successfully initialized
+[2019-12-16 14:40:06] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:40:22] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:40:22] Vulkan: Render pass successfully initialized
+[2019-12-16 14:40:22] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:40:50] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:40:50] Vulkan: Render pass successfully initialized
+[2019-12-16 14:40:50] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:41:01] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:41:01] Vulkan: Render pass successfully initialized
+[2019-12-16 14:41:01] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:41:07] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:41:07] Vulkan: Render pass successfully initialized
+[2019-12-16 14:41:07] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:41:16] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:41:16] Vulkan: Render pass successfully initialized
+[2019-12-16 14:41:16] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:42:18] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:42:18] Vulkan: Render pass successfully initialized
+[2019-12-16 14:42:18] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:43:18] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:43:18] Vulkan: Render pass successfully initialized
+[2019-12-16 14:43:18] Vulkan: Swap-chain successfully initialized
+[2019-12-16 14:45:35] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-16 14:45:35] Vulkan: Render pass successfully initialized
+[2019-12-16 14:45:35] Vulkan: Swap-chain successfully initialized

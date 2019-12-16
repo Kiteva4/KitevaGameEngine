@@ -48,7 +48,7 @@ bool kge::vkutility::CheckInstanceExtensionsSupported(std::vector<const char*> i
             //Если доступен запрашиваемый
             if (strcmp(requiredExtName, extProperties.extensionName) == 0) {
                 found = true;
-                std::cout << "Vulkan: Extension: "<<  requiredExtName << " founded "  << std::endl;
+//                std::cout << "Vulkan: Extension: "<<  requiredExtName << " founded "  << std::endl;
                 break;
             }
         }
@@ -104,7 +104,7 @@ bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char*> ins
             //Если доступен запрашиваемый слой валидации
             if (strcmp(requiredVLayerName, vLayerProperties.layerName) == 0) {
                 found = true;
-                std::cout << "Vulkan: Layer: "<<  requiredVLayerName << " founded "  << std::endl;
+//                std::cout << "Vulkan: Layer: "<<  requiredVLayerName << " founded "  << std::endl;
                 break;
             }
         }
@@ -122,19 +122,45 @@ bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char*> ins
 
 //Функция, которая будет вызываться слоем валидации при обнаружении ошибок
 VKAPI_ATTR VkBool32 VKAPI_CALL kge::vkutility::DebugVulkanCallback(
-        VkDebugReportFlagsEXT flags,
+        VkDebugReportFlagsEXT msgFlags,
         VkDebugReportObjectTypeEXT objType,
-        uint64_t obj,
+        uint64_t srcObject,
         size_t location,
-        int32_t code,
-        const char* layerPrefix,
-        const char* msg,
-        void* userData)
+        int32_t msgCode,
+        const char* pLayerPrefix,
+        const char* pMsg,
+        void* pUserData)
 {
-//    std::cout << "VkError callback:" << "layerPrefix :" << layerPrefix << std::endl;
-//    std::cout << "VkError callback:" << "msg         :" << msg         << std::endl;
-//    std::cout << "VkError callback:" << "objType     :" << objType     << std::endl;
-    return VK_FALSE;
+    std::cout << ">REPORT: " << std::endl;
+    std::ostringstream message;
+
+    if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        message << "ERROR: ";
+    } else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
+        message << "WARNING: ";
+    } else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
+        message << "PERFORMANCE WARNING: ";
+    } else if (msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
+        message << "INFO: ";
+    } else if (msgFlags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
+        message << "DEBUG: ";
+    }
+    message << "[" << pLayerPrefix << "] Code " << msgCode << " : " << pMsg;
+
+#ifdef _WIN32
+    MessageBox(NULL, message.str().c_str(), "Alert", MB_OK);
+#else
+    std::cout << message.str() << std::endl;
+#endif
+
+    /*
+         * false indicates that layer should not bail-out of an
+         * API call that had validation failures. This may mean that the
+         * app dies inside the driver due to invalid parameter(s).
+         * That's what would happen without validation layers, so we'll
+         * keep that behavior here.
+         */
+    return false;
 }
 
 bool kge::vkutility::CheckDeviceExtensionSupported(
@@ -238,8 +264,8 @@ kge::vkstructs::QueueFamilyInfo kge::vkutility::GetQueueFamilyInfo(
 */
 kge::vkstructs::SurfaceInfo kge::vkutility::GetSurfaceInfo(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
 {
-    kge::vkstructs::SurfaceInfo surfaceInfo;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &(surfaceInfo.capabilities));
+    kge::vkstructs::SurfaceInfo surfaceInfo = {};
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceInfo.capabilities);
 
     unsigned int formatCount = 0;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
@@ -377,6 +403,7 @@ kge::vkstructs::Image kge::vkutility::CreateImageSingle(const kge::vkstructs::De
     // Конфигурация изображения
     VkImageCreateInfo imageInfo = {};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageInfo.pNext = nullptr;
     imageInfo.imageType = imageType;
     imageInfo.format = format;
     imageInfo.extent = extent;
@@ -459,8 +486,8 @@ std::vector<VkVertexInputBindingDescription> kge::vkutility::GetVertexInputBindi
     {
         {
             bindingIndex,                   // Индекс привязки вершинных буферов
-            sizeof(kge::vkstructs::Vertex),      // Размерность шага
-            VK_VERTEX_INPUT_RATE_VERTEX     // Правила перехода к следующим
+                    sizeof(kge::vkstructs::Vertex),      // Размерность шага
+                    VK_VERTEX_INPUT_RATE_VERTEX     // Правила перехода к следующим
         }
     };
 }
@@ -556,11 +583,11 @@ void kge::vkutility::CmdImageCopy(VkCommandBuffer cmdBuffer,
 
     // Записать команду копирования в буфер
     vkCmdCopyImage(
-        cmdBuffer,
-        srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-        dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        1, &region
-    );
+                cmdBuffer,
+                srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                1, &region
+                );
 }
 
 /**
@@ -621,13 +648,13 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
 
     // Отправить команду барьера в командный буфер
     vkCmdPipelineBarrier(
-        cmdBuffer,
-        srcStageFlags,
-        destStageFlags,
-        0,
-        0, nullptr,
-        0, nullptr,
-        1, &imageMemoryBarrier);
+                cmdBuffer,
+                srcStageFlags,
+                destStageFlags,
+                0,
+                0, nullptr,
+                0, nullptr,
+                1, &imageMemoryBarrier);
 }
 
 /**
@@ -636,7 +663,7 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
 * @param VkDevice logicalDevice - хендл логичекского устройства, нужен для созданния шейдерного модуля
 * @return VkShaderModule - хендл шейдерного модуля созданного из загруженного файла
 */
-VkShaderModule kge::vkutility::LoadSPIRVShader(std::string filename,
+VkShaderModule kge::vkutility::LoadSPIRVShader(std::filesystem::path shaderFilePath,
                                                VkDevice logicalDevice)
 {
     // Размер
@@ -645,13 +672,12 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::string filename,
     // Содержимое файла (код шейдера)
     char* shaderCode = nullptr;
 
-    std::cout << "~/KitevaGameEngine/shaders/" + filename << std::endl;
     // Загрузить код шейдера
-    bool loaded = tools::LoadBytesFromFile("~/KitevaGameEngine/shaders/" + filename, &shaderCode, &shaderSize);
+    bool loaded = tools::LoadBytesFromFile(shaderFilePath, &shaderCode, &shaderSize);
 
     // Если не удалось загрузить или файл пуст
     if (!loaded || shaderSize == 0){
-        std::string msg = "Vulkan: Error while loading shader code from file " + filename;
+        std::string msg = "Vulkan: Error while loading shader code from file " + std::to_string(*shaderFilePath.c_str());
         throw std::runtime_error(msg);
     }
 
@@ -664,7 +690,7 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::string filename,
     // Создать шейдерный модуль
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(logicalDevice, &moduleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-        std::string msg = "Vulkan: Error whiler creating shader module from file " + filename;
+        std::string msg = *(&"Vulkan: Error whiler creating shader module from file " +*shaderFilePath.c_str());
         throw std::runtime_error(msg);
     }
 
@@ -686,32 +712,32 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::string filename,
 std::vector<VkVertexInputAttributeDescription> kge::vkutility::GetVertexInputAttributeDescriptions(unsigned int bindingIndex)
 {
     return
+    {
         {
-            {
-                0,                                      // Индекс аттрибута (location в шейдере)
-                bindingIndex,                           // Индекс привязки вершинных буферов
-                VK_FORMAT_R32G32B32_SFLOAT,             // Тип аттрибута (соответствует vec3 у шейдера)
-                offsetof(vkstructs::Vertex, position)   // Cдвиг в структуре
-            },
-            {
-                1,
-                bindingIndex,
-                VK_FORMAT_R32G32B32_SFLOAT,
-                offsetof(vkstructs::Vertex, color)
-            },
-            {
-                2,
-                bindingIndex,
-                VK_FORMAT_R32G32_SFLOAT,               // Тип аттрибута (соответствует vec2 у шейдера)
-                offsetof(vkstructs::Vertex, texCoord)
-            },
-            {
-                3,
-                bindingIndex,
-                VK_FORMAT_R32_UINT,                    // Тип аттрибута (соответствует uint у шейдера)
-                offsetof(vkstructs::Vertex, textureUsed)
-            },
-        };
+            0,                                      // Индекс аттрибута (location в шейдере)
+            bindingIndex,                           // Индекс привязки вершинных буферов
+                    VK_FORMAT_R32G32B32_SFLOAT,             // Тип аттрибута (соответствует vec3 у шейдера)
+                    offsetof(vkstructs::Vertex, position)   // Cдвиг в структуре
+        },
+        {
+            1,
+            bindingIndex,
+                    VK_FORMAT_R32G32B32_SFLOAT,
+                    offsetof(vkstructs::Vertex, color)
+        },
+        {
+            2,
+            bindingIndex,
+                    VK_FORMAT_R32G32_SFLOAT,               // Тип аттрибута (соответствует vec2 у шейдера)
+                    offsetof(vkstructs::Vertex, texCoord)
+        },
+        {
+            3,
+            bindingIndex,
+                    VK_FORMAT_R32_UINT,                    // Тип аттрибута (соответствует uint у шейдера)
+                    offsetof(vkstructs::Vertex, textureUsed)
+        },
+    };
 }
 
 /**
@@ -719,26 +745,19 @@ std::vector<VkVertexInputAttributeDescription> kge::vkutility::GetVertexInputAtt
 * @return std::string - строка содержащая путь к директории
 * @note нужно учитывать что рабочий каталок может зависеть от конфигурации проекта
 */
-//std::string kge::tools::WorkingDir()
-//{
-//    char path[MAX_PATH] = {};
-//    GetCurrentDirectoryA(MAX_PATH, path);
-//    PathAddBackslashA(path);
-//    return std::string(path);
-//}
+std::filesystem::path kge::tools::WorkingDir()
+{
+    return "~/GitHub/KitevaGameEngine/";
+}
 
 /**
 * Путь к каталогу с исполняемым файлом (директория содержащая запущенный .exe)
 * @return std::string - строка содержащая путь к директории
 */
-//std::string kge::tools::ExeDir()
-//{
-//    char path[MAX_PATH] = {};
-//    GetModuleFileNameA(nullptr, path, MAX_PATH);
-//    PathRemoveFileSpecA(path);
-//    PathAddBackslashA(path);
-//    return std::string(path);
-//}
+std::filesystem::path kge::tools::ExeDir()
+{
+    return std::filesystem::current_path();
+}
 
 /**
 * Получить текущее время
@@ -775,7 +794,7 @@ void kge::tools::LogMessage(std::string message, bool printTime)
     std::string result = "";
 
     if (printTime) {
-         time_t time = tools::CurrentTime();
+        time_t time = tools::CurrentTime();
         result += tools::TimeToStr(time, "[%Y-%m-%d %H:%M:%S] ");
     }
 
@@ -783,11 +802,11 @@ void kge::tools::LogMessage(std::string message, bool printTime)
     std::cout << result;
 
     try {
-        std::string filePath = std::string("~/KitevaGameEngine/shaders/") + LOG_FILENAME;
+        std::filesystem::path filePath = std::string("/home/vxuser/GitHub/KitevaGameEngine/") + LOG_FILENAME;
 
         std::fstream fs;
         fs.exceptions(std::ios::failbit | std::ios::badbit);
-        fs.open(filePath.c_str(), std::ios_base::app);
+        fs.open(filePath, std::ios_base::app);
 
         fs << result;
         fs.close();
@@ -852,7 +871,7 @@ void kge::tools::LogError(std::string message, bool printTime)
 * @param size_t * size - указатель на параметр размера (размер будет получен при загрузке)
 * @return bool - состояние загрузки (удалось или нет)
 */
-bool kge::tools::LoadBytesFromFile(const std::string &path, char** pData, size_t * size)
+bool kge::tools::LoadBytesFromFile(const std::filesystem::path &path, char** pData, size_t * size)
 {
     // Открытие файла в режиме бинарного чтения
     std::ifstream is(path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);

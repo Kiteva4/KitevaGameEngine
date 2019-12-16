@@ -13,6 +13,7 @@
 #include <time.h>
 #include <ctime>
 #include <chrono>
+#include <filesystem>
 
 // Необходимо для функций получения путей к файлу
 //#include <shlwapi.h>
@@ -456,15 +457,14 @@ namespace kge
         //Проверка на наличие запрашиваемых слолев валидации
         bool CheckValidationLayersSupported(std::vector<const char*> instanceExtensionsNames);
 
-        VKAPI_ATTR VkBool32 VKAPI_CALL DebugVulkanCallback(
-                VkDebugReportFlagsEXT flags,
+        VKAPI_ATTR VkBool32 VKAPI_CALL DebugVulkanCallback(VkDebugReportFlagsEXT msgFlags,
                 VkDebugReportObjectTypeEXT objType,
-                uint64_t obj,
+                uint64_t srcObject,
                 size_t location,
-                int32_t code,
-                const char* layerPrefix,
-                const char* msg,
-                void* userData);
+                int32_t msgCode,
+                const char* pLayerPrefix,
+                const char* pMsg,
+                void* pUserData);
 
         //Получение информации о семейсте очередей для конкретного физческого устройства и поверхности
         vkstructs::QueueFamilyInfo GetQueueFamilyInfo (
@@ -548,7 +548,7 @@ namespace kge
         * @param VkDevice logicalDevice - хендл логичекского устройства, нужен для созданния шейдерного модуля
         * @return VkShaderModule - хендл шейдерного модуля созданного из загруженного файла
         */
-        VkShaderModule LoadSPIRVShader(std::string filename,
+        VkShaderModule LoadSPIRVShader(std::filesystem::path shaderFilePath,
                                        VkDevice logicalDevice);
 
         /**
@@ -609,13 +609,13 @@ namespace kge
         * @return std::string - строка содержащая путь к директории
         * @note нужно учитывать что рабочий каталок может зависеть от конфигурации проекта
         */
-        //std::string WorkingDir();
+        std::filesystem::path WorkingDir();
 
         /**
         * Путь к каталогу с исполняемым файлом (директория содержащая запущенный .exe)
         * @return std::string - строка содержащая путь к директории
         */
-        //std::string ExeDir();
+        std::filesystem::path ExeDir();
 
         /**
         * Получить текущее время
@@ -673,6 +673,6 @@ namespace kge
         * @param size_t * size - указатель на параметр размера (размер будет получен при загрузке)
         * @return bool - состояние загрузки (удалось или нет)
         */
-        bool LoadBytesFromFile(const std::string &path, char** pData, size_t * size);
+        bool LoadBytesFromFile(const std::filesystem::path &path, char** pData, size_t * size);
     }
 }

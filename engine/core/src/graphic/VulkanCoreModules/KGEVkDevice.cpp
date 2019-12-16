@@ -22,7 +22,7 @@ KGEVkDevice::KGEVkDevice(
     unsigned int deviceCount = 0;
     vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
 
-    std::cout << "Vulcan: Support device count " << deviceCount  << std::endl;
+    std::cout << "Vulkan: Support device count " << deviceCount  << std::endl;
     // Если не нашлось видео-карт работающих с vulkan - ошибка
     if(deviceCount == 0){
         throw std::runtime_error("Vulkan: Can`t detect device with Vulkan support");
@@ -82,7 +82,7 @@ KGEVkDevice::KGEVkDevice(
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = queueFamilies[i];
         queueCreateInfo.queueCount = 1;                                      // Выделяем одну очередь для каждого семейства
-        queueCreateInfo.pQueuePriorities = &defaultQueuePriority;                          // Массив пр-тетов очередей в плане выделения ресурсов (одинаковые пр-теты, не используем)
+        queueCreateInfo.pQueuePriorities = &defaultQueuePriority;            // Массив приоритетов очередей в плане выделения ресурсов (одинаковые пр-теты, не используем)
         queueCreateInfos.push_back(queueCreateInfo);                         // Помещаем структуру в массив
     }
 
@@ -119,7 +119,6 @@ KGEVkDevice::KGEVkDevice(
     // Особенности устройства (пока-что пустая структура)
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-    std::cout << "try create device" << std::endl;
     // Создание логического устройства
     if (vkCreateDevice(device->physicalDevice, &deviceCreateInfo, nullptr, &device->logicalDevice) != VK_SUCCESS) {
         std::cout << "cant create device" << std::endl;

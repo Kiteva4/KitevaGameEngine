@@ -27,6 +27,8 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
     // Конфигурация стадии ввода вершинных данных
     VkPipelineVertexInputStateCreateInfo vertexInputStage = {};
     vertexInputStage.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputStage.pNext = nullptr;
+    vertexInputStage.flags = 0;
     vertexInputStage.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescription.size());
     vertexInputStage.pVertexBindingDescriptions = bindingDescription.data();
     vertexInputStage.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -36,8 +38,10 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
     // Конвейер будет "собирать" вершинны в набор треугольников
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyStage = {};
     inputAssemblyStage.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssemblyStage.pNext = nullptr;
+    inputAssemblyStage.flags = 0;
     inputAssemblyStage.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;					// Список треугольников
-    inputAssemblyStage.primitiveRestartEnable = VK_FALSE;								// Перезагрузка примитивов не используется
+    inputAssemblyStage.primitiveRestartEnable = false;								// Перезагрузка примитивов не используется
 
     // Прогамируемые (шейдерные) этапы конвейера
     // Используем 2 шейдера - вершинный (для каждой вершины) и фрагментный (пиксельный, для каждого пикселя)
@@ -47,7 +51,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
             nullptr,
             0,
             VK_SHADER_STAGE_VERTEX_BIT,
-            kge::vkutility::LoadSPIRVShader("base.vert.spv", device.logicalDevice),
+            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/home/vxuser/GitHub/KitevaGameEngine/shaders/vert.spv"), device.logicalDevice),
             "main",
             nullptr
         },
@@ -56,7 +60,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
             nullptr,
             0,
             VK_SHADER_STAGE_FRAGMENT_BIT,
-            kge::vkutility::LoadSPIRVShader("base.frag.spv", device.logicalDevice),
+            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/home/vxuser/GitHub/KitevaGameEngine/shaders/frag.spv"), device.logicalDevice),
             "main",
             nullptr
         }
@@ -80,6 +84,8 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
     // Описываем этап вывода в область просмотра
     VkPipelineViewportStateCreateInfo viewportState = {};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportState.pNext = nullptr;
+    viewportState.flags = 0;
     viewportState.viewportCount = 1;
     viewportState.pViewports = &viewport;
     viewportState.scissorCount = 1;
@@ -88,6 +94,8 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
     // Описываем этап растеризации
     VkPipelineRasterizationStateCreateInfo rasterizationStage = {};
     rasterizationStage.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizationStage.pNext = nullptr;
+    rasterizationStage.flags = 0;
     rasterizationStage.depthClampEnable = VK_FALSE;                     // Фрагменты за ближней и дальней гранью камеры отбрасываются (VK_TRUE для противоположного эффекта)
     rasterizationStage.rasterizerDiscardEnable = VK_FALSE;              // Отключение растеризации геометрии - не нужно (VK_TRUE для противоположного эффекта)
     rasterizationStage.polygonMode = VK_POLYGON_MODE_FILL;              // Закрашенные полигоны
@@ -103,6 +111,8 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
     // Активировать тест глубины, использовать сравнение "меньше или равно"
     VkPipelineDepthStencilStateCreateInfo depthStencilStage = {};
     depthStencilStage.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencilStage.pNext = nullptr;
+    depthStencilStage.flags = 0;
     depthStencilStage.depthTestEnable = VK_TRUE;
     depthStencilStage.depthWriteEnable = VK_TRUE;
     depthStencilStage.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
@@ -162,6 +172,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
     pipelineInfo.renderPass = renderPass;                       // Связываем конвейер с соответствующим проходом рендеринга
     pipelineInfo.subpass = 0;                                   // Связываем с под-проходом (первый под-проход)
 
+    std::cout << "try create graphics pipeline" << std::endl;
     // Создание графического конвейера
     if (vkCreateGraphicsPipelines(device.logicalDevice, nullptr, 1, &pipelineInfo, nullptr, m_pipeline) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error while creating pipeline");
