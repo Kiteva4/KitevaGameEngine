@@ -20,6 +20,10 @@
 #include <graphic/VulkanCoreModules/KGEVkUniformBufferModels.h>
 #include <graphic/VulkanCoreModules/KGEVkDescriptorPool.h>
 #include <graphic/VulkanCoreModules/KGEVkDescriptorSetLayout.h>
+#include <graphic/VulkanCoreModules/KGEVkSampler.h>
+#include <graphic/VulkanCoreModules/KGEVkDescriptorSet.h>
+#include <graphic/VulkanCoreModules/KGEVkUboModels.h>
+#include <graphic/VulkanCoreModules/KGEVkSynchronization.h>
 
 // Параметры камеры по умолчанию (угол обзора, границы отсечения)
 #define DEFAULT_FOV 60.0f
@@ -192,55 +196,29 @@ private:
 
     /* Texture Sampler */
     VkSampler m_textureSampler; // Текстурный семплер (описывает как данные подаются в шейдер и как интерпретируются координаты)
-    VkSampler InitTextureSampler(const kge::vkstructs::Device &device);
-    void DeinitTextureSampler(const kge::vkstructs::Device &device,
-                              VkSampler * sampler);
-
+    KGEVkSampler m_kgeVkSampler;
 
     /* Descriptor Set*/
     VkDescriptorSet m_descriptorSetMain; // Набор дескрипторов (основной)
-    VkDescriptorSet InitDescriptorSetMain(const kge::vkstructs::Device &device,
-                                          VkDescriptorPool descriptorPool,
-                                          VkDescriptorSetLayout descriptorSetLayout,
-                                          const kge::vkstructs::UniformBuffer &uniformBufferWorld,
-                                          const kge::vkstructs::UniformBuffer &uniformBufferModels);
-    void DeinitDescriptorSet(const kge::vkstructs::Device &device,
-                             VkDescriptorPool descriptorPool,
-                             VkDescriptorSet * descriptorSet);
-
-
-
-
+    KGEVkDescriptorSet m_kgeVkDescriptorSet;
 
     /* Pipeline Layout */
     VkPipelineLayout m_pipelineLayout; // Размещение конвейера
     KGEVkPipelineLayout m_kgeVkPipelineLayout;
 
-//    VkPipelineLayout InitPipelineLayout(const kge::vkstructs::Device &device,
-//                                        std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
-//    void DeinitPipelineLayout(const kge::vkstructs::Device &device,
-//                              VkPipelineLayout * pipelineLayout);
-
-
-
     /* Pipeline */
     VkPipeline m_pipeline; // Основной графический конвейер
     KGEVkGraphicsPipeline* m_kgeVkGraphicsPipeline;
 
-
     /* Ubo */
     kge::vkstructs::UboModelArray m_uboModels; // Массив матриц (указатель на него) для отдельный объектов (матрицы модели, передаются в буфер формы объектов)
-    kge::vkstructs::UboModelArray AllocateUboModels(const kge::vkstructs::Device &device,
-                                                    unsigned int maxObjects);
-    void FreeUboModels(kge::vkstructs::UboModelArray * uboModels);
+    KGEVkUboModels m_kgeUboModels;
 
     /* Synchronization */
     kge::vkstructs::Synchronization m_sync;                         // Примитивы синхронизации
-    kge::vkstructs::Synchronization InitSynchronization(const kge::vkstructs::Device &device);
-    void DeinitSynchronization(const kge::vkstructs::Device &device, kge::vkstructs::Synchronization * sync);
+    KGEVkSynchronization m_kgeVkSynchronization;
 
-
-    std::vector<kge::vkstructs::Primitive> m_primitives;            // Набор геометр. примитивов для отображения
+    std::vector<kge::vkstructs::Primitive> m_primitives;     // Набор геометр. примитивов для отображения
     kge::vkstructs::UboWorld m_uboWorld;                     // Структура с матрицами для общих преобразований сцены (данный объект буедт передаваться в буфер формы сцены)
 
     /**

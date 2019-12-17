@@ -65,55 +65,30 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
     // Инициализация размещения теккстурного набора
     m_descriptorSetLayoutTextures{},
     m_kgeVkDescriptorSetLayoutTextures{&m_descriptorSetLayoutTextures, &m_device, SetLayoutTextures},
-
-    m_descriptorSetMain(nullptr),
-
+    // Инициализация текстурного семплера
+    m_textureSampler{},
+    m_kgeVkSampler{&m_textureSampler, &m_device},
+    // Инициализация дескрипторного набора
+    m_descriptorSetMain{},
+    m_kgeVkDescriptorSet{&m_descriptorSetMain, &m_device, &m_descriptorPoolMain, &m_descriptorSetLayoutMain, &m_uniformBufferWorld, &m_uniformBufferModels},
     // Инициализация размещения графического конвейера
     m_pipelineLayout{},
     m_kgeVkPipelineLayout{&m_pipelineLayout, &m_device, { m_descriptorSetLayoutMain, m_descriptorSetLayoutTextures}},
-
     // Инициализация графического конвейера
     m_pipeline{},
     m_kgeVkGraphicsPipeline{ new KGEVkGraphicsPipeline{&m_pipeline, &m_device, m_pipelineLayout, m_swapchain, m_renderPass}},
-
-    m_uboModels(nullptr)
+    // Аллокация памяти массива ubo-объектов отдельных примитивов
+    m_uboModels{},
+    m_kgeUboModels{&m_uboModels, &m_device, m_primitivesMaxCount},
+    // Примитивы синхронизации
+    m_sync{},
+    m_kgeVkSynchronization{&m_sync, &m_device}
 {
     // Присвоить параметры камеры по умолчанию
     m_camera.fFar  = DEFAULT_FOV;
     m_camera.fFar  = DEFAULT_FAR;
     m_camera.fNear = DEFAULT_NEAR;
 
-    //m_commandPoolDraw = InitCommandPool(m_device, static_cast<unsigned int>(m_device.queueFamilies.graphics));
-    // Аллокация командных буферов (получение хендлов)
-    //m_commandBuffersDraw = InitCommandBuffers(m_device, m_commandPoolDraw, static_cast<unsigned int>(m_swapchain.framebuffers.size()));
-    // Аллокация глобального uniform-буфера
-    //m_uniformBufferWorld = InitUnformBufferWorld(m_device);
-    // Аллокация uniform-буфера отдельных объектов (динамический буфер)
-   // m_uniformBufferModels = InitUniformBufferModels(m_device, m_primitivesMaxCount);
-    // Создание дескрипторного пула для выделения основного набора (для unform-буфера)
-    //m_descriptorPoolMain = InitDescriptorPoolMain(m_device);
-    // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
-    //m_descriptorPoolTextures = InitDescriptorPoolTextures(m_device);
-    // Инициализация размещения основного дескрипторного набора
-//    m_descriptorSetLayoutMain = InitDescriptorSetLayoutMain(m_device);
-    // Инициализация размещения теккстурного набора
-//    m_descriptorSetLayoutTextures = InitDescriptorSetLayoutTextures(m_device);
-    // Инициализация текстурного семплера
-    m_textureSampler = InitTextureSampler(m_device);
-    // Инициализация дескрипторного набора
-    m_descriptorSetMain = InitDescriptorSetMain(
-                m_device,
-                m_descriptorPoolMain,
-                m_descriptorSetLayoutMain,
-                m_uniformBufferWorld,
-                m_uniformBufferModels);
-
-    // Аллокация памяти массива ubo-объектов отдельных примитивов
-    m_uboModels = AllocateUboModels(m_device, m_primitivesMaxCount);
-
-    // Примитивы синхронизации
-    m_sync = InitSynchronization(m_device);
-    // Подготовка базовых комманд
     PrepareDrawCommands(
                 m_commandBuffersDraw,
                 m_renderPass,
@@ -625,287 +600,6 @@ KGEVulkanCore::~KGEVulkanCore()
     m_isReady = false;
     // Сброс буферов команд
     ResetCommandBuffers(m_device, m_commandBuffersDraw);
-
-    // Деинициализация примитивов синхронизации
-    DeinitSynchronization(m_device, &m_sync);
-
-    // Деинициализация графического конвейера
-    //DeinitGraphicsPipeline(m_device, &m_pipeline);
-
-    // Деинициализация графического конвейера
-    //DeinitPipelineLayout(&m_device, &m_pipelineLayout);
-
-    // Очистка памяти массива ubo-объектов отдельных примитивов
-    FreeUboModels(&(m_uboModels));
-
-    // Деинициализация набора дескрипторов
-    DeinitDescriptorSet(m_device, m_descriptorPoolMain, &m_descriptorSetMain);
-
-    // Деинициализация текстурного семплера
-    DeinitTextureSampler(m_device, &m_textureSampler);
-
-    // Деинициализация размещения текстурного дескрипторного набора
-    //DeinitDescriporSetLayout(m_device, &m_descriptorSetLayoutTextures);
-
-    // Деинициализация размещения основоного дескрипторного набора
-   // DeinitDescriporSetLayout(m_device, &m_descriptorSetLayoutMain);
-
-    // Уничтожение ntrcnehyjuj дескрипторного пула
-    //DeinitDescriptorPool(m_device, &m_descriptorPoolTextures);
-
-    // Уничтожение основного дескрипторного пула
-    //DeinitDescriptorPool(m_device, &m_descriptorPoolMain);
-
-    // Деинициализация uniform-буффера объектов
-    //DeinitUniformBuffer(m_device, &m_uniformBufferModels);
-
-    // Деинициализация глобального uniform-буффера
-    //DeinitUniformBuffer(m_device, &m_uniformBufferWorld);
-
-    // Деинициализация командных буферов
-    //DeinitCommandBuffers(m_device, m_commandPoolDraw, &m_commandBuffersDraw);
-
-    // Деинициализация командного пула
-    // DeinitCommandPool(m_device, &m_commandPoolDraw);
-
-    //    // Деинициализация swap-chain'а
-    //    DeinitSwapchain(m_device, &m_swapchain);
-
-    // Деинциализация прохода рендеринга
-    //DeinitRenderPass(m_device, &m_renderPass);
-
-    //    // Динициализация устройства
-    //    DeinitDevice(&m_device);
-
-    //    // Деинициализация поверзности
-    //    DeinitWindowSurface(m_instance, &m_vkSurface);
-
-    //    // Деинициализация экземпляра Vulkan
-    //    DeinitInstance(&m_instance);
-}
-
-
-/**
-* Инициализация текстурного семплера
-* @param const kge::vkstructs::Device &device - устройство
-* @note - описывает как данные текстуры подаются в шейдер и как интерпретируются координаты
-*/
-VkSampler KGEVulkanCore::InitTextureSampler(const kge::vkstructs::Device &device)
-{
-    // Результирующий хендл семплера
-    VkSampler resultSampler;
-
-    // Настройка семплера
-    VkSamplerCreateInfo samplerInfo = {};
-    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = VK_FILTER_LINEAR;                      // Тип интерполяции когда тексели больше фрагментов
-    samplerInfo.minFilter = VK_FILTER_LINEAR;                      // Тип интерполяции когда тексели меньше фрагментов
-    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;     // Повторять при выходе за пределы
-    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.anisotropyEnable = VK_TRUE;                        // Включть анизотропную фильтрацию
-    samplerInfo.maxAnisotropy = 4;                                 // уровень фильтрации
-    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;    // Цвет грани
-    samplerInfo.unnormalizedCoordinates = VK_FALSE;                // Использовать нормальзованные координаты (не пиксельные)
-    samplerInfo.compareEnable = VK_FALSE;
-    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-
-    // Создание семплера
-    if (vkCreateSampler(device.logicalDevice, &samplerInfo, nullptr, &resultSampler) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error while creating texture sampler");
-    }
-
-    kge::tools::LogMessage("Vulkan: Texture sampler successfully initialized");
-
-
-    return resultSampler;
-}
-
-/**
-* Деинициализация текстурного семплера
-* @param const kge::vkstructs::Device &device - устройство
-* @param VkSampler * sampler - деинициализация текстурного семплера
-*/
-void KGEVulkanCore::DeinitTextureSampler(const kge::vkstructs::Device &device,
-                                         VkSampler *sampler)
-{
-    if (sampler != nullptr && *sampler != nullptr) {
-        vkDestroySampler(device.logicalDevice, *sampler, nullptr);
-        *sampler = nullptr;
-    }
-}
-
-/**
-* Инициализация набор дескрипторов
-* @param const vktoolkit::Device &device - устройство
-* @param VkDescriptorPool descriptorPool - хендл дескрипторного пула из которого будет выделен набор
-* @param VkDescriptorSetLayout descriptorSetLayout - хендл размещения дескрипторно набора
-* @param const vktoolkit::UniformBuffer &uniformBufferWorld - буфер содержит необходимую для создания дескриптора информацию
-* @param const vktoolkit::UniformBuffer &uniformBufferModels - буфер содержит необходимую для создания дескриптора информацию
-*/
-VkDescriptorSet KGEVulkanCore::InitDescriptorSetMain(const kge::vkstructs::Device &device,
-                                                     VkDescriptorPool descriptorPool,
-                                                     VkDescriptorSetLayout descriptorSetLayout,
-                                                     const kge::vkstructs::UniformBuffer &uniformBufferWorld,
-                                                     const kge::vkstructs::UniformBuffer &uniformBufferModels)
-{
-    // Результирующий хендл дескриптора
-    VkDescriptorSet descriptorSetResult = nullptr;
-
-    // Получить новый набор дескрипторов из дескриптороного пула
-    VkDescriptorSetAllocateInfo descriptorSetAllocInfo = {};
-    descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptorSetAllocInfo.descriptorPool = descriptorPool;
-    descriptorSetAllocInfo.descriptorSetCount = 1;
-    descriptorSetAllocInfo.pSetLayouts = &descriptorSetLayout;
-
-    if (vkAllocateDescriptorSets(device.logicalDevice, &descriptorSetAllocInfo, &descriptorSetResult) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error in vkAllocateDescriptorSets. Can't allocate descriptor set");
-    }
-
-    // Конфигурация добавляемых в набор дескрипторов
-    std::vector<VkWriteDescriptorSet> writes =
-    {
-        {
-            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,      // Тип структуры
-            nullptr,                                     // pNext
-            descriptorSetResult,                         // Целевой набор дескрипторов
-            0,                                           // Точка привязки (у шейдера)
-            0,                                           // Элемент массив (массив не используется)
-            1,                                           // Кол-во дескрипторов
-            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,           // Тип дескриптора
-            nullptr,
-            &(uniformBufferWorld.descriptorBufferInfo),  // Информация о параметрах буфера
-            nullptr
-        },
-        {
-            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,      // Тип структуры
-            nullptr,                                     // pNext
-            descriptorSetResult,                         // Целевой набор дескрипторов
-            1,                                           // Точка привязки (у шейдера)
-            0,                                           // Элемент массив (массив не используется)
-            1,                                           // Кол-во дескрипторов
-            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,   // Тип дескриптора
-            nullptr,
-            &(uniformBufferModels.descriptorBufferInfo), // Информация о параметрах буфера
-            nullptr,
-        },
-    };
-
-    // Обновить наборы дескрипторов
-    vkUpdateDescriptorSets(device.logicalDevice, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
-
-    kge::tools::LogMessage("Vulkan: Descriptor set successfully initialized");
-
-    // Вернуть хендл набора
-    return descriptorSetResult;
-}
-/**
-* Деинициализация набор дескрипторов
-* @param const vktoolkit::Device &device - устройство
-* @param VkDescriptorPool descriptorPool - хендл дескрипторного пула из которого будет выделен набор
-* @param VkDescriptorSet * descriptorSet - указатель на хендл набора дескрипторов
-*/
-void KGEVulkanCore::DeinitDescriptorSet(const kge::vkstructs::Device &device,
-                                        VkDescriptorPool descriptorPool,
-                                        VkDescriptorSet *descriptorSet)
-{
-    if (device.logicalDevice    != nullptr
-            && descriptorPool   != nullptr
-            && descriptorSet    != nullptr
-            && *descriptorSet   != nullptr)
-    {
-        if (vkFreeDescriptorSets(device.logicalDevice, descriptorPool, 1, descriptorSet) != VK_SUCCESS) {
-            throw std::runtime_error("Vulkan: Error while destroying descriptor set");
-        }
-        *descriptorSet = nullptr;
-
-        kge::tools::LogMessage("Vulkan: Descriptor set successfully deinitialized");
-    }
-}
-
-/**
-* Аллокация памяти под объект динамического UBO буфера
-* @param const vktoolkit::Device &device - устройство (необходимо для получения выравнивания)
-* @param unsigned int maxObjects - максимальное кол-вл объектов (для выяснения размера аллоцируемой памяти)
-* @return vktoolkit::UboModelArray - указатель на аллоцированный массив матриц
-*/
-kge::vkstructs::UboModelArray KGEVulkanCore::AllocateUboModels(const kge::vkstructs::Device &device,
-                                                               unsigned int maxObjects)
-{
-    // Получить оптимальное выравнивание для типа glm::mat4
-    std::size_t dynamicAlignment = static_cast<size_t>(device.GetDynamicAlignment<glm::mat4>());
-
-    // Вычислить размер буфера учитывая доступное вырванивание памяти (для типа glm::mat4 размером в 64 байта)
-    std::size_t bufferSize = static_cast<size_t>(dynamicAlignment * maxObjects);
-
-    // Аллоцировать память с учетом выравнивания
-    kge::vkstructs::UboModelArray result = static_cast<kge::vkstructs::UboModelArray>(aligned_alloc(bufferSize, dynamicAlignment));
-
-    kge::tools::LogMessage("Vulkan: Dynamic UBO satage-buffer successfully allocated");
-
-    return result;
-}
-
-/**
-* Освобождение памяти объекта динамического UBO буфера
-* @param vktoolkit::UboModelArray * uboModels - указатель на массив матриц, память которого будет очищена
-*/
-void KGEVulkanCore::FreeUboModels(kge::vkstructs::UboModelArray *uboModels)
-{
-    free(*uboModels);
-    *uboModels = nullptr;
-    kge::tools::LogMessage("Vulkan: Dynamic UBO satage-buffer successfully freed");
-}
-
-/**
-* Инициализация примитивов синхронизации
-* @param const vktoolkit::Device &device - устройство
-* @return vktoolkit::Synchronization - структура с набором хендлов семафоров
-* @note - семафоры синхронизации позволяют отслеживать состояние рендеринга и в нужный момент показывать изображение
-*/
-kge::vkstructs::Synchronization KGEVulkanCore::InitSynchronization(const kge::vkstructs::Device &device)
-{
-    // Результат
-    kge::vkstructs::Synchronization syncResult = {};
-
-    // Информация о создаваемом семафоре (ничего не нужно указывать)
-    VkSemaphoreCreateInfo semaphoreInfo = {};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    // Создать примитивы синхронизации
-    if (vkCreateSemaphore(device.logicalDevice, &semaphoreInfo, nullptr, &(syncResult.readyToRender)) != VK_SUCCESS ||
-            vkCreateSemaphore(device.logicalDevice, &semaphoreInfo, nullptr, &(syncResult.readyToPresent)) != VK_SUCCESS) {
-        throw std::runtime_error("Vulkan: Error while creating synchronization primitives");
-    }
-
-    kge::tools::LogMessage("Vulkan: Synchronization primitives sucessfully initialized");
-
-    return syncResult;
-}
-
-/**
-* Деинициализация примитивов синхронизации
-* @param const vktoolkit::Device &device - устройство
-* @param vktoolkit::Synchronization * sync - указатель на структуру с хендлами семафоров
-*/
-void KGEVulkanCore::DeinitSynchronization(const kge::vkstructs::Device &device,
-                                          kge::vkstructs::Synchronization *sync)
-{
-    if (sync != nullptr) {
-        if (sync->readyToRender != nullptr) {
-            vkDestroySemaphore(device.logicalDevice, sync->readyToRender, nullptr);
-            sync->readyToRender = nullptr;
-        }
-
-        if (sync->readyToRender != nullptr) {
-            vkDestroySemaphore(device.logicalDevice, sync->readyToRender, nullptr);
-            sync->readyToRender = nullptr;
-        }
-
-        kge::tools::LogMessage("Vulkan: Synchronization primitives sucessfully deinitialized");
-    }
 }
 
 /**
@@ -922,7 +616,13 @@ void KGEVulkanCore::DeinitSynchronization(const kge::vkstructs::Device &device,
 * буферы команд, а сама отправка происходть в draw. При изменении кол-ва примитивов следует сбросить командные буферы и заново их заполнить
 * при помощи данного метода
 */
-void KGEVulkanCore::PrepareDrawCommands(std::vector<VkCommandBuffer> commandBuffers, VkRenderPass renderPass, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSetMain, VkPipeline pipeline, const kge::vkstructs::Swapchain &swapchain, const std::vector<kge::vkstructs::Primitive> &primitives)
+void KGEVulkanCore::PrepareDrawCommands(std::vector<VkCommandBuffer> commandBuffers,
+                                        VkRenderPass renderPass,
+                                        VkPipelineLayout pipelineLayout,
+                                        VkDescriptorSet descriptorSetMain,
+                                        VkPipeline pipeline,
+                                        const kge::vkstructs::Swapchain &swapchain,
+                                        const std::vector<kge::vkstructs::Primitive> &primitives)
 {
     // Информация начала командного буфера
     VkCommandBufferBeginInfo cmdBufInfo = {};

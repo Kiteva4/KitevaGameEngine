@@ -119,7 +119,7 @@ KGEVkInstance::~KGEVkInstance()
         std::cout << "Vulkan: Report callback sucessfully destroyed" << std::endl;
     }
 
-    if (m_vkInstance != nullptr) {
+    if (*m_vkInstance != nullptr || m_vkInstance != nullptr) {
         vkDestroyInstance(*m_vkInstance, nullptr);
         m_vkInstance = nullptr;
 

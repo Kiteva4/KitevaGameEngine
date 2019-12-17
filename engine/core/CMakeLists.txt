@@ -28,6 +28,10 @@ set(HDRS
     include/graphic/VulkanCoreModules/KGEVkUniformBufferModels.h
     include/graphic/VulkanCoreModules/KGEVkDescriptorPool.h
     include/graphic/VulkanCoreModules/KGEVkDescriptorSetLayout.h
+    include/graphic/VulkanCoreModules/KGEVkSampler.h
+    include/graphic/VulkanCoreModules/KGEVkDescriptorSet.h
+    include/graphic/VulkanCoreModules/KGEVkUboModels.h
+    include/graphic/VulkanCoreModules/KGEVkSynchronization.h
     include/application/KGEAppData.h
     )
 
@@ -53,6 +57,10 @@ set(SRCS
     src/graphic/VulkanCoreModules/KGEVkUniformBufferModels.cpp
     src/graphic/VulkanCoreModules/KGEVkDescriptorPool.cpp
     src/graphic/VulkanCoreModules/KGEVkDescriptorSetLayout.cpp
+    src/graphic/VulkanCoreModules/KGEVkSampler.cpp
+    src/graphic/VulkanCoreModules/KGEVkDescriptorSet.cpp
+    src/graphic/VulkanCoreModules/KGEVkUboModels.cpp
+    src/graphic/VulkanCoreModules/KGEVkSynchronization.cpp
     src/application/KGEAppData.cpp
     )
 

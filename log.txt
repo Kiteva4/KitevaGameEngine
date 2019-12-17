@@ -43,3 +43,291 @@
 [2019-12-16 14:45:35] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
 [2019-12-16 14:45:35] Vulkan: Render pass successfully initialized
 [2019-12-16 14:45:35] Vulkan: Swap-chain successfully initialized
+[2019-12-17 09:20:11] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 09:20:11] Vulkan: Render pass successfully initialized
+[2019-12-17 09:20:11] Vulkan: Swap-chain successfully initialized
+[2019-12-17 09:20:11] Vulkan: Command pool successfully initialized
+[2019-12-17 09:20:11] Vulkan: Command buffers successfully allocated
+[2019-12-17 09:20:11] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 09:20:11] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 09:20:11] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 09:20:11] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 09:20:11] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 09:20:11] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 09:20:11] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 09:20:53] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 09:20:53] Vulkan: Render pass successfully initialized
+[2019-12-17 09:20:53] Vulkan: Swap-chain successfully initialized
+[2019-12-17 09:20:53] Vulkan: Command pool successfully initialized
+[2019-12-17 09:20:53] Vulkan: Command buffers successfully allocated
+[2019-12-17 09:20:53] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 09:20:53] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 09:20:53] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 09:20:53] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 09:20:53] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 09:20:53] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 09:20:53] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 09:21:46] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 09:21:46] Vulkan: Render pass successfully initialized
+[2019-12-17 09:21:46] Vulkan: Swap-chain successfully initialized
+[2019-12-17 09:21:46] Vulkan: Command pool successfully initialized
+[2019-12-17 09:21:46] Vulkan: Command buffers successfully allocated
+[2019-12-17 09:21:46] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 09:21:46] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 09:21:46] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 09:21:46] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 09:21:46] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 09:21:46] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 09:21:46] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 09:22:05] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 09:22:05] Vulkan: Render pass successfully initialized
+[2019-12-17 09:22:05] Vulkan: Swap-chain successfully initialized
+[2019-12-17 09:22:05] Vulkan: Command pool successfully initialized
+[2019-12-17 09:22:05] Vulkan: Command buffers successfully allocated
+[2019-12-17 09:22:05] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 09:22:05] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 09:22:05] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 09:22:05] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 09:22:05] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 09:22:05] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 09:22:05] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 09:22:05] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 09:22:05] Vulkan: Texture sampler successfully initialized
+[2019-12-17 09:22:05] Vulkan: Descriptor set successfully initialized
+[2019-12-17 09:22:05] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 09:22:05] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 09:22:05] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 09:22:05] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 09:22:05] Vulkan: Command pool successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 11:01:51] Vulkan: Render pass successfully initialized
+[2019-12-17 11:01:51] Vulkan: Swap-chain successfully initialized
+[2019-12-17 11:01:51] Vulkan: Command pool successfully initialized
+[2019-12-17 11:01:51] Vulkan: Command buffers successfully allocated
+[2019-12-17 11:01:51] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 11:01:51] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 11:01:51] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 11:01:51] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 11:01:51] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 11:01:51] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 11:01:51] Vulkan: Texture sampler successfully initialized
+[2019-12-17 11:01:51] Vulkan: Descriptor set successfully initialized
+[2019-12-17 11:01:51] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 11:01:51] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 11:01:51] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 11:01:51] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 11:01:51] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 11:01:51] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:01:51] Vulkan: Command pool successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 11:03:42] Vulkan: Render pass successfully initialized
+[2019-12-17 11:03:42] Vulkan: Swap-chain successfully initialized
+[2019-12-17 11:03:42] Vulkan: Command pool successfully initialized
+[2019-12-17 11:03:42] Vulkan: Command buffers successfully allocated
+[2019-12-17 11:03:42] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 11:03:42] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 11:03:42] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 11:03:42] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 11:03:42] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 11:03:42] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 11:03:42] Vulkan: Texture sampler successfully initialized
+[2019-12-17 11:03:42] Vulkan: Descriptor set successfully initialized
+[2019-12-17 11:03:42] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 11:03:42] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 11:03:42] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 11:03:42] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 11:03:42] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 11:03:42] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:03:42] Vulkan: Command pool successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 11:04:01] Vulkan: Render pass successfully initialized
+[2019-12-17 11:04:01] Vulkan: Swap-chain successfully initialized
+[2019-12-17 11:04:01] Vulkan: Command pool successfully initialized
+[2019-12-17 11:04:01] Vulkan: Command buffers successfully allocated
+[2019-12-17 11:04:01] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 11:04:01] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 11:04:01] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 11:04:01] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 11:04:01] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 11:04:01] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 11:04:01] Vulkan: Texture sampler successfully initialized
+[2019-12-17 11:04:01] Vulkan: Descriptor set successfully initialized
+[2019-12-17 11:04:01] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 11:04:01] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 11:04:01] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 11:04:01] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 11:04:01] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 11:04:01] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:04:01] Vulkan: Command pool successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 11:24:19] Vulkan: Render pass successfully initialized
+[2019-12-17 11:24:19] Vulkan: Swap-chain successfully initialized
+[2019-12-17 11:24:19] Vulkan: Command pool successfully initialized
+[2019-12-17 11:24:19] Vulkan: Command buffers successfully allocated
+[2019-12-17 11:24:19] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 11:24:19] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 11:24:19] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 11:24:19] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 11:24:19] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 11:24:19] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 11:24:19] Vulkan: Texture sampler successfully initialized
+[2019-12-17 11:24:19] Vulkan: Descriptor set successfully initialized
+[2019-12-17 11:24:19] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 11:24:19] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 11:24:19] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 11:24:19] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 11:24:19] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 11:24:19] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:24:19] Vulkan: Command pool successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 11:25:47] Vulkan: Render pass successfully initialized
+[2019-12-17 11:25:47] Vulkan: Swap-chain successfully initialized
+[2019-12-17 11:25:47] Vulkan: Command pool successfully initialized
+[2019-12-17 11:25:47] Vulkan: Command buffers successfully allocated
+[2019-12-17 11:25:47] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 11:25:47] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 11:25:47] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 11:25:47] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 11:25:47] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 11:25:47] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 11:25:47] Vulkan: Texture sampler successfully initialized
+[2019-12-17 11:25:47] Vulkan: Descriptor set successfully initialized
+[2019-12-17 11:25:47] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 11:25:47] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 11:25:47] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 11:25:47] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 11:25:47] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 11:25:47] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:25:47] Vulkan: Command pool successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 11:25:50] Vulkan: Render pass successfully initialized
+[2019-12-17 11:25:50] Vulkan: Swap-chain successfully initialized
+[2019-12-17 11:25:50] Vulkan: Command pool successfully initialized
+[2019-12-17 11:25:50] Vulkan: Command buffers successfully allocated
+[2019-12-17 11:25:50] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 11:25:50] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 11:25:50] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 11:25:50] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 11:25:50] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 11:25:50] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 11:25:50] Vulkan: Texture sampler successfully initialized
+[2019-12-17 11:25:50] Vulkan: Descriptor set successfully initialized
+[2019-12-17 11:25:50] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 11:25:50] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 11:25:50] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 11:25:50] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 11:25:50] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 11:25:50] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:25:50] Vulkan: Command pool successfully deinitialized
+[2019-12-17 11:26:58] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 11:26:58] Vulkan: Render pass successfully initialized
+[2019-12-17 11:26:58] Vulkan: Swap-chain successfully initialized
+[2019-12-17 11:26:58] Vulkan: Command pool successfully initialized
+[2019-12-17 11:26:58] Vulkan: Command buffers successfully allocated
+[2019-12-17 11:26:58] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 11:26:58] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 11:26:58] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 11:26:58] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 11:26:58] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 11:26:58] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 11:26:58] Vulkan: Texture sampler successfully initialized
+[2019-12-17 11:26:58] Vulkan: Descriptor set successfully initialized
+[2019-12-17 11:26:58] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 11:26:58] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 11:26:58] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 11:26:58] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 11:26:59] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 11:26:59] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:26:59] Vulkan: Command pool successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Device successfully initialized (Intel(R) HD Graphics 530 (Skylake GT2))
+[2019-12-17 11:27:40] Vulkan: Render pass successfully initialized
+[2019-12-17 11:27:40] Vulkan: Swap-chain successfully initialized
+[2019-12-17 11:27:40] Vulkan: Command pool successfully initialized
+[2019-12-17 11:27:40] Vulkan: Command buffers successfully allocated
+[2019-12-17 11:27:40] Vulkan: Uniform buffer for world scene successfully allocated
+[2019-12-17 11:27:40] Vulkan: Uniform buffer for models successfully allocated
+[2019-12-17 11:27:40] Vulkan: Main descriptor pool successfully initialized
+[2019-12-17 11:27:40] Vulkan: Texture descriptor pool successfully initialized
+[2019-12-17 11:27:40] Vulkan: Main descriptor set layout successfully initialized
+[2019-12-17 11:27:40] Vulkan: Texture descriptor set layout successfully initialized
+[2019-12-17 11:27:40] Vulkan: Texture sampler successfully initialized
+[2019-12-17 11:27:40] Vulkan: Descriptor set successfully initialized
+[2019-12-17 11:27:40] Vulkan: Pipeline layout successfully initialized
+[2019-12-17 11:27:40] Vulkan: Pipeline sucessfully initialized
+[2019-12-17 11:27:40] Vulkan: Dynamic UBO satage-buffer successfully allocated
+[2019-12-17 11:27:40] Vulkan: Synchronization primitives sucessfully initialized
+[2019-12-17 11:27:40] Vulkan: Synchronization primitives sucessfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Dynamic UBO satage-buffer successfully freed
+[2019-12-17 11:27:40] Vulkan: Pipeline layout successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Descriptor set successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Descriptor set layout successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Descriptor pool successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Uniform buffer successfully deinitialized
+[2019-12-17 11:27:40] Vulkan: Command pool successfully deinitialized

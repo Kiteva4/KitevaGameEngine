@@ -51,7 +51,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
             nullptr,
             0,
             VK_SHADER_STAGE_VERTEX_BIT,
-            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/Users/avetikmanvelan/GitHub/KitevaGameEngine/shaders/vert.spv"), device->logicalDevice),
+            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/home/vxuser/GitHub/KitevaGameEngine/shaders/vert.spv"), device->logicalDevice),
             "main",
             nullptr
         },
@@ -60,7 +60,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
             nullptr,
             0,
             VK_SHADER_STAGE_FRAGMENT_BIT,
-            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/Users/avetikmanvelan/GitHub/KitevaGameEngine/shaders/frag.spv"), device->logicalDevice),
+            kge::vkutility::LoadSPIRVShader(std::filesystem::path("/home/vxuser/GitHub/KitevaGameEngine/shaders/frag.spv"), device->logicalDevice),
             "main",
             nullptr
         }
@@ -172,7 +172,6 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
     pipelineInfo.renderPass = renderPass;                       // Связываем конвейер с соответствующим проходом рендеринга
     pipelineInfo.subpass = 0;                                   // Связываем с под-проходом (первый под-проход)
 
-    std::cout << "try create graphics pipeline" << std::endl;
     // Создание графического конвейера
     if (vkCreateGraphicsPipelines(device->logicalDevice,
                                   nullptr, 1,
@@ -192,7 +191,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
 
 KGEVkGraphicsPipeline::~KGEVkGraphicsPipeline()
 {
-    if (m_device->logicalDevice != nullptr && m_pipeline != nullptr && *m_pipeline != nullptr) {
+    if (m_device->logicalDevice != nullptr && *m_pipeline != nullptr && m_pipeline != nullptr) {
         vkDestroyPipeline(m_device->logicalDevice, *m_pipeline, nullptr);
         m_pipeline = nullptr;
         kge::tools::LogMessage("Vulkan: Pipeline sucessfully deinitialized");

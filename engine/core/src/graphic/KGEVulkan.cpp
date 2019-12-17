@@ -676,8 +676,6 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::filesystem::path shaderFileP
     // Загрузить код шейдера
     bool loaded = tools::LoadBytesFromFile(shaderFilePath, &shaderCode, &shaderSize);
 
-    std::cout << "--- " << shaderFilePath.filename().c_str() << " size is " << std::filesystem::file_size(shaderFilePath) << std::endl;
-
     // Если не удалось загрузить или файл пуст
     if (!loaded || shaderSize == 0){
         std::string msg = "Vulkan: Error while loading shader code from file " + std::to_string(*shaderFilePath.c_str());
