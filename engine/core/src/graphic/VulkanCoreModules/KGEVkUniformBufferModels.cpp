@@ -32,10 +32,10 @@ KGEVkUniformBufferModels::KGEVkUniformBufferModels(kge::vkstructs::UniformBuffer
     m_uniformBufferModels->size = buffer.size;
 
     // Настройка информации для дескриптора
-    m_uniformBufferModels->configDescriptorInfo(VK_WHOLE_SIZE);
+    m_uniformBufferModels->configDescriptorInfo(64);
 
     // Разметить буфер (сделать его доступным для копирования информации)
-    m_uniformBufferModels->map(m_device->logicalDevice, VK_WHOLE_SIZE, 0);
+    m_uniformBufferModels->map(m_device->logicalDevice, 64, 0);
 
     kge::tools::LogMessage("Vulkan: Uniform buffer for models successfully allocated");
 }

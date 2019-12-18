@@ -18,7 +18,7 @@ KGEVkSampler::KGEVkSampler(VkSampler* sampler,
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;     // Повторять при выходе за пределы
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.anisotropyEnable = VK_TRUE;                        // Включть анизотропную фильтрацию
+    samplerInfo.anisotropyEnable = VK_FALSE;                       // Включть анизотропную фильтрацию
     samplerInfo.maxAnisotropy = 4;                                 // уровень фильтрации
     samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;    // Цвет грани
     samplerInfo.unnormalizedCoordinates = VK_FALSE;                // Использовать нормальзованные координаты (не пиксельные)

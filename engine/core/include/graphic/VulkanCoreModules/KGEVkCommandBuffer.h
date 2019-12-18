@@ -7,7 +7,7 @@ class KGEVkCommandBuffer
 {
     const kge::vkstructs::Device* m_device;
     std::vector<VkCommandBuffer>* m_commandBuffersDraw;
-    VkCommandPool *m_commandPool;
+    VkCommandPool* m_commandPool;
 public:
     KGEVkCommandBuffer(std::vector<VkCommandBuffer>* commandBuffersDraw,
                        const kge::vkstructs::Device *device,

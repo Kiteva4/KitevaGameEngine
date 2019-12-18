@@ -14,18 +14,17 @@ KGEVkCommandBuffer::KGEVkCommandBuffer(std::vector<VkCommandBuffer>* commandBuff
     m_device{device},
     m_commandBuffersDraw{commandBuffersDraw},
     m_commandPool{commandPool}
-
 {
-    m_commandBuffersDraw->reserve(count);
+    m_commandBuffersDraw->resize(count);
     // Конфигурация аллокации буферов
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = *commandPool;                               // Указание командного пула
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;                 // Передается в очередь непосредственно
-    allocInfo.commandBufferCount = static_cast<unsigned int>(commandBuffersDraw->size()); // Кол-во командных буферов
+    allocInfo.commandPool = *commandPool;                                               // Указание командного пула
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;                                  // Передается в очередь непосредственно
+    allocInfo.commandBufferCount = static_cast<unsigned int>(m_commandBuffersDraw->size()); // Кол-во командных буферов
 
     // Аллоцировать буферы команд
-    if (vkAllocateCommandBuffers(device->logicalDevice, &allocInfo, commandBuffersDraw->data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(device->logicalDevice, &allocInfo, m_commandBuffersDraw->data()) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in vkAllocateCommandBuffers function. Failed to allocate command buffers");
     }
 
