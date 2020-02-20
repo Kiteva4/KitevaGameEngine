@@ -2,29 +2,34 @@
 #include "graphic/KGEVulkan.h"
 #include <cstring>
 
-KGEVkInstance::KGEVkInstance(
-        VkInstance  *vkInstance,
-        std::string applicationName,
-        std::string engineName,
+const VkInstance & KGEVkInstance::instance()
+{
+    return m_instance;
+}
+
+KGEVkInstance::KGEVkInstance(std::string applicationName,
+                             std::string engineName,
         std::vector<const char*> extensionsRequired,
         std::vector<const char*> validationLayersRequired) :
-    m_vkInstance{vkInstance},
-    m_validationReportCallback(nullptr)
+    m_instance{}
 {
     // Структура с информацией о создаваемом приложении
     // Здесь содержиться информация о названии, версии приложения и движка. Эта информация может быть полезна разработчикам драйверов
     VkApplicationInfo applicationInfo = {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    applicationInfo.pNext = nullptr;
     applicationInfo.pApplicationName = applicationName.c_str();
     applicationInfo.pEngineName = engineName.c_str();
-    applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    applicationInfo.applicationVersion = 1;//VK_MAKE_VERSION(1, 0, 0);
+    applicationInfo.engineVersion = 1;//VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.apiVersion = VK_API_VERSION_1_0;
 
     // Структура с информацией о создаваемом экземпляре vulkan
     // Здесь можно указать информацию о приложении (ссылка на структуру выше) а так же указать используемые расширения
     VkInstanceCreateInfo instanceCreateInfo = {};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    instanceCreateInfo.pNext = nullptr;
+    instanceCreateInfo.flags = 0;
     instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
     bool validationQueried = false;
@@ -38,8 +43,8 @@ KGEVkInstance::KGEVkInstance(
         }
 
         // Указать запрашиваемые расширения и их кол-во
-        instanceCreateInfo.ppEnabledExtensionNames = extensionsRequired.data();
         instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensionsRequired.size());
+        instanceCreateInfo.ppEnabledExtensionNames = extensionsRequired.data();
 
         //Проверка на наличие запрошенного расширения Debug
         bool debugReportExtensionQueried = false;
@@ -74,61 +79,19 @@ KGEVkInstance::KGEVkInstance(
 
     // Передается указатель на структуру CreateInfo, которую заполнили выше, и указатель на переменную хендла
     // instance'а, куда и будет помещен сам хендл. Если функция не вернула VK_SUCCESS - ошибка
-    if (vkCreateInstance(&instanceCreateInfo, nullptr, m_vkInstance) != VK_SUCCESS) {
+    if (vkCreateInstance(&instanceCreateInfo, nullptr, &m_instance) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in the 'vkCreateInstance' function");
     }
 
     std::cout << "Vulkan: Instance sucessfully created" << std::endl;
-
-    // Если запрошена валидация - создать callback метод для обработки исключений
-    if (validationQueried){
-
-        // Конфигурация callback'а
-        VkDebugReportCallbackCreateInfoEXT debugReportCallbackCreateInfo = {};
-        debugReportCallbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-        debugReportCallbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-        debugReportCallbackCreateInfo.pfnCallback = kge::vkutility::DebugVulkanCallback;
-
-        // Получить адрес функции создания callback'а (поскольку это функция расширения)
-        PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT =
-                reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(*m_vkInstance, "vkCreateDebugReportCallbackEXT"));
-
-        // Создать debug report callback для вывода сообщений об ошибках
-        if (vkCreateDebugReportCallbackEXT(*m_vkInstance, &debugReportCallbackCreateInfo, nullptr, &m_validationReportCallback) != VK_SUCCESS){
-            throw std::runtime_error("Vulkan: Error in the 'vkCreateDebugReportCallbackEXT'");
-        }
-
-        std::cout << "Vulkan: Report callback sucessfully created" << std::endl;
-    }
 }
 
 KGEVkInstance::~KGEVkInstance()
 {
-    //Если был создан обьект m_validationReportCallback
-    if (m_validationReportCallback != nullptr) {
-        //Получаем адрес функции для его уничтожения
-        PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(*m_vkInstance, "vkCreateDebugReportCallbackEXT"));
-
-        vkDestroyDebugReportCallbackEXT(
-                    *m_vkInstance,
-                    m_validationReportCallback,
-                    nullptr);
-
-        m_validationReportCallback = nullptr;
-
-        std::cout << "Vulkan: Report callback sucessfully destroyed" << std::endl;
-    }
-
-    if (*m_vkInstance != nullptr || m_vkInstance != nullptr) {
-        vkDestroyInstance(*m_vkInstance, nullptr);
-        m_vkInstance = nullptr;
+    if (m_instance != nullptr || m_instance != nullptr) {
+        vkDestroyInstance(m_instance, nullptr);
+        m_instance = nullptr;
 
         std::cout << "Vulkan: Instance sucessfully destroyed" << std::endl;
     }
 }
-
-const VkDebugReportCallbackEXT &KGEVkInstance::validationReportCallback()
-{
-    return m_validationReportCallback;
-}
-

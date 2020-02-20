@@ -6,12 +6,12 @@
 class KGEVkCommandPool
 {
     const kge::vkstructs::Device* m_device;
-    VkCommandPool* m_commandPool;
+    VkCommandPool m_commandPool;
 public:
-    KGEVkCommandPool(VkCommandPool* commandPool,
-                     const kge::vkstructs::Device* device,
+    KGEVkCommandPool(const kge::vkstructs::Device* device,
                      unsigned int queueFamilyIndex);
     ~KGEVkCommandPool();
+    const VkCommandPool &commandPool();
 };
 
 #endif // KGEVKCOMMANDPOOL_H

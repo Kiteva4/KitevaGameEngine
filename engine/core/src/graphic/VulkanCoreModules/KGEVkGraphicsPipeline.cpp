@@ -12,12 +12,15 @@
 * относится к конкретному проходу рендеринга (и подпроходу). В методе происходит конфигурация всех стадий,
 * загрузка шейдеров, настройка конвейера.
 */
-KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
-                                             const kge::vkstructs::Device* device,
+VkPipeline KGEVkGraphicsPipeline::pipeline() const
+{
+    return m_pipeline;
+}
+
+KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(const kge::vkstructs::Device* device,
                                              VkPipelineLayout pipelineLayout,
                                              const kge::vkstructs::Swapchain &swapchain,
                                              VkRenderPass renderPass):
-    m_pipeline{pipeline},
     m_device{device}
 {
     // Конфигурация привязок и аттрибутов входных данных (вершинных)
@@ -177,7 +180,7 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
                                   nullptr, 1,
                                   &pipelineInfo,
                                   nullptr,
-                                  m_pipeline) != VK_SUCCESS) {
+                                  &m_pipeline) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error while creating pipeline");
     }
 
@@ -191,8 +194,8 @@ KGEVkGraphicsPipeline::KGEVkGraphicsPipeline(VkPipeline* pipeline,
 
 KGEVkGraphicsPipeline::~KGEVkGraphicsPipeline()
 {
-    if (m_device->logicalDevice != nullptr && *m_pipeline != nullptr && m_pipeline != nullptr) {
-        vkDestroyPipeline(m_device->logicalDevice, *m_pipeline, nullptr);
+    if (m_device->logicalDevice != nullptr && &m_pipeline != nullptr && m_pipeline != nullptr) {
+        vkDestroyPipeline(m_device->logicalDevice, m_pipeline, nullptr);
         m_pipeline = nullptr;
         kge::tools::LogMessage("Vulkan: Pipeline sucessfully deinitialized");
     }

@@ -9,14 +9,16 @@
 * @param std::vector<const char*> validationLayersRequired - запрашиваемые слои валидации
 * @param bool uniqueQueueFamilies - нужны ли уникальные семейства очередей (разные) для показа и представления
 */
-KGEVkDevice::KGEVkDevice(
-        kge::vkstructs::Device *device,
-        VkInstance vkInstance,
-        VkSurfaceKHR surface,
-        std::vector<const char *> deviceExtensionsRequired,
-        std::vector<const char *> validationLayersRequired,
-        bool uniqueQueueFamilies):
-    m_device{device}
+kge::vkstructs::Device *KGEVkDevice::device()
+{
+    return &m_device;
+}
+
+KGEVkDevice::KGEVkDevice(VkInstance vkInstance,
+                         VkSurfaceKHR surface,
+                         std::vector<const char *> deviceExtensionsRequired,
+                         std::vector<const char *> validationLayersRequired,
+                         bool uniqueQueueFamilies)
 {
     //Проверяем количество доступных физических устройств
     unsigned int deviceCount = 0;
@@ -39,10 +41,10 @@ KGEVkDevice::KGEVkDevice(
     for(const auto& physicalDevice : physicalDevices){
 
         // Получить информацию об очередях поддерживаемых устройством
-        m_device->queueFamilies = kge::vkutility::GetQueueFamilyInfo(physicalDevice, surface, uniqueQueueFamilies);
+        m_device.queueFamilies = kge::vkutility::GetQueueFamilyInfo(physicalDevice, surface, uniqueQueueFamilies);
 
         // Если очереди данного устройства не совместимы с рендерингом - переходим к следующему
-        if (!(m_device->queueFamilies.IsRenderingCompatible())) {
+        if (!(m_device.queueFamilies.IsRenderingCompatible())) {
             continue;
         }
 
@@ -59,11 +61,11 @@ KGEVkDevice::KGEVkDevice(
         }
 
         // Записать хендл физического устройства, которое прошло все проверки
-        m_device->physicalDevice = physicalDevice;
+        m_device.physicalDevice = physicalDevice;
     }
 
     // Если не нашлось видео-карт которые удовлетворяют всем требованиям - ошибка
-    if (m_device->physicalDevice == nullptr) {
+    if (m_device.physicalDevice == nullptr) {
         throw std::runtime_error("Vulkan: Error in the 'InitDevice' function! Can't detect suitable device");
     }
 
@@ -72,7 +74,7 @@ KGEVkDevice::KGEVkDevice(
 
     // Массив инедксов семейств (2 индекса - графич. семейство и семейство представления.
     // Индексы могут совпадать, семейство у обеих очередей может быть одно и то же)
-    uint32_t queueFamilies[2] = { static_cast<uint32_t>(m_device->queueFamilies.graphics), static_cast<uint32_t>(m_device->queueFamilies.present) };
+    uint32_t queueFamilies[2] = { static_cast<uint32_t>(m_device.queueFamilies.graphics), static_cast<uint32_t>(m_device.queueFamilies.present) };
     const float defaultQueuePriority(0.0f);
 
     // Если графич. семейство и семейство представления - одно и то же (тот же индекс),
@@ -96,7 +98,7 @@ KGEVkDevice::KGEVkDevice(
 
     // Проверка запрашиваемых расширений, указать если есть (если не доступны - ошибка)
     if (!deviceExtensionsRequired.empty()) {
-        if (!kge::vkutility::CheckDeviceExtensionSupported(m_device->physicalDevice, deviceExtensionsRequired)) {
+        if (!kge::vkutility::CheckDeviceExtensionSupported(m_device.physicalDevice, deviceExtensionsRequired)) {
             throw std::runtime_error("Vulkan: Not all required device extensions supported. Can't initialize renderer");
         }
 
@@ -120,29 +122,29 @@ KGEVkDevice::KGEVkDevice(
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
     // Создание логического устройства
-    if (vkCreateDevice(device->physicalDevice, &deviceCreateInfo, nullptr, &device->logicalDevice) != VK_SUCCESS) {
+    if (vkCreateDevice(m_device.physicalDevice, &deviceCreateInfo, nullptr, &m_device.logicalDevice) != VK_SUCCESS) {
         std::cout << "cant create device" << std::endl;
         throw std::runtime_error("Vulkan: Failed to create logical device. Can't initialize renderer");
     }
 
     // Получить хендлы очередей устройства (графической очереди и очереди представления)
     // Если использовано одно семейство, то индексы первых (нулевых) очередей для Graphics и Present будут одинаковы
-    vkGetDeviceQueue(m_device->logicalDevice, m_device->queueFamilies.graphics, 0, &(m_device->queues.graphics));
-    vkGetDeviceQueue(m_device->logicalDevice, m_device->queueFamilies.present, 0, &(m_device->queues.present));
+    vkGetDeviceQueue(m_device.logicalDevice, m_device.queueFamilies.graphics, 0, &(m_device.queues.graphics));
+    vkGetDeviceQueue(m_device.logicalDevice, m_device.queueFamilies.present, 0, &(m_device.queues.present));
 
     // Если в итоге устройство не готово - ошибка
-    if (!m_device->IsReady()) {
+    if (!m_device.IsReady()) {
         throw std::runtime_error("Vulkan: Failed to initialize device and queues. Can't initialize renderer");
     }
 
     // Сообщение об успешной инициализации устройства
-    std::string deviceName = std::string(m_device->GetProperties().deviceName);
+    std::string deviceName = std::string(m_device.GetProperties().deviceName);
     std::string message = "Vulkan: Device successfully initialized (" + deviceName + ")";
     kge::tools::LogMessage(message);
 }
 
 KGEVkDevice::~KGEVkDevice()
 {
-    m_device->Deinit();
+    m_device.Deinit();
     std::cout << "Vulkan: Device successfully destroyed" << std::endl;
 }

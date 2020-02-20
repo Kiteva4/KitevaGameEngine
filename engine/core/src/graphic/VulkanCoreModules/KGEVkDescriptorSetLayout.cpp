@@ -12,11 +12,9 @@
 * @return VkDescriptorSetLayout - хендл размещения дескрипторного пула
 * @note - Размещение - информация о том сколько и каких именно (какого типа) дескрипторов следует ожидать на определенных этапах конвейера
 */
-KGEVkDescriptorSetLayout::KGEVkDescriptorSetLayout(VkDescriptorSetLayout *descriptorSetLayout,
-                                                   const kge::vkstructs::Device *device,
+KGEVkDescriptorSetLayout::KGEVkDescriptorSetLayout(const kge::vkstructs::Device *device,
                                                    SET_LAYOUT_TYPE setLayoutType):
-    m_device{device},
-    m_descriptorSetLayout{descriptorSetLayout}
+    m_device{device}
 {
     if(setLayoutType == SetLayoutMain) {
         // Необходимо описать привязки дескрипторов к этапам конвейера
@@ -46,7 +44,7 @@ KGEVkDescriptorSetLayout::KGEVkDescriptorSetLayout(VkDescriptorSetLayout *descri
         descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         descriptorLayoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(m_device->logicalDevice, &descriptorLayoutInfo, nullptr, m_descriptorSetLayout) != VK_SUCCESS) {
+        if (vkCreateDescriptorSetLayout(m_device->logicalDevice, &descriptorLayoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) {
             throw std::runtime_error("Vulkan: Error in vkCreateDescriptorSetLayout. Can't initialize descriptor set layout");
         }
 
@@ -75,7 +73,7 @@ KGEVkDescriptorSetLayout::KGEVkDescriptorSetLayout(VkDescriptorSetLayout *descri
         descriptorLayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         descriptorLayoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(m_device->logicalDevice, &descriptorLayoutInfo, nullptr, m_descriptorSetLayout) != VK_SUCCESS) {
+        if (vkCreateDescriptorSetLayout(m_device->logicalDevice, &descriptorLayoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) {
             throw std::runtime_error("Vulkan: Error in vkCreateDescriptorSetLayout. Can't initialize descriptor set layout");
         }
 
@@ -88,12 +86,16 @@ KGEVkDescriptorSetLayout::KGEVkDescriptorSetLayout(VkDescriptorSetLayout *descri
 * @param const kge::vkstructs::Device &device - устройство
 * @VkDescriptorSetLayout * descriptorSetLayout - указатель на хендл размещения
 */
+const VkDescriptorSetLayout& KGEVkDescriptorSetLayout::descriptorSetLayout()
+{
+    return m_descriptorSetLayout;
+}
+
 KGEVkDescriptorSetLayout::~KGEVkDescriptorSetLayout()
 {
-    if (m_device->logicalDevice != nullptr && m_descriptorSetLayout != nullptr && *m_descriptorSetLayout != nullptr) {
-        vkDestroyDescriptorSetLayout(m_device->logicalDevice, *m_descriptorSetLayout, nullptr);
-        *m_descriptorSetLayout = nullptr;
-
+    if (m_device->logicalDevice != nullptr && m_descriptorSetLayout != nullptr && m_descriptorSetLayout != nullptr) {
+        vkDestroyDescriptorSetLayout(m_device->logicalDevice, m_descriptorSetLayout, nullptr);
+        m_descriptorSetLayout = nullptr;
         kge::tools::LogMessage("Vulkan: Descriptor set layout successfully deinitialized");
     }
 }

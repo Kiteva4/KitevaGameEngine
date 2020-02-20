@@ -8,9 +8,7 @@
 
 class KGEVkInstance
 {   
-    VkInstance *m_vkInstance;
-    VkDebugReportCallbackEXT m_validationReportCallback;
-
+    VkInstance m_instance;
 public:
 
 
@@ -22,16 +20,13 @@ public:
     * @param std::vector<const char*> validationLayersRequired - запрашиваемые слои валидации
     * @return VkInstance - хендл экземпляра Vulkan
     */
-    KGEVkInstance(
-            VkInstance * vkInstance,
-            std::string applicationName,
-            std::string engineName,
-            std::vector<const char*> extensionsRequired,
-            std::vector<const char*> validationLayersRequired);
+    KGEVkInstance(std::string applicationName,
+                  std::string engineName,
+                  std::vector<const char*> extensionsRequired,
+                  std::vector<const char*> validationLayersRequired);
 
     ~KGEVkInstance();
-
-    const VkDebugReportCallbackEXT& validationReportCallback();
+    const VkInstance &instance();
 };
 
 #endif // KGEVKINSTANCE_H

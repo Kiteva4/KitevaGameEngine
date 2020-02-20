@@ -12,15 +12,18 @@
 * @return kge::vkstructs::Swapchain структура описывающая swap-chain cодержащая необходимые хендлы
 * @note - в одно изображение может происходить запись (рендеринг) в то время как другое будет показываться (презентация)
 */
-KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
-                               const kge::vkstructs::Device* device,
+const kge::vkstructs::Swapchain &KGEVkSwapChain::swapchain()
+{
+    return m_swapchain;
+}
+
+KGEVkSwapChain::KGEVkSwapChain(const kge::vkstructs::Device* device,
                                VkSurfaceKHR surface,
                                VkSurfaceFormatKHR surfaceFormat,
                                VkFormat depthStencilFormat,
                                VkRenderPass renderPass,
                                unsigned int bufferCount,
                                kge::vkstructs::Swapchain *oldSwapchain):
-    m_swapchain{swapchain},
     m_device{device}
 {
     // Информация о поверхности
@@ -76,8 +79,8 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;   // Как используются изображения (как цветовые вложения)
 
     // Добавить информацию о формате и расширении в результирующий объект swap-chain'а (он будет отдан функцией)
-    m_swapchain->imageFormat = swapchainCreateInfo.imageFormat;
-    m_swapchain->imageExtent = swapchainCreateInfo.imageExtent;
+    m_swapchain.imageFormat = swapchainCreateInfo.imageFormat;
+    m_swapchain.imageExtent = swapchainCreateInfo.imageExtent;
 
     // Если старый swap-chain был передан - очистить его информацию о формате и расширении
     if (oldSwapchain != nullptr) {
@@ -110,7 +113,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     swapchainCreateInfo.oldSwapchain = (oldSwapchain != nullptr ? oldSwapchain->vkSwapchain : nullptr);  // Старый swap-chain (для более эффективного пересоздания можно указывать старый swap-chain)
 
     // Создание swap-chain (записать хендл в результирующий объект)
-    if (vkCreateSwapchainKHR(device->logicalDevice, &swapchainCreateInfo, nullptr, &(m_swapchain->vkSwapchain)) != VK_SUCCESS) {
+    if (vkCreateSwapchainKHR(device->logicalDevice, &swapchainCreateInfo, nullptr, &(m_swapchain.vkSwapchain)) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in vkCreateSwapchainKHR function. Failed to create swapchain");
     }
 
@@ -123,9 +126,9 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     // Получить хендлы изображений swap-chain
     // Кол-во изображений по сути равно кол-ву буферов (за это отвечает bufferCount при создании swap-chain)
     unsigned int swapChainImageCount = 0;
-    vkGetSwapchainImagesKHR(device->logicalDevice, m_swapchain->vkSwapchain, &swapChainImageCount, nullptr);
-    m_swapchain->images.resize(swapChainImageCount);
-    vkGetSwapchainImagesKHR(device->logicalDevice, m_swapchain->vkSwapchain, &swapChainImageCount, m_swapchain->images.data());
+    vkGetSwapchainImagesKHR(device->logicalDevice, m_swapchain.vkSwapchain, &swapChainImageCount, nullptr);
+    m_swapchain.images.resize(swapChainImageCount);
+    vkGetSwapchainImagesKHR(device->logicalDevice, m_swapchain.vkSwapchain, &swapChainImageCount, m_swapchain.images.data());
 
     // Теперь необходимо создать image-views для каждого изображения (своеобразный интерфейс объектов изображений предостовляющий нужные возможности)
     // Если был передан старый swap-chain - предварительно очистить все его image-views
@@ -139,7 +142,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     }
 
     // Для каждого изображения (image) swap-chain'а создать свой imageView объект
-    for (unsigned int i = 0; i < m_swapchain->images.size(); i++) {
+    for (unsigned int i = 0; i < m_swapchain.images.size(); i++) {
 
         // Идентификатор imageView (будт добавлен в массив)
         VkImageView swapChainImageCount;
@@ -147,7 +150,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
         // Информация для инициализации
         VkImageViewCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = m_swapchain->images[i];                       // Связь с изображением swap-chain
+        createInfo.image = m_swapchain.images[i];                           // Связь с изображением swap-chain
         createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;                        // Тип изображения (2Д текстура)
         createInfo.format = surfaceFormat.format;							// Формат изображения
         createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;			// По умолчанию
@@ -162,7 +165,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
 
         // Создать и добавить в массив
         if (vkCreateImageView(device->logicalDevice, &createInfo, nullptr, &swapChainImageCount) == VK_SUCCESS) {
-            m_swapchain->imageViews.push_back(swapChainImageCount);
+            m_swapchain.imageViews.push_back(swapChainImageCount);
         }
         else {
             throw std::runtime_error("Vulkan: Error in vkCreateImageView function. Failed to create image views");
@@ -180,7 +183,7 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     }
 
     // Создать буфер глубины-трафарета (обычное 2D-изображение с требуемым форматом)
-    m_swapchain->depthStencil = kge::vkutility::CreateImageSingle(
+    m_swapchain.depthStencil = kge::vkutility::CreateImageSingle(
                 *device,
                 VK_IMAGE_TYPE_2D,
                 depthStencilFormat,
@@ -205,14 +208,14 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
     }
 
     // Пройтись по всем image views и создать фрейм-буфер для каждого
-    for (unsigned int i = 0; i < m_swapchain->imageViews.size(); i++) {
+    for (unsigned int i = 0; i < m_swapchain.imageViews.size(); i++) {
 
         // Хендл нового фреймбуфера
         VkFramebuffer framebuffer;
 
         std::vector<VkImageView> attachments(2);
-        attachments[0] = m_swapchain->imageViews[i];                                    // Цветовое вложение (на каждый фрейм-буфер свое)
-        attachments[1] = m_swapchain->depthStencil.vkImageView;                         // Буфер глубины (один на все фрейм-буферы)
+        attachments[0] = m_swapchain.imageViews[i];                                    // Цветовое вложение (на каждый фрейм-буфер свое)
+        attachments[1] = m_swapchain.depthStencil.vkImageView;                         // Буфер глубины (один на все фрейм-буферы)
 
         // Описание нового фреймбуфера
         VkFramebufferCreateInfo framebufferInfo = {};
@@ -220,13 +223,13 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
         framebufferInfo.renderPass = renderPass;                                        // Указание прохода рендера
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());    // Кол-во вложений
         framebufferInfo.pAttachments = attachments.data();                              // Связь с image-views объектом изображения swap-chain'а
-        framebufferInfo.width = m_swapchain->imageExtent.width;                         // Разрешение (ширина)
-        framebufferInfo.height = m_swapchain->imageExtent.height;                       // Разрешение (высота)
+        framebufferInfo.width = m_swapchain.imageExtent.width;                         // Разрешение (ширина)
+        framebufferInfo.height = m_swapchain.imageExtent.height;                       // Разрешение (высота)
         framebufferInfo.layers = 1;                                                     // Один слой
 
         // В случае успешного создания - добавить в массив
         if (vkCreateFramebuffer(device->logicalDevice, &framebufferInfo, nullptr, &framebuffer) == VK_SUCCESS) {
-            m_swapchain->framebuffers.push_back(framebuffer);
+            m_swapchain.framebuffers.push_back(framebuffer);
         }
         else {
             throw std::runtime_error("Vulkan: Error in vkCreateFramebuffer function. Failed to create frame buffers");
@@ -239,33 +242,33 @@ KGEVkSwapChain::KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
 KGEVkSwapChain::~KGEVkSwapChain()
 {
     // Очистить фрейм-буферы
-    if (!m_swapchain->framebuffers.empty()) {
-        for (VkFramebuffer const &frameBuffer : m_swapchain->framebuffers) {
+    if (!m_swapchain.framebuffers.empty()) {
+        for (VkFramebuffer const &frameBuffer : m_swapchain.framebuffers) {
             vkDestroyFramebuffer(m_device->logicalDevice, frameBuffer, nullptr);
         }
-        m_swapchain->framebuffers.clear();
+        m_swapchain.framebuffers.clear();
     }
 
     // Очистить image-views объекты
-    if (!m_swapchain->imageViews.empty()) {
-        for (VkImageView const &imageView : m_swapchain->imageViews) {
+    if (!m_swapchain.imageViews.empty()) {
+        for (VkImageView const &imageView : m_swapchain.imageViews) {
             vkDestroyImageView(m_device->logicalDevice, imageView, nullptr);
         }
-        m_swapchain->imageViews.clear();
+        m_swapchain.imageViews.clear();
     }
 
     // Очиска компонентов Z-буфера
-    m_swapchain->depthStencil.Deinit(m_device->logicalDevice);
+    m_swapchain.depthStencil.Deinit(m_device->logicalDevice);
 
     // Очистить swap-chain
-    if (m_swapchain->vkSwapchain != nullptr) {
-        vkDestroySwapchainKHR(m_device->logicalDevice, m_swapchain->vkSwapchain, nullptr);
-        m_swapchain->vkSwapchain = nullptr;
+    if (m_swapchain.vkSwapchain != nullptr) {
+        vkDestroySwapchainKHR(m_device->logicalDevice, m_swapchain.vkSwapchain, nullptr);
+        m_swapchain.vkSwapchain = nullptr;
     }
 
     // Сбросить расширение и формат
-    m_swapchain->imageExtent = {};
-    m_swapchain->imageFormat = {};
+    m_swapchain.imageExtent = {};
+    m_swapchain.imageFormat = {};
 
     kge::tools::LogMessage("Vulkan: Swap-chain successfully deinitialized");
 }

@@ -9,7 +9,10 @@ Core::Core():
         }
 {
     m_kgeAppication.Init();
-    m_kgeAppication.Run();
+    for (;;) {
+        m_kgeAppication.Run();
+        break;
+    }
 }
 
 Core::~Core() {}

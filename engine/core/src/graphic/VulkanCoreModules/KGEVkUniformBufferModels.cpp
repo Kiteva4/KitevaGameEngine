@@ -11,11 +11,14 @@
 * на выравнивание памяти, поэтому размер такого буфера вычисляется с учетом допустимого шага выравивания и кол-ва объектов которые
 * могут быть на сцене.
 */
-KGEVkUniformBufferModels::KGEVkUniformBufferModels(kge::vkstructs::UniformBuffer* uniformBufferModels,
-                                                   const kge::vkstructs::Device* device,
+//kge::vkstructs::UniformBuffer& KGEVkUniformBufferModels::uniformBufferModels()
+//{
+//    return m_uniformBufferModels;
+//}
+
+KGEVkUniformBufferModels::KGEVkUniformBufferModels(const kge::vkstructs::Device* device,
                                                    unsigned int maxObjects):
-    m_device{device},
-    m_uniformBufferModels{uniformBufferModels}
+    m_device{device}
 {
     // Вычислить размер буфера учитывая доступное вырванивание памяти (для типа glm::mat4 размером в 64 байта)
     VkDeviceSize bufferSize = m_device->GetDynamicAlignment<glm::mat4>() * maxObjects;
@@ -27,15 +30,15 @@ KGEVkUniformBufferModels::KGEVkUniformBufferModels(kge::vkstructs::UniformBuffer
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
     // Настройка результирубщего буфера (uniform-буфер)
-    m_uniformBufferModels->vkBuffer = buffer.vkBuffer;
-    m_uniformBufferModels->vkDeviceMemory = buffer.vkDeviceMemory;
-    m_uniformBufferModels->size = buffer.size;
+    m_uniformBufferModels.vkBuffer = buffer.vkBuffer;
+    m_uniformBufferModels.vkDeviceMemory = buffer.vkDeviceMemory;
+    m_uniformBufferModels.size = buffer.size;
 
     // Настройка информации для дескриптора
-    m_uniformBufferModels->configDescriptorInfo(64);
+    m_uniformBufferModels.configDescriptorInfo(64);
 
     // Разметить буфер (сделать его доступным для копирования информации)
-    m_uniformBufferModels->map(m_device->logicalDevice, 64, 0);
+    m_uniformBufferModels.map(m_device->logicalDevice, 64, 0);
 
     kge::tools::LogMessage("Vulkan: Uniform buffer for models successfully allocated");
 }
@@ -47,22 +50,22 @@ KGEVkUniformBufferModels::KGEVkUniformBufferModels(kge::vkstructs::UniformBuffer
 */
 KGEVkUniformBufferModels::~KGEVkUniformBufferModels()
 {
-    if (m_uniformBufferModels != nullptr) {
+    if (&m_uniformBufferModels != nullptr) {
 
-        m_uniformBufferModels->unmap(m_device->logicalDevice);
+        m_uniformBufferModels.unmap(m_device->logicalDevice);
 
-        if (m_uniformBufferModels->vkBuffer != nullptr) {
-            vkDestroyBuffer(m_device->logicalDevice, m_uniformBufferModels->vkBuffer, nullptr);
-            m_uniformBufferModels->vkBuffer = nullptr;
+        if (m_uniformBufferModels.vkBuffer != nullptr) {
+            vkDestroyBuffer(m_device->logicalDevice, m_uniformBufferModels.vkBuffer, nullptr);
+            m_uniformBufferModels.vkBuffer = nullptr;
         }
 
-        if (m_uniformBufferModels->vkDeviceMemory != nullptr) {
-            vkFreeMemory(m_device->logicalDevice, m_uniformBufferModels->vkDeviceMemory, nullptr);
-            m_uniformBufferModels->vkDeviceMemory = nullptr;
+        if (m_uniformBufferModels.vkDeviceMemory != nullptr) {
+            vkFreeMemory(m_device->logicalDevice, m_uniformBufferModels.vkDeviceMemory, nullptr);
+            m_uniformBufferModels.vkDeviceMemory = nullptr;
         }
 
-        m_uniformBufferModels->descriptorBufferInfo = {};
-        *m_uniformBufferModels = {};
+        m_uniformBufferModels.descriptorBufferInfo = {};
+        m_uniformBufferModels = {};
 
         kge::tools::LogMessage("Vulkan: Uniform buffer successfully deinitialized");
     }

@@ -5,10 +5,13 @@
 * @param const kge::vkstructs::Device &device - устройство
 * @note - описывает как данные текстуры подаются в шейдер и как интерпретируются координаты
 */
-KGEVkSampler::KGEVkSampler(VkSampler* sampler,
-                           const kge::vkstructs::Device* device):
-    m_device{device},
-    m_sampler{sampler}
+VkSampler KGEVkSampler::sampler() const
+{
+    return m_sampler;
+}
+
+KGEVkSampler::KGEVkSampler(const kge::vkstructs::Device* device):
+    m_device{device}
 {
     // Настройка семплера
     VkSamplerCreateInfo samplerInfo = {};
@@ -27,7 +30,7 @@ KGEVkSampler::KGEVkSampler(VkSampler* sampler,
     samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
     // Создание семплера
-    if (vkCreateSampler(m_device->logicalDevice, &samplerInfo, nullptr, m_sampler) != VK_SUCCESS) {
+    if (vkCreateSampler(m_device->logicalDevice, &samplerInfo, nullptr, &m_sampler) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error while creating texture sampler");
     }
 
@@ -41,8 +44,9 @@ KGEVkSampler::KGEVkSampler(VkSampler* sampler,
 */
 KGEVkSampler::~KGEVkSampler()
 {
-    if (m_sampler != nullptr && *m_sampler != nullptr) {
-        vkDestroySampler(m_device->logicalDevice, *m_sampler, nullptr);
-        *m_sampler = nullptr;
+    if (m_sampler != nullptr && &m_sampler != nullptr) {
+        vkDestroySampler(m_device->logicalDevice, m_sampler, nullptr);
+        m_sampler = nullptr;
     }
+    kge::tools::LogMessage("Vulkan: Texture sampler successfully deinitialized");
 }

@@ -6,14 +6,14 @@
 class KGEVkCommandBuffer
 {
     const kge::vkstructs::Device* m_device;
-    std::vector<VkCommandBuffer>* m_commandBuffersDraw;
-    VkCommandPool* m_commandPool;
+    std::vector<VkCommandBuffer> m_commandBuffersDraw;
+    const VkCommandPool* m_commandPool;
 public:
-    KGEVkCommandBuffer(std::vector<VkCommandBuffer>* commandBuffersDraw,
-                       const kge::vkstructs::Device *device,
-                       VkCommandPool *commandPool,
+    KGEVkCommandBuffer(const kge::vkstructs::Device *device,
+                       const VkCommandPool *commandPool,
                        unsigned int count);
     ~KGEVkCommandBuffer();
+    std::vector<VkCommandBuffer> commandBuffersDraw() const;
 };
 
 #endif // KGEVKCOMMANDBUFFER_H

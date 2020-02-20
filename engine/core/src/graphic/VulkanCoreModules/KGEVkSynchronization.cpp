@@ -14,6 +14,8 @@ KGEVkSynchronization::KGEVkSynchronization(kge::vkstructs::Synchronization* sync
     // Информация о создаваемом семафоре (ничего не нужно указывать)
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.pNext = nullptr;
+    semaphoreInfo.flags = 0;
 
     // Создать примитивы синхронизации
     if (vkCreateSemaphore(m_device->logicalDevice, &semaphoreInfo, nullptr, &m_sync->readyToRender) != VK_SUCCESS ||

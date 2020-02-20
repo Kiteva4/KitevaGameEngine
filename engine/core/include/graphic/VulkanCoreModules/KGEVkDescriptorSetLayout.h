@@ -12,12 +12,12 @@ typedef enum
 class KGEVkDescriptorSetLayout
 {
     const kge::vkstructs::Device* m_device;
-    VkDescriptorSetLayout* m_descriptorSetLayout;
+    VkDescriptorSetLayout m_descriptorSetLayout;
 public:
-    KGEVkDescriptorSetLayout(VkDescriptorSetLayout* descriptorSetLayout,
-                             const kge::vkstructs::Device* device,
+    KGEVkDescriptorSetLayout(const kge::vkstructs::Device* device,
                              SET_LAYOUT_TYPE setLayoutType);
     ~KGEVkDescriptorSetLayout();
+    const VkDescriptorSetLayout &descriptorSetLayout();
 };
 
 #endif // KGEVKDESCRIPTORSETLAYOUT_H

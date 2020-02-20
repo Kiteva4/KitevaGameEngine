@@ -8,6 +8,7 @@
 #include <graphic/VulkanWindowControl/IVulkanWindowControl.h>
 
 #include <graphic/VulkanCoreModules/KGEVkInstance.h>
+#include <graphic/VulkanCoreModules/KGEVkReportCallBack.h>
 #include <graphic/VulkanCoreModules/KGEVkSurface.h>
 #include <graphic/VulkanCoreModules/KGEVkDevice.h>
 #include <graphic/VulkanCoreModules/KGEVkRenderPass.h>
@@ -46,6 +47,7 @@ public:
                   std::vector <const char*> instanceExtensionsRequired,
                   std::vector <const char*> deviceExtensionsRequired,
                   std::vector <const char*> validationLayersRequired);
+
 
     /**
     * Приостановка рендеринга с ожиданием завершения выполнения всех команд
@@ -143,72 +145,58 @@ private:
     uint32_t m_heigh;
 
     /* Instance*/
-    VkInstance m_vkInstance{}; // Хендл instance'а vulkan'а
+    //VkInstance m_vkInstance{}; // Хендл instance'а vulkan'а
     KGEVkInstance m_kgeVkInstance;
 
+    /* Report CallBack*/
+    //KGEVkReportCallBack m_kgeVkReportCallBack;
+
     /* Surface */
-    VkSurfaceKHR m_vkSurface{};// Хендл поверхности отображения
     KGEVkSurface m_kgeVkSurface;
 
     /* Device */
-    kge::vkstructs::Device m_device{};// Устройство (структура с хендлами физ-го и лог-го ус-ва, очередей)
     KGEVkDevice m_kgeVkDevice;
 
     /* RenderPass */
-    VkRenderPass m_renderPass; // Основной проход рендеринга
-    KGEVkRenderPass* m_kgeRenderPass;
+    KGEVkRenderPass m_kgeRenderPass;
 
     /* Swap chain */
-    kge::vkstructs::Swapchain m_swapchain{};
-    KGEVkSwapChain* m_kgeSwapChain;
+    KGEVkSwapChain m_kgeSwapChain;
 
     /* Command Pool */
-    VkCommandPool m_commandPoolDraw;              // Командный пул (для выделения командных буферов)
     KGEVkCommandPool m_kgeVkCommandPool;
 
     /*Command Buffer*/
-    std::vector<VkCommandBuffer> m_commandBuffersDraw;           // Командные буферы (свой на каждое изобр. swap-chain, с набором команд что и в других, в целях синхронизации)
-    KGEVkCommandBuffer* m_kgeVkCommandBuffer;
+    KGEVkCommandBuffer m_kgeVkCommandBuffer;
 
     //Аллокация глобального uniform-буфера
-    kge::vkstructs::UniformBuffer m_uniformBufferWorld;           // Буфер формы сцены (содержит хендлы буфера, памяти, инфо для дескриптора)
     KGEVkUniformBufferWorld m_kgeVkUniformBufferWorld;
 
     // Аллокация uniform-буфера отдельных объектов (динамический буфер)
-    kge::vkstructs::UniformBuffer m_uniformBufferModels;          // Буфер формы объектов (содержит хендлы буфера, памяти, инфо для дескриптора)
     KGEVkUniformBufferModels m_kgeVkUniformBufferModels;
 
     // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
-    VkDescriptorPool m_descriptorPoolMain; // Пул дескрипторов (для основного набора)
     KGEVkDescriptorPool m_kgeVkDescriptorPoolMain;
 
     // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
-    VkDescriptorPool m_descriptorPoolTextures;// Пул дескрипторов (для наборов под текстуры)
     KGEVkDescriptorPool m_kgeVkDescriptorPoolTextures;
 
-
     /* Descriptor set layout*/
-    VkDescriptorSetLayout m_descriptorSetLayoutMain;// Размещение набора дескрипторов (для основного набора)
     KGEVkDescriptorSetLayout m_kgeVkDescriptorSetLayoutMain;
 
-    VkDescriptorSetLayout m_descriptorSetLayoutTextures;// Размещение набора дескрипторов (для наборов под текстуры)
     KGEVkDescriptorSetLayout m_kgeVkDescriptorSetLayoutTextures;
 
     /* Texture Sampler */
-    VkSampler m_textureSampler; // Текстурный семплер (описывает как данные подаются в шейдер и как интерпретируются координаты)
     KGEVkSampler m_kgeVkSampler;
 
     /* Descriptor Set*/
-    VkDescriptorSet m_descriptorSetMain; // Набор дескрипторов (основной)
     KGEVkDescriptorSet m_kgeVkDescriptorSet;
 
     /* Pipeline Layout */
-    VkPipelineLayout m_pipelineLayout; // Размещение конвейера
     KGEVkPipelineLayout m_kgeVkPipelineLayout;
 
     /* Pipeline */
-    VkPipeline m_pipeline; // Основной графический конвейер
-    KGEVkGraphicsPipeline* m_kgeVkGraphicsPipeline;
+    KGEVkGraphicsPipeline m_kgeVkGraphicsPipeline;
 
     /* Ubo */
     kge::vkstructs::UboModelArray m_uboModels; // Массив матриц (указатель на него) для отдельный объектов (матрицы модели, передаются в буфер формы объектов)

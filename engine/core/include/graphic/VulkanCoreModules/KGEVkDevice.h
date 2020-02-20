@@ -5,19 +5,15 @@
 
 class KGEVkDevice
 {
-
-kge::vkstructs::Device* m_device;
-
+    kge::vkstructs::Device m_device;
 public:
-    KGEVkDevice(
-            kge::vkstructs::Device* device,
-            VkInstance vkInstance,
-            VkSurfaceKHR surface,
-            std::vector<const char *> deviceExtensionsRequired,
-            std::vector<const char *> validationLayersRequired,
-            bool uniqueQueueFamilies
-            );
+    KGEVkDevice(VkInstance vkInstance,
+                VkSurfaceKHR surface,
+                std::vector<const char *> deviceExtensionsRequired,
+                std::vector<const char *> validationLayersRequired,
+                bool uniqueQueueFamilies);
     ~KGEVkDevice();
+    kge::vkstructs::Device *device();
 };
 
 #endif // KGEVKDEVICE_H

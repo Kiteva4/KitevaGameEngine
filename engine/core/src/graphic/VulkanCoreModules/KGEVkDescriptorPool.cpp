@@ -5,9 +5,12 @@
 * @return VkDescriptorPool - хендл дескрипторного пула
 * @note - дескрипторный пул позволяет выделять специальные наборы дескрипторов, обеспечивающие доступ к определенным буферам из шейдера
 */
-KGEVkDescriptorPool::KGEVkDescriptorPool(VkDescriptorPool * descriptorPool,
-                                         const kge::vkstructs::Device* device):
-    m_descriptorPool{descriptorPool},
+const VkDescriptorPool& KGEVkDescriptorPool::descriptorPool()
+{
+    return m_descriptorPool;
+}
+
+KGEVkDescriptorPool::KGEVkDescriptorPool(const kge::vkstructs::Device* device):
     m_device{device}
 {
     // Парамтеры размеров пула
@@ -29,7 +32,7 @@ KGEVkDescriptorPool::KGEVkDescriptorPool(VkDescriptorPool * descriptorPool,
     poolInfo.maxSets = 1;
 
     // Создание дескрипторного пула
-    if (vkCreateDescriptorPool(m_device->logicalDevice, &poolInfo, nullptr, descriptorPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(m_device->logicalDevice, &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in vkCreateDescriptorPool function. Cant't create descriptor pool");
     }
 
@@ -44,10 +47,8 @@ KGEVkDescriptorPool::KGEVkDescriptorPool(VkDescriptorPool * descriptorPool,
 * @return VkDescriptorPool - хендл дескрипторного пула
 * @note - дескрипторный пул позволяет выделять специальные наборы дескрипторов, обеспечивающие доступ к определенным буферам из шейдера
 */
-KGEVkDescriptorPool::KGEVkDescriptorPool(VkDescriptorPool *descriptorPool,
-                                         const kge::vkstructs::Device *device,
+KGEVkDescriptorPool::KGEVkDescriptorPool(const kge::vkstructs::Device *device,
                                          uint32_t maxDescriptorSets):
-    m_descriptorPool{descriptorPool},
     m_device{device}
 {
     // Парамтеры размеров пула
@@ -60,12 +61,13 @@ KGEVkDescriptorPool::KGEVkDescriptorPool(VkDescriptorPool *descriptorPool,
     // Конфигурация пула
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.pNext = nullptr;
     poolInfo.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size());
     poolInfo.pPoolSizes = descriptorPoolSizes.data();
     poolInfo.maxSets = maxDescriptorSets;
 
     // Создание дескрипторного пула
-    if (vkCreateDescriptorPool(m_device->logicalDevice, &poolInfo, nullptr, m_descriptorPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(m_device->logicalDevice, &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in vkCreateDescriptorPool function. Cant't create descriptor pool");
     }
 
@@ -79,9 +81,9 @@ KGEVkDescriptorPool::KGEVkDescriptorPool(VkDescriptorPool *descriptorPool,
 */
 KGEVkDescriptorPool::~KGEVkDescriptorPool()
 {
-    if (m_descriptorPool != nullptr && *m_descriptorPool != nullptr) {
-        vkDestroyDescriptorPool(m_device->logicalDevice, *m_descriptorPool, nullptr);
-        *m_descriptorPool = nullptr;
+    if (m_descriptorPool != nullptr && &m_descriptorPool != nullptr) {
+        vkDestroyDescriptorPool(m_device->logicalDevice, m_descriptorPool, nullptr);
+        m_descriptorPool = nullptr;
         kge::tools::LogMessage("Vulkan: Descriptor pool successfully deinitialized");
     }
 }

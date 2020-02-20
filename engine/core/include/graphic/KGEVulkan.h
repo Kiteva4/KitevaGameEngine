@@ -132,7 +132,6 @@ namespace kge
                     if(vkDeviceWaitIdle(logicalDevice) != VK_SUCCESS){
                         throw std::runtime_error("Vulkan: Logical device suspend error");
                     }
-                    std::cout << "Vulkan: Logical device suspend successful" << std::endl;
                     vkDestroyDevice(logicalDevice, nullptr);
                     logicalDevice = nullptr;
                 }
@@ -294,7 +293,7 @@ namespace kge
             void * pMapped = nullptr;
 
             // Разметить память (после этого указатель pMapped будет указывать на нее)
-            VkResult map(VkDevice device, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0){
+            VkResult map(VkDevice device, VkDeviceSize size = 64, VkDeviceSize offset = 0){
                 return vkMapMemory(device, this->vkDeviceMemory, offset, size, 0, &(this->pMapped));
             }
 
@@ -307,7 +306,7 @@ namespace kge
 
             // Конфигурация дескриптора
             // Указываем какая именно память буфера будет доступна дескриптору (доступна для шейдера)
-            void configDescriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0)
+            void configDescriptorInfo(VkDeviceSize size = 64, VkDeviceSize offset = 0)
             {
                 this->descriptorBufferInfo.offset = offset;
                 this->descriptorBufferInfo.buffer = this->vkBuffer;

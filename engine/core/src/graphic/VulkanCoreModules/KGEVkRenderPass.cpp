@@ -12,12 +12,15 @@
 * Проход состоит из под-проходов, и у каждого под-прохода может быть своя конфигурация конвейера. Конфигурация же прохода
 * определяет в каком состоянии (размещении памяти) будет вложение (цветовое, глубины и тд)
 */
-KGEVkRenderPass::KGEVkRenderPass(VkRenderPass *renderPass,
-        const kge::vkstructs::Device *device,
-        VkSurfaceKHR surface,
+VkRenderPass KGEVkRenderPass::renderPass() const
+{
+    return m_renderPass;
+}
+
+KGEVkRenderPass::KGEVkRenderPass(const kge::vkstructs::Device *device,
+                                 VkSurfaceKHR surface,
         VkFormat colorAttachmentFormat,
         VkFormat depthStencilFormat):
-    m_renderPass{renderPass},
     m_device{device}
 {
     // Проверка доступности формата вложений (изображений)
@@ -127,7 +130,7 @@ KGEVkRenderPass::KGEVkRenderPass(VkRenderPass *renderPass,
     renderPassInfo.dependencyCount = static_cast<unsigned int>(dependencies.size());//Кол-во зависимсотей
     renderPassInfo.pDependencies = dependencies.data();                             //Зависимости
 
-    if (vkCreateRenderPass(device->logicalDevice, &renderPassInfo, nullptr, m_renderPass) != VK_SUCCESS) {
+    if (vkCreateRenderPass(device->logicalDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Failed to create render pass!");
     }
 
@@ -138,7 +141,7 @@ KGEVkRenderPass::~KGEVkRenderPass()
 {
     // Если создан проход рендера - уничтожить
     if (m_renderPass != nullptr) {
-        vkDestroyRenderPass(m_device->logicalDevice, *m_renderPass, nullptr);
+        vkDestroyRenderPass(m_device->logicalDevice, m_renderPass, nullptr);
         m_renderPass = nullptr;
         kge::tools::LogMessage("Vulkan: Render pass successfully deinitialized");
     }

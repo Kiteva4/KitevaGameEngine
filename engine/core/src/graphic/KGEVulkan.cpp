@@ -2,7 +2,8 @@
 #include <filesystem>
 #include <cstring>
 #include <ctime>
-
+#include <pwd.h>
+#include <unistd.h>
 namespace fs = std::filesystem;
 
 /**
@@ -48,7 +49,7 @@ bool kge::vkutility::CheckInstanceExtensionsSupported(std::vector<const char*> i
             //Если доступен запрашиваемый
             if (strcmp(requiredExtName, extProperties.extensionName) == 0) {
                 found = true;
-//                std::cout << "Vulkan: Extension: "<<  requiredExtName << " founded "  << std::endl;
+                //                std::cout << "Vulkan: Extension: "<<  requiredExtName << " founded "  << std::endl;
                 break;
             }
         }
@@ -104,7 +105,7 @@ bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char*> ins
             //Если доступен запрашиваемый слой валидации
             if (strcmp(requiredVLayerName, vLayerProperties.layerName) == 0) {
                 found = true;
-//                std::cout << "Vulkan: Layer: "<<  requiredVLayerName << " founded "  << std::endl;
+                //                std::cout << "Vulkan: Layer: "<<  requiredVLayerName << " founded "  << std::endl;
                 break;
             }
         }
@@ -132,7 +133,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL kge::vkutility::DebugVulkanCallback(
         const char* pMsg,
         void* pUserData)
 {
-    std::cout << ">REPORT: " << std::endl;
+    std::cout << ">REPORT: ";
     std::ostringstream message;
 
     if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
@@ -608,10 +609,18 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
     // Создать барьер памяти изображения
     VkImageMemoryBarrier imageMemoryBarrier = {};
     imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.pNext = nullptr;
+//    imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+//    imageMemoryBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     imageMemoryBarrier.oldLayout = oldImageLayout;
     imageMemoryBarrier.newLayout = newImageLayout;
+    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+    imageMemoryBarrier.subresourceRange.levelCount = 1;
+    imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+    imageMemoryBarrier.subresourceRange.layerCount = 1;
     imageMemoryBarrier.image = image;
     imageMemoryBarrier.subresourceRange = subresourceRange;
 
@@ -627,6 +636,10 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
     case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
         imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         break;
+    default:
+        std::cout << "WARNING!_133: default switch" << std::endl;
+        break;
+
     }
 
     // В зависимости от нового (целевого) размещения меняется целевая маска доступа
@@ -641,21 +654,26 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
     case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
         imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
         break;
+    default:
+        std::cout << "WARNING!_134: default switch" << std::endl;
+        break;
     }
 
     // Разметить барьер на верише конвейера (в самом начале)
-    VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
     // Отправить команду барьера в командный буфер
-    vkCmdPipelineBarrier(
-                cmdBuffer,
-                srcStageFlags,
-                destStageFlags,
-                0,
-                0, nullptr,
-                0, nullptr,
-                1, &imageMemoryBarrier);
+    vkCmdPipelineBarrier(cmdBuffer,
+                         srcStageFlags,
+                         destStageFlags,
+                         0,
+                         0,
+                         nullptr,
+                         0,
+                         nullptr,
+                         1,
+                         &imageMemoryBarrier);
 }
 
 /**
@@ -748,7 +766,9 @@ std::vector<VkVertexInputAttributeDescription> kge::vkutility::GetVertexInputAtt
 */
 std::filesystem::path kge::tools::WorkingDir()
 {
-    return "~/GitHub/KitevaGameEngine/";
+    struct passwd *pw = getpwuid(getuid());
+    const char *homedir = pw->pw_dir;
+    return std::filesystem::path(homedir).concat("/GitHub/KitevaGameEngine/");
 }
 
 /**

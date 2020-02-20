@@ -32,6 +32,8 @@ set(HDRS
     include/graphic/VulkanCoreModules/KGEVkDescriptorSet.h
     include/graphic/VulkanCoreModules/KGEVkUboModels.h
     include/graphic/VulkanCoreModules/KGEVkSynchronization.h
+    include/graphic/VulkanCoreModules/KGEVkReportCallBack.h
+    include/stb/stb_image.h
     include/application/KGEAppData.h
     )
 
@@ -61,6 +63,7 @@ set(SRCS
     src/graphic/VulkanCoreModules/KGEVkDescriptorSet.cpp
     src/graphic/VulkanCoreModules/KGEVkUboModels.cpp
     src/graphic/VulkanCoreModules/KGEVkSynchronization.cpp
+    src/graphic/VulkanCoreModules/KGEVkReportCallBack.cpp
     src/application/KGEAppData.cpp
     )
 
@@ -231,3 +234,34 @@ target_link_libraries(${PROJECT_NAME}
 ENDIF (UNIX AND NOT APPLE)
 #XCB_END
 
+# If ANDROID is ON, turn on cross-compiling for it
+if(ANDROID)
+    set(CMAKE_SYSTEM_NAME "Android")
+    set(CMAKE_SYSTEM_VERSION "7")
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
+    set(DisplayServer Win32)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if (SAMPLES_WSI_SELECTION STREQUAL "XCB")
+        if (NOT BUILD_WSI_XCB_SUPPORT)
+            message( FATAL_ERROR "Selected XCB for samples build but not building Xcb support" )
+        endif()
+        add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
+    elseif (SAMPLES_WSI_SELECTION STREQUAL "XLIB")
+        if (NOT BUILD_WSI_XLIB_SUPPORT)
+            message( FATAL_ERROR "Selected XLIB for samples build but not building Xlib support" )
+        endif()
+        add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+    elseif (SAMPLES_WSI_SELECTION STREQUAL "WAYLAND")
+        if (NOT BUILD_WSI_WAYLAND_SUPPORT)
+            message( FATAL_ERROR "Selected Wayland for samples build but not building Wayland support" )
+        endif()
+        add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
+    endif()
+else()
+    message(FATAL_ERROR "Unsupported Platform!")
+endif()

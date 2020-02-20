@@ -6,11 +6,11 @@
 class KGEVkUniformBufferWorld
 {
     const kge::vkstructs::Device* m_device;
-    kge::vkstructs::UniformBuffer* m_uniformBufferWorld;
+    kge::vkstructs::UniformBuffer m_uniformBufferWorld;
 public:
-    KGEVkUniformBufferWorld(kge::vkstructs::UniformBuffer* uniformBufferWorld,
-                            const kge::vkstructs::Device* device);
+    KGEVkUniformBufferWorld(const kge::vkstructs::Device* device);
     ~KGEVkUniformBufferWorld();
+    kge::vkstructs::UniformBuffer *uniformBufferWorld();
 };
 
 #endif // KGEVKUNIFORMBUFFERWORLD_H

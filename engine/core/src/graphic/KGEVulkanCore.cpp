@@ -27,62 +27,64 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
     m_width(width),
     m_heigh(heigh),
     // Инициализация экземпляра
-    m_vkInstance{},
-    m_kgeVkInstance{&m_vkInstance, applicationName, "KGEngine", instanceExtensionsRequired, validationLayersRequired},
+    ////m_vkInstance{},
+    m_kgeVkInstance{applicationName, "KGEngine", instanceExtensionsRequired, validationLayersRequired},
+    // Report callBack
+    //m_kgeVkReportCallBack{m_kgeVkInstance.instance()},
     // Инициализация поверхности отображения
-    m_vkSurface{},
-    m_kgeVkSurface{&m_vkSurface, windowControl, m_vkInstance},
+    ////m_vkSurface{},
+    m_kgeVkSurface{windowControl, m_kgeVkInstance.instance()},
     // Инициализация устройства
-    m_device{},
-    m_kgeVkDevice{&m_device, m_vkInstance, m_vkSurface, deviceExtensionsRequired, validationLayersRequired, false},
+    ////m_device{},
+    m_kgeVkDevice{m_kgeVkInstance.instance(), m_kgeVkSurface.surface(), deviceExtensionsRequired, validationLayersRequired, false},
     // Инициализация прохода рендеринга
-    m_renderPass{},
-    m_kgeRenderPass{new KGEVkRenderPass{&m_renderPass, &m_device, m_vkSurface, VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT}},
+    ////m_renderPass{},
+    m_kgeRenderPass{m_kgeVkDevice.device(), m_kgeVkSurface.surface(), VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT},
     // Инициализация swap-chain
-    m_swapchain{},
-    m_kgeSwapChain{new KGEVkSwapChain{&m_swapchain, &m_device, m_vkSurface, { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }, VK_FORMAT_D32_SFLOAT_S8_UINT, m_renderPass, 3}},
+    ////m_swapchain{},
+    m_kgeSwapChain{m_kgeVkDevice.device(), m_kgeVkSurface.surface(), { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }, VK_FORMAT_D32_SFLOAT_S8_UINT, m_kgeRenderPass.renderPass(), 3},
     // Инциализация командного пула
-    m_commandPoolDraw{},
-    m_kgeVkCommandPool{&m_commandPoolDraw, &m_device, static_cast<unsigned int>(m_device.queueFamilies.graphics)},
+    ////m_commandPoolDraw{},
+    m_kgeVkCommandPool{m_kgeVkDevice.device(), static_cast<unsigned int>(m_kgeVkDevice.device()->queueFamilies.graphics)},
     // Аллокация командных буферов (получение хендлов)
-    m_commandBuffersDraw{},
-    m_kgeVkCommandBuffer{new KGEVkCommandBuffer{&m_commandBuffersDraw, &m_device, &m_commandPoolDraw, static_cast<unsigned int>(m_swapchain.framebuffers.size())}},
+    ////m_commandBuffersDraw{},
+    m_kgeVkCommandBuffer{m_kgeVkDevice.device(), &m_kgeVkCommandPool.commandPool(), static_cast<unsigned int>(m_kgeSwapChain.swapchain().framebuffers.size())},
     //Аллокация глобального uniform-буфера
-    m_uniformBufferWorld{},
-    m_kgeVkUniformBufferWorld{&m_uniformBufferWorld, &m_device},
+    ////m_uniformBufferWorld{},
+    m_kgeVkUniformBufferWorld{m_kgeVkDevice.device()},
     // Аллокация uniform-буфера отдельных объектов (динамический буфер)
-    m_uniformBufferModels{},
-    m_kgeVkUniformBufferModels{&m_uniformBufferModels, &m_device, m_primitivesMaxCount},
+    ////m_uniformBufferModels{},
+    m_kgeVkUniformBufferModels{m_kgeVkDevice.device(), m_primitivesMaxCount},
     // Создание дескрипторного пула для выделения основного набора (для unform-буфера)
-    m_descriptorPoolMain{},
-    m_kgeVkDescriptorPoolMain{&m_descriptorPoolMain, &m_device},
+    ////m_descriptorPoolMain{},
+    m_kgeVkDescriptorPoolMain{m_kgeVkDevice.device()},
     // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
-    m_descriptorPoolTextures{},
-    m_kgeVkDescriptorPoolTextures{&m_descriptorPoolTextures, &m_device, 1000},
+    //m_descriptorPoolTextures{},
+    m_kgeVkDescriptorPoolTextures{m_kgeVkDevice.device(), 5},
     // Инициализация размещения основного дескрипторного набора
-    m_descriptorSetLayoutMain{},
-    m_kgeVkDescriptorSetLayoutMain{&m_descriptorSetLayoutMain, &m_device, SetLayoutMain},
+    //m_descriptorSetLayoutMain{},
+    m_kgeVkDescriptorSetLayoutMain{m_kgeVkDevice.device(), SetLayoutMain},
     // Инициализация размещения теккстурного набора
-    m_descriptorSetLayoutTextures{},
-    m_kgeVkDescriptorSetLayoutTextures{&m_descriptorSetLayoutTextures, &m_device, SetLayoutTextures},
+    //m_descriptorSetLayoutTextures{},
+    m_kgeVkDescriptorSetLayoutTextures{m_kgeVkDevice.device(), SetLayoutTextures},
     // Инициализация текстурного семплера
-    m_textureSampler{},
-    m_kgeVkSampler{&m_textureSampler, &m_device},
+    //m_textureSampler{},
+    m_kgeVkSampler{m_kgeVkDevice.device()},
     // Инициализация дескрипторного набора
-    m_descriptorSetMain{},
-    m_kgeVkDescriptorSet{&m_descriptorSetMain, &m_device, &m_descriptorPoolMain, &m_descriptorSetLayoutMain, &m_uniformBufferWorld, &m_uniformBufferModels},
+    //m_descriptorSetMain{},
+    m_kgeVkDescriptorSet{m_kgeVkDevice.device(), &m_kgeVkDescriptorPoolMain.descriptorPool(), &m_kgeVkDescriptorSetLayoutMain.descriptorSetLayout(), m_kgeVkUniformBufferWorld.uniformBufferWorld(), &m_kgeVkUniformBufferModels.m_uniformBufferModels},
     // Инициализация размещения графического конвейера
-    m_pipelineLayout{},
-    m_kgeVkPipelineLayout{&m_pipelineLayout, &m_device, { m_descriptorSetLayoutMain, m_descriptorSetLayoutTextures}},
+    //m_pipelineLayout{},
+    m_kgeVkPipelineLayout{m_kgeVkDevice.device(), { m_kgeVkDescriptorSetLayoutMain.descriptorSetLayout(), m_kgeVkDescriptorSetLayoutTextures.descriptorSetLayout()}},
     // Инициализация графического конвейера
-    m_pipeline{},
-    m_kgeVkGraphicsPipeline{ new KGEVkGraphicsPipeline{&m_pipeline, &m_device, m_pipelineLayout, m_swapchain, m_renderPass}},
+    //m_pipeline{},
+    m_kgeVkGraphicsPipeline{m_kgeVkDevice.device(), m_kgeVkPipelineLayout.pipelineLayout(), m_kgeSwapChain.swapchain(), m_kgeRenderPass.renderPass()},
     // Аллокация памяти массива ubo-объектов отдельных примитивов
-    m_uboModels{},
-    m_kgeUboModels{&m_uboModels, &m_device, m_primitivesMaxCount},
+    //m_uboModels{},
+    m_kgeUboModels{&m_uboModels, m_kgeVkDevice.device(), m_primitivesMaxCount},
     // Примитивы синхронизации
-    m_sync{},
-    m_kgeVkSynchronization{&m_sync, &m_device}
+    //m_sync{},
+    m_kgeVkSynchronization{&m_sync, m_kgeVkDevice.device()}
 {
     // Присвоить параметры камеры по умолчанию
     m_camera.fFar  = DEFAULT_FOV;
@@ -90,12 +92,12 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
     m_camera.fNear = DEFAULT_NEAR;
 
     PrepareDrawCommands(
-                m_commandBuffersDraw,
-                m_renderPass,
-                m_pipelineLayout,
-                m_descriptorSetMain,
-                m_pipeline,
-                m_swapchain,
+                m_kgeVkCommandBuffer.commandBuffersDraw(),
+                m_kgeRenderPass.renderPass(),
+                m_kgeVkPipelineLayout.pipelineLayout(),
+                m_kgeVkDescriptorSet.descriptorSet(),
+                m_kgeVkGraphicsPipeline.pipeline(),
+                m_kgeSwapChain.swapchain(),
                 m_primitives);
 
     // Готово к рендерингу
@@ -110,8 +112,8 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
 void KGEVulkanCore::Pause()
 {
     // Ожидание завершения всех возможных процессов
-    if (m_device.logicalDevice != nullptr) {
-        vkDeviceWaitIdle(m_device.logicalDevice);
+    if (m_kgeVkDevice.device()->logicalDevice != nullptr) {
+        vkDeviceWaitIdle(m_kgeVkDevice.device()->logicalDevice);
     }
 
     m_isRendering = false;
@@ -134,45 +136,32 @@ void KGEVulkanCore::VideoSettingsChanged()
 {
     // Оставноить выполнение команд
     Pause();
-    delete m_kgeVkCommandBuffer;
-    delete m_kgeVkGraphicsPipeline;// DeinitGraphicsPipeline(m_device, &m_pipeline);
-    delete m_kgeRenderPass;
-    m_kgeRenderPass = new KGEVkRenderPass{
-            &m_renderPass,
-            &m_device,
-            m_vkSurface,
-            VK_FORMAT_B8G8R8A8_UNORM,
-            VK_FORMAT_D32_SFLOAT_S8_UINT};
+    m_kgeVkCommandBuffer.~KGEVkCommandBuffer();
+    m_kgeVkGraphicsPipeline.~KGEVkGraphicsPipeline();// DeinitGraphicsPipeline(m_device, &m_pipeline);
+    m_kgeRenderPass.~KGEVkRenderPass();
+    m_kgeRenderPass = { m_kgeVkDevice.device(), m_kgeVkSurface.surface(), VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT};
 
     // Ре-инициализация swap-cahin.
     // В начале получаем старый swap-chain
-    kge::vkstructs::Swapchain oldSwapChain = m_swapchain;
-    delete m_kgeSwapChain;
+    kge::vkstructs::Swapchain oldSwapChain = m_kgeSwapChain.swapchain();
+    m_kgeSwapChain.~KGEVkSwapChain();
 
     // Инициализируем обновленный
-    m_kgeSwapChain = new KGEVkSwapChain{
-            &m_swapchain,
-            &m_device,
-            m_vkSurface,
-    {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR },
-            VK_FORMAT_D32_SFLOAT_S8_UINT,
-            m_renderPass,
-            3,
-            &oldSwapChain};
+    m_kgeSwapChain = { m_kgeVkDevice.device(), m_kgeVkSurface.surface(), {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }, VK_FORMAT_D32_SFLOAT_S8_UINT, m_kgeRenderPass.renderPass(), 3, &oldSwapChain};
 
     // Инициализация графического конвейера
-    m_kgeVkGraphicsPipeline = new KGEVkGraphicsPipeline{&m_pipeline, &m_device, m_pipelineLayout, m_swapchain, m_renderPass};
+    m_kgeVkGraphicsPipeline = {m_kgeVkDevice.device(), m_kgeVkPipelineLayout.pipelineLayout(), m_kgeSwapChain.swapchain(), m_kgeRenderPass.renderPass()};
     // Аллокация командных буферов (получение хендлов)
-    m_kgeVkCommandBuffer = new KGEVkCommandBuffer{&m_commandBuffersDraw, &m_device, &m_commandPoolDraw, static_cast<unsigned int>(m_swapchain.framebuffers.size())};
+    m_kgeVkCommandBuffer = {m_kgeVkDevice.device(), &m_kgeVkCommandPool.commandPool(), static_cast<unsigned int>(m_kgeSwapChain.swapchain().framebuffers.size())};
 
     // Подготовка базовых комманд
     PrepareDrawCommands(
-                m_commandBuffersDraw,
-                m_renderPass,
-                m_pipelineLayout,
-                m_descriptorSetMain,
-                m_pipeline,
-                m_swapchain,
+                m_kgeVkCommandBuffer.commandBuffersDraw(),
+                m_kgeRenderPass.renderPass(),
+                m_kgeVkPipelineLayout.pipelineLayout(),
+                m_kgeVkDescriptorSet.descriptorSet(),
+                m_kgeVkGraphicsPipeline.pipeline(),
+                m_kgeSwapChain.swapchain(),
                 m_primitives);
 
     // Снова можно рендерить
@@ -188,6 +177,7 @@ void KGEVulkanCore::VideoSettingsChanged()
 */
 void KGEVulkanCore::Draw()
 {
+    std::cout << "--DRAW--" << std::endl;
     // Ничего не делать если не готово или приостановлено
     if (!m_isReady || !m_isRendering) {
         return;
@@ -198,9 +188,9 @@ void KGEVulkanCore::Draw()
 
     // Получить индекс доступного изображения из swap-chain и "включить" семафор сигнализирующий о доступности изображения для рендеринга
     VkResult acquireStatus = vkAcquireNextImageKHR(
-                m_device.logicalDevice,
-                m_swapchain.vkSwapchain,
-                10000,
+                m_kgeVkDevice.device()->logicalDevice,
+                m_kgeSwapChain.swapchain().vkSwapchain,
+                1000,
                 m_sync.readyToRender,
                 nullptr,
                 &imageIndex);
@@ -220,19 +210,29 @@ void KGEVulkanCore::Draw()
     // Стадии конвейера на которых будет происходить одидание семафоров (на i-ой стадии включения i-ого семафора из waitSemaphores)
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
+    VkFenceCreateInfo fenceInfo;
+    VkFence drawFence;
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.pNext = nullptr;
+    fenceInfo.flags = 0;
+    vkCreateFence(m_kgeVkDevice.device()->logicalDevice, &fenceInfo, nullptr, &drawFence);
+
     // Информация об отправке команд в буфер
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());       // Кол-во семафоров ожидания
-    submitInfo.pWaitSemaphores = waitSemaphores.data();                                 // Семафоры велючение которых будет ожидаться
-    submitInfo.pWaitDstStageMask = waitStages;                                          // Стадии на которых конвейер "приостановиться" до включения семафоров
-    submitInfo.commandBufferCount = 1;                                                  // Число командных буферов за одну отправку
-    submitInfo.pCommandBuffers = &m_commandBuffersDraw[imageIndex];                     // Командный буфер (для текущего изображения в swap-chain)
-    submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());   // Кол-во семафоров сигнала (завершения стадии)
-    submitInfo.pSignalSemaphores = signalSemaphores.data();                             // Семафоры которые включатся при завершении
+    VkSubmitInfo submitInfo[1] = {};
+    submitInfo[0].pNext = nullptr;
+    submitInfo[0].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo[0].waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());       // Кол-во семафоров ожидания
+    submitInfo[0].pWaitSemaphores = waitSemaphores.data();                                 // Семафоры велючение которых будет ожидаться
+    submitInfo[0].pWaitDstStageMask = waitStages;                                          // Стадии на которых конвейер "приостановиться" до включения семафоров
+    submitInfo[0].commandBufferCount = 1;                                                  // Число командных буферов за одну отправку
+    submitInfo[0].pCommandBuffers = &m_kgeVkCommandBuffer.commandBuffersDraw()[imageIndex];// Командный буфер (для текущего изображения в swap-chain)
+    submitInfo[0].signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());   // Кол-во семафоров сигнала (завершения стадии)
+    submitInfo[0].pSignalSemaphores = signalSemaphores.data();                             // Семафоры которые включатся при завершении
+
 
     // Инициировать отправку команд в очередь (на рендеринг)
-    VkResult result = vkQueueSubmit(m_device.queues.graphics, 1, &submitInfo, nullptr);
+    VkResult result = vkQueueSubmit(m_kgeVkDevice.device()->queues.graphics, 1, submitInfo, drawFence);
+    std::cout << "----" << std::endl;
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error. Can't submit commands");
     }
@@ -240,15 +240,15 @@ void KGEVulkanCore::Draw()
     // Настройка представления (отображение того что отдал конвейер)
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());     // Кол-во ожидаемых семафоров
-    presentInfo.pWaitSemaphores = signalSemaphores.data();                  // Cемафоры "включение" которых ожидается перед показом
-    presentInfo.swapchainCount = 1;                                         // Кол-во swap-chain'ов
-    presentInfo.pSwapchains = &(m_swapchain.vkSwapchain);                   // Указание текущего swap-chain
-    presentInfo.pImageIndices = &imageIndex;                                // Индекс текущего изображения, куда осуществляется показ
+    presentInfo.waitSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());    // Кол-во ожидаемых семафоров
+    presentInfo.pWaitSemaphores = signalSemaphores.data();                              // Cемафоры "включение" которых ожидается перед показом
+    presentInfo.swapchainCount = 1;                                                     // Кол-во swap-chain'ов
+    presentInfo.pSwapchains = &m_kgeSwapChain.swapchain().vkSwapchain;                  // Указание текущего swap-chain
+    presentInfo.pImageIndices = &imageIndex;                                            // Индекс текущего изображения, куда осуществляется показ
     presentInfo.pResults = nullptr;
 
     // Инициировать представление
-    VkResult presentStatus = vkQueuePresentKHR(m_device.queues.present, &presentInfo);
+    VkResult presentStatus = vkQueuePresentKHR(m_kgeVkDevice.device()->queues.present, &presentInfo);
 
     // Представление могло не выполниться если поверхность изменилась или swap-chain более ей не соответствует
     if (presentStatus != VK_SUCCESS) {
@@ -262,8 +262,9 @@ void KGEVulkanCore::Draw()
 */
 void KGEVulkanCore::Update()
 {
+    std::cout  << "--UPDATE--" << std::endl;
     // Соотношение сторон (используем размеры поверхности определенные при создании swap-chain)
-    m_camera.aspectRatio = (float)(m_swapchain.imageExtent.width) / (float)(m_swapchain.imageExtent.height);
+    m_camera.aspectRatio = static_cast<float>(m_kgeSwapChain.swapchain().imageExtent.width) /m_kgeSwapChain.swapchain().imageExtent.height;
 
     // Настройка матрицы проекции
     // При помощи данной матрицы происходит проекция 3-мерных точек на плоскость
@@ -279,13 +280,15 @@ void KGEVulkanCore::Update()
     m_uboWorld.worldMatrix = glm::mat4();
 
     // Копировать данные в uniform-буфер
-    memcpy(m_uniformBufferWorld.pMapped, &m_uboWorld, static_cast<size_t>((m_uniformBufferWorld.size)));
+    memcpy(m_kgeVkUniformBufferWorld.uniformBufferWorld()->pMapped,
+           &m_uboWorld,
+           static_cast<size_t>(m_kgeVkUniformBufferWorld.uniformBufferWorld()->size));
 
     // Теперь необходимо обновить динамический буфер формы объектов (если они есть)
     if (!m_primitives.empty()) {
 
         // Динамическое выравнивание для одного элемента массива
-        VkDeviceSize dynamicAlignment = m_device.GetDynamicAlignment<glm::mat4>();
+        VkDeviceSize dynamicAlignment = m_kgeVkDevice.device()->GetDynamicAlignment<glm::mat4>();
 
         // Пройтись по всем объектам
         for (unsigned int i = 0; i < m_primitives.size(); i++) {
@@ -301,14 +304,14 @@ void KGEVulkanCore::Update()
         }
 
         // Копировать данные в uniform-буфер
-        memcpy(m_uniformBufferModels.pMapped, m_uboModels, static_cast<size_t>(m_uniformBufferModels.size));
+        memcpy(m_kgeVkUniformBufferModels.m_uniformBufferModels.pMapped, m_uboModels, m_kgeVkUniformBufferModels.m_uniformBufferModels.size);
 
         // Гарантировать видимость обновленной памяти устройством
         VkMappedMemoryRange memoryRange = {};
         memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-        memoryRange.memory = m_uniformBufferModels.vkDeviceMemory;
-        memoryRange.size = m_uniformBufferModels.size;
-        vkFlushMappedMemoryRanges(m_device.logicalDevice, 1, &memoryRange);
+        memoryRange.memory = m_kgeVkUniformBufferModels.m_uniformBufferModels.vkDeviceMemory;
+        memoryRange.size = m_kgeVkUniformBufferModels.m_uniformBufferModels.size;
+        vkFlushMappedMemoryRanges(m_kgeVkDevice.device()->logicalDevice, 1, &memoryRange);
     }
 }
 
@@ -377,7 +380,7 @@ unsigned int KGEVulkanCore::AddPrimitive(const std::vector<kge::vkstructs::Verte
     unsigned int vertexCount = static_cast<unsigned int>(vertexBuffer.size());
 
     // Создать буфер вершин в памяти хоста
-    kge::vkstructs::Buffer tmp = kge::vkutility::CreateBuffer(m_device, vertexBufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    kge::vkstructs::Buffer tmp = kge::vkutility::CreateBuffer(*m_kgeVkDevice.device(), vertexBufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     primitive.vertexBuffer.vkBuffer = tmp.vkBuffer;
     primitive.vertexBuffer.vkDeviceMemory = tmp.vkDeviceMemory;
     primitive.vertexBuffer.size = tmp.size;
@@ -385,9 +388,9 @@ unsigned int KGEVulkanCore::AddPrimitive(const std::vector<kge::vkstructs::Verte
 
     // Разметить память буфера вершин и скопировать в него данные, после чего убрать разметку
     void * verticesMemPtr;
-    vkMapMemory(m_device.logicalDevice, primitive.vertexBuffer.vkDeviceMemory, 0, vertexBufferSize, 0, &verticesMemPtr);
+    vkMapMemory(m_kgeVkDevice.device()->logicalDevice, primitive.vertexBuffer.vkDeviceMemory, 0, vertexBufferSize, 0, &verticesMemPtr);
     memcpy(verticesMemPtr, vertexBuffer.data(), static_cast<size_t>(vertexBufferSize));
-    vkUnmapMemory(m_device.logicalDevice, primitive.vertexBuffer.vkDeviceMemory);
+    vkUnmapMemory(m_kgeVkDevice.device()->logicalDevice, primitive.vertexBuffer.vkDeviceMemory);
 
     // Если необходимо рисовать индексированную геометрию
     if (primitive.drawIndexed) {
@@ -398,7 +401,7 @@ unsigned int KGEVulkanCore::AddPrimitive(const std::vector<kge::vkstructs::Verte
         unsigned int indexCount = static_cast<unsigned int>(indexBuffer.size());
 
         // Cоздать буфер индексов в памяти хоста
-        tmp = kge::vkutility::CreateBuffer(m_device,
+        tmp = kge::vkutility::CreateBuffer(*m_kgeVkDevice.device(),
                                            indexBufferSize,
                                            VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -409,9 +412,9 @@ unsigned int KGEVulkanCore::AddPrimitive(const std::vector<kge::vkstructs::Verte
 
         // Разметить память буфера индексов и скопировать в него данные, после чего убрать разметку
         void * indicesMemPtr;
-        vkMapMemory(m_device.logicalDevice, primitive.indexBuffer.vkDeviceMemory, 0, indexBufferSize, 0, &indicesMemPtr);
+        vkMapMemory(m_kgeVkDevice.device()->logicalDevice, primitive.indexBuffer.vkDeviceMemory, 0, indexBufferSize, 0, &indicesMemPtr);
         memcpy(indicesMemPtr, indexBuffer.data(), static_cast<size_t>(indexBufferSize));
-        vkUnmapMemory(m_device.logicalDevice, primitive.indexBuffer.vkDeviceMemory);
+        vkUnmapMemory(m_kgeVkDevice.device()->logicalDevice, primitive.indexBuffer.vkDeviceMemory);
     }
 
 
@@ -419,11 +422,15 @@ unsigned int KGEVulkanCore::AddPrimitive(const std::vector<kge::vkstructs::Verte
     m_primitives.push_back(primitive);
 
     // Обновить командный буфер
-    ResetCommandBuffers(m_device, m_commandBuffersDraw);
-    PrepareDrawCommands(m_commandBuffersDraw,
-                        m_renderPass, m_pipelineLayout,
-                        m_descriptorSetMain, m_pipeline,
-                        m_swapchain,
+    ResetCommandBuffers(*m_kgeVkDevice.device(),
+                        m_kgeVkCommandBuffer.commandBuffersDraw());
+
+    PrepareDrawCommands(m_kgeVkCommandBuffer.commandBuffersDraw(),
+                        m_kgeRenderPass.renderPass(),
+                        m_kgeVkPipelineLayout.pipelineLayout(),
+                        m_kgeVkDescriptorSet.descriptorSet(),
+                        m_kgeVkGraphicsPipeline.pipeline(),
+                        m_kgeSwapChain.swapchain(),
                         m_primitives);
 
     // Вернуть индекс
@@ -461,16 +468,15 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
     }
 
     // Создать промежуточное изображение
-    kge::vkstructs::Image stagingImage = kge::vkutility::CreateImageSingle(
-                m_device,
-                VK_IMAGE_TYPE_2D,
-                VK_FORMAT_R8G8B8A8_UNORM,
+    kge::vkstructs::Image stagingImage = kge::vkutility::CreateImageSingle(*m_kgeVkDevice.device(),
+                                                                           VK_IMAGE_TYPE_2D,
+                                                                           VK_FORMAT_R8G8B8A8_UNORM,
     { width,height,1 },
-                VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                VK_IMAGE_ASPECT_COLOR_BIT,
-                VK_IMAGE_LAYOUT_PREINITIALIZED,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                VK_IMAGE_TILING_LINEAR);
+                                                                           VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                                                           VK_IMAGE_ASPECT_COLOR_BIT,
+                                                                           VK_IMAGE_LAYOUT_PREINITIALIZED,
+                                                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                                                           VK_IMAGE_TILING_LINEAR);
 
     // Выбрать подресурс изображения (мип-уровень 0, слой - 0)
     VkImageSubresource subresource = {};
@@ -480,11 +486,11 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
 
     // Размещение байт в подресурсе
     VkSubresourceLayout stagingImageSubresourceLayout = {};
-    vkGetImageSubresourceLayout(m_device.logicalDevice, stagingImage.vkImage, &subresource, &stagingImageSubresourceLayout);
+    vkGetImageSubresourceLayout(m_kgeVkDevice.device()->logicalDevice, stagingImage.vkImage, &subresource, &stagingImageSubresourceLayout);
 
     // Разметить память под изображение
     void* data;
-    vkMapMemory(m_device.logicalDevice, stagingImage.vkDeviceMemory, 0, size, 0, &data);
+    vkMapMemory(m_kgeVkDevice.device()->logicalDevice, stagingImage.vkDeviceMemory, 0, size, 0, &data);
 
     // Если "ширина строки" равна кол-ву пиксилей по ширине помноженному на bpp - можно исользовать обычный memcpy
     if (stagingImageSubresourceLayout.rowPitch == width * bpp) {
@@ -502,11 +508,11 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
     }
 
     // Убрать разметку памяти
-    vkUnmapMemory(m_device.logicalDevice, stagingImage.vkDeviceMemory);
+    vkUnmapMemory(m_kgeVkDevice.device()->logicalDevice, stagingImage.vkDeviceMemory);
 
     // Создать финальное изображение (в памяти устройства)
     resultTexture.image = kge::vkutility::CreateImageSingle(
-                m_device,
+                *m_kgeVkDevice.device(),
                 VK_IMAGE_TYPE_2D,
                 VK_FORMAT_R8G8B8A8_UNORM,
     { width,height, 1 },
@@ -518,7 +524,7 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
 
 
     // Создать командный буфер для команд перевода размещения изображений
-    VkCommandBuffer transitionCmdBuffer = kge::vkutility::CreateSingleTimeCommandBuffer(m_device, m_commandPoolDraw);
+    VkCommandBuffer transitionCmdBuffer = kge::vkutility::CreateSingleTimeCommandBuffer(*m_kgeVkDevice.device(), m_kgeVkCommandPool.commandPool());
 
     // Подресурс подвергающийся смере размещения в изображениях (описываем его)
     VkImageSubresourceRange subresourceRange = {};
@@ -535,29 +541,29 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
     kge::vkutility::CmdImageLayoutTransition(transitionCmdBuffer, resultTexture.image.vkImage, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
 
     // Выполнить команды перевода размещения
-    kge::vkutility::FlushSingleTimeCommandBuffer(m_device, m_commandPoolDraw, transitionCmdBuffer, m_device.queues.graphics);
+    kge::vkutility::FlushSingleTimeCommandBuffer(*m_kgeVkDevice.device(), m_kgeVkCommandPool.commandPool(), transitionCmdBuffer, m_kgeVkDevice.device()->queues.graphics);
 
     // Создать командный буфер для копирования изображения
-    VkCommandBuffer copyCmdBuffer = kge::vkutility::CreateSingleTimeCommandBuffer(m_device, m_commandPoolDraw);
+    VkCommandBuffer copyCmdBuffer = kge::vkutility::CreateSingleTimeCommandBuffer(*m_kgeVkDevice.device(), m_kgeVkCommandPool.commandPool());
 
     // Копирование из промежуточной картинки в основную
     kge::vkutility::CmdImageCopy(copyCmdBuffer, stagingImage.vkImage, resultTexture.image.vkImage, width, height);
 
     // Выполнить команды копирования
-    kge::vkutility::FlushSingleTimeCommandBuffer(m_device, m_commandPoolDraw, copyCmdBuffer, m_device.queues.graphics);
+    kge::vkutility::FlushSingleTimeCommandBuffer(*m_kgeVkDevice.device(), m_kgeVkCommandPool.commandPool(), copyCmdBuffer, m_kgeVkDevice.device()->queues.graphics);
 
     // Очистить промежуточное изображение
-    stagingImage.Deinit(m_device.logicalDevice);
+    stagingImage.Deinit(m_kgeVkDevice.device()->logicalDevice);
 
 
     // Получить новый набор дескрипторов из дескриптороного пула
     VkDescriptorSetAllocateInfo descriptorSetAllocInfo = {};
     descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    descriptorSetAllocInfo.descriptorPool = m_descriptorPoolTextures;
+    descriptorSetAllocInfo.descriptorPool = m_kgeVkDescriptorPoolTextures.descriptorPool();
     descriptorSetAllocInfo.descriptorSetCount = 1;
-    descriptorSetAllocInfo.pSetLayouts = &(m_descriptorSetLayoutTextures);
+    descriptorSetAllocInfo.pSetLayouts = &(m_kgeVkDescriptorSetLayoutTextures.descriptorSetLayout());
 
-    if (vkAllocateDescriptorSets(m_device.logicalDevice, &descriptorSetAllocInfo, &(resultTexture.descriptorSet)) != VK_SUCCESS) {
+    if (vkAllocateDescriptorSets(m_kgeVkDevice.device()->logicalDevice, &descriptorSetAllocInfo, &(resultTexture.descriptorSet)) != VK_SUCCESS) {
         throw std::runtime_error("Vulkan: Error in vkAllocateDescriptorSets. Can't allocate descriptor set for texture");
     }
 
@@ -565,7 +571,7 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
     VkDescriptorImageInfo imageInfo = {};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     imageInfo.imageView = resultTexture.image.vkImageView;
-    imageInfo.sampler = m_textureSampler;
+    imageInfo.sampler = m_kgeVkSampler.sampler();
 
     // Конфигурация добавляемых в набор дескрипторов
     std::vector<VkWriteDescriptorSet> writes =
@@ -585,7 +591,7 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
     };
 
     // Обновить наборы дескрипторов
-    vkUpdateDescriptorSets(m_device.logicalDevice, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
+    vkUpdateDescriptorSets(m_kgeVkDevice.device()->logicalDevice, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 
     // Исполнение основых команд снова возможно
     this->Continue();
@@ -599,7 +605,7 @@ KGEVulkanCore::~KGEVulkanCore()
     Pause();
     m_isReady = false;
     // Сброс буферов команд
-    ResetCommandBuffers(m_device, m_commandBuffersDraw);
+    ResetCommandBuffers(*m_kgeVkDevice.device(), m_kgeVkCommandBuffer.commandBuffersDraw());
 }
 
 /**
@@ -674,7 +680,7 @@ void KGEVulkanCore::PrepareDrawCommands(std::vector<VkCommandBuffer> commandBuff
                 // При помощи выравниваниях получаем необходимое смещение для дескрипторов, чтобы была осуществлена привязка
                 // нужного буфера UBO (с матрицей модели) для конкретного примитива
                 std::vector<uint32_t> dynamicOffsets = {
-                    primitiveIndex * static_cast<uint32_t>(m_device.GetDynamicAlignment<glm::mat4>())
+                    primitiveIndex * static_cast<uint32_t>(m_kgeVkDevice.device()->GetDynamicAlignment<glm::mat4>())
                 };
 
                 // Наборы дескрипторов (массив наборов)

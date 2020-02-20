@@ -6,12 +6,12 @@
 class KGEVkUniformBufferModels
 {
     const kge::vkstructs::Device* m_device;
-    kge::vkstructs::UniformBuffer* m_uniformBufferModels;
 public:
-    KGEVkUniformBufferModels(kge::vkstructs::UniformBuffer* uniformBufferModels,
-                             const kge::vkstructs::Device* device,
+    kge::vkstructs::UniformBuffer m_uniformBufferModels;
+    KGEVkUniformBufferModels(const kge::vkstructs::Device* device,
                              unsigned int maxObjects);
     ~KGEVkUniformBufferModels();
+//    kge::vkstructs::UniformBuffer &uniformBufferModels();
 };
 
 #endif // KGEVKUNIFORMBUFFERMODELS_H

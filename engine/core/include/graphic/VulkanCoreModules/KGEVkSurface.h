@@ -5,8 +5,8 @@
 
 class KGEVkSurface
 {
-    VkSurfaceKHR* m_vkSurface;
-    VkInstance m_vkInstance;
+    VkSurfaceKHR m_surface;
+    VkInstance m_instance;
 public:
 
     KGEVkSurface();
@@ -15,8 +15,9 @@ public:
     * @param VkInstance vkInstance - хендл экземпляра Vulkan
     * @return VkSurfaceKHR - хендл созданной поверхности
     */
-    KGEVkSurface(VkSurfaceKHR* vkSurface, IVulkanWindowControl *windowControl, VkInstance vkInstance);
+    KGEVkSurface(IVulkanWindowControl *windowControl, VkInstance instance);
     ~KGEVkSurface();
+    VkSurfaceKHR surface() const;
 };
 
 #endif // KGEVULKANSURFACE_H

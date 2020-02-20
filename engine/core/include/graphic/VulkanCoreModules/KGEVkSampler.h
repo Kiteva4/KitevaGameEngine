@@ -6,11 +6,11 @@
 class KGEVkSampler
 {
     const kge::vkstructs::Device* m_device;
-    VkSampler* m_sampler;
+    VkSampler m_sampler;
 public:
-    KGEVkSampler(VkSampler* m_sampler,
-                 const kge::vkstructs::Device* device);
+    KGEVkSampler(const kge::vkstructs::Device* device);
     ~KGEVkSampler();
+    VkSampler sampler() const;
 };
 
 #endif // KGEVKSAMPLER_H

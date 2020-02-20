@@ -5,11 +5,10 @@
 class KGEVkSwapChain
 {
     //Структура содержит хендлы свопчейна, изображений, фрейм-буферов и тд
-    kge::vkstructs::Swapchain* m_swapchain;
+    kge::vkstructs::Swapchain m_swapchain;
     const kge::vkstructs::Device* m_device;
 public:
-    KGEVkSwapChain(kge::vkstructs::Swapchain *swapchain,
-                   const kge::vkstructs::Device* device,
+    KGEVkSwapChain(const kge::vkstructs::Device* device,
                    VkSurfaceKHR surface,
                    VkSurfaceFormatKHR surfaceFormat,
                    VkFormat depthStencilFormat,
@@ -17,6 +16,7 @@ public:
                    unsigned int bufferCount,
                    kge::vkstructs::Swapchain * oldSwapchain = nullptr);
     ~KGEVkSwapChain();
+    const kge::vkstructs::Swapchain& swapchain();
 };
 
 #endif // KGEVKSWAPCHAIN_H
