@@ -43,7 +43,7 @@ KGEVkCommandBuffer::KGEVkCommandBuffer(const kge::vkstructs::Device *device,
 KGEVkCommandBuffer::~KGEVkCommandBuffer()
 {
     // Если массив индентификаторов буферов команд рисования не пуст
-    if (m_device->logicalDevice != nullptr && &m_commandBuffersDraw != nullptr && !m_commandBuffersDraw.empty()) {
+    if (m_device->logicalDevice != nullptr && m_commandBuffersDraw.data() != nullptr && !m_commandBuffersDraw.empty()) {
         // Очистисть память
         vkFreeCommandBuffers(m_device->logicalDevice, *m_commandPool, static_cast<unsigned int>(m_commandBuffersDraw.size()), m_commandBuffersDraw.data());
         // Очистить массив

@@ -471,7 +471,7 @@ kge::vkstructs::Texture KGEVulkanCore::CreateTexture(const unsigned char *pixels
     kge::vkstructs::Image stagingImage = kge::vkutility::CreateImageSingle(*m_kgeVkDevice.device(),
                                                                            VK_IMAGE_TYPE_2D,
                                                                            VK_FORMAT_R8G8B8A8_UNORM,
-    { width,height,1 },
+                                                                           { width,height,1 },
                                                                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                                                            VK_IMAGE_ASPECT_COLOR_BIT,
                                                                            VK_IMAGE_LAYOUT_PREINITIALIZED,

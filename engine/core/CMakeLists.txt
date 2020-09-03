@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(KGECore CXX)
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++fs")
-#set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -lstdc++fs")
-
-
 set(HDRS
     include/core.h
     include/graphic/GKEVulkanApp.h
@@ -81,46 +77,43 @@ include_directories(${CMAKE_SOURCE_DIR}/external)
 include_directories(${CMAKE_SOURCE_DIR}/external/glfw/include)
 include_directories(${CMAKE_SOURCE_DIR}/engine/lib/include)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE")
+add_definitions(-DUNICODE)
 
 target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_LIBRARIES})
 
 #VULKAN
 if(WIN32)
-    find_path(
-        Vulkan_INCLUDE_DIR
-        NAMES vulkan/vulkan.h
-        PATHS
-        "$ENV{VULKAN_SDK}/Include"
-        )
+  find_path(Vulkan_INCLUDE_DIR
+    NAMES vulkan/vulkan.h
+    PATHS
+      "$ENV{VULKAN_SDK}/Include"
+    )
 
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_WIN32_KHR")
-        find_library(
-            Vulkan_LIBRARY
-            NAMES vulkan-1
-            PATHS
-            "$ENV{VULKAN_SDK}/Lib"
-            "$ENV{VULKAN_SDK}/Bin"
-            )
-    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        find_library(Vulkan_LIBRARY
-            NAMES vulkan-1
-            PATHS
-            "$ENV{VULKAN_SDK}/Lib32"
-            "$ENV{VULKAN_SDK}/Bin32"
-            NO_SYSTEM_ENVIRONMENT_PATH
-            )
-    endif()
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    find_library(Vulkan_LIBRARY
+      NAMES vulkan-1
+      PATHS
+        "$ENV{VULKAN_SDK}/Lib"
+        "$ENV{VULKAN_SDK}/Bin"
+        )
+  elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    find_library(Vulkan_LIBRARY
+      NAMES vulkan-1
+      PATHS
+        "$ENV{VULKAN_SDK}/Lib32"
+        "$ENV{VULKAN_SDK}/Bin32"
+        NO_SYSTEM_ENVIRONMENT_PATH
+        )
+  endif()
 else()
     find_path(Vulkan_INCLUDE_DIR
-        NAMES vulkan/vulkan.h
-        PATHS
+      NAMES vulkan/vulkan.h
+      PATHS
         "$ENV{VULKAN_SDK}/include")
     find_library(Vulkan_LIBRARY
-        NAMES vulkan
-        PATHS
+      NAMES vulkan
+      PATHS
         "$ENV{VULKAN_SDK}/lib")
 endif()
 
@@ -130,29 +123,29 @@ set(Vulkan_INCLUDE_DIRS ${Vulkan_INCLUDE_DIR})
 #include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Vulkan
-    DEFAULT_MSG
-    Vulkan_LIBRARY Vulkan_INCLUDE_DIR)
+  DEFAULT_MSG
+  Vulkan_LIBRARY Vulkan_INCLUDE_DIR)
 
 mark_as_advanced(Vulkan_INCLUDE_DIR Vulkan_LIBRARY)
 
 if(Vulkan_FOUND AND NOT TARGET Vulkan::Vulkan)
-    add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
-    set_target_properties(Vulkan::Vulkan PROPERTIES
-        IMPORTED_LOCATION "${Vulkan_LIBRARIES}"
-        INTERFACE_INCLUDE_DIRECTORIES "${Vulkan_INCLUDE_DIRS}")
+  add_library(Vulkan::Vulkan UNKNOWN IMPORTED)
+  set_target_properties(Vulkan::Vulkan PROPERTIES
+    IMPORTED_LOCATION "${Vulkan_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${Vulkan_INCLUDE_DIRS}")
 endif()
 #VULKAN_END
 
 include_directories(${Vulkan_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC
+
+target_link_libraries(${PROJECT_NAME} 
     ${Vulkan_LIBRARIES}
     )
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${Vulkan_INCLUDE_DIRS})
 
-#X11
-IF (UNIX AND NOT APPLE)
+
+IF (NOT WIN32)
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
 FIND_PACKAGE(PkgConfig)
@@ -167,13 +160,7 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(X11_XCB DEFAULT_MSG X11_XCB_LIBRARIES X11_XCB_INCLUDE_DIR)
 
 MARK_AS_ADVANCED(X11_XCB_INCLUDE_DIR X11_XCB_LIBRARIES)
-
-include_directories(${X11_XCB_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME}
-    ${X11_XCB_LIBRARIES}
-    )
-
-ENDIF (UNIX AND NOT APPLE)
+ENDIF (NOT WIN32)
 #X11_END
 
 #XCB

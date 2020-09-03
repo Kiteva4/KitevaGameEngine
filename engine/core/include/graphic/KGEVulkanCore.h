@@ -199,11 +199,11 @@ private:
     KGEVkGraphicsPipeline m_kgeVkGraphicsPipeline;
 
     /* Ubo */
-    kge::vkstructs::UboModelArray m_uboModels; // Массив матриц (указатель на него) для отдельный объектов (матрицы модели, передаются в буфер формы объектов)
+    kge::vkstructs::UboModelArray m_uboModels;              // Массив матриц (указатель на него) для отдельный объектов (матрицы модели, передаются в буфер формы объектов)
     KGEVkUboModels m_kgeUboModels;
 
     /* Synchronization */
-    kge::vkstructs::Synchronization m_sync;                         // Примитивы синхронизации
+    kge::vkstructs::Synchronization m_sync;                 // Примитивы синхронизации
     KGEVkSynchronization m_kgeVkSynchronization;
 
     std::vector<kge::vkstructs::Primitive> m_primitives;     // Набор геометр. примитивов для отображения

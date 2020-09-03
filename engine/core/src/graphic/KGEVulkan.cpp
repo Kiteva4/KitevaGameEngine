@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 * @return bool - состояние наличия поддержки
 * @note - аналагично, как и с расширениями instance'а, некоторый функционал vulkan'а есть только в расширениях
 */
-bool kge::vkutility::CheckInstanceExtensionsSupported(std::vector<const char*> instanceExtensionsNames)
+bool kge::vkutility::CheckInstanceExtensionsSupported(std::vector<const char *> instanceExtensionsNames)
 {
 
     std::cout << "Vulkan: Start require  extensions" << std::endl;
@@ -26,7 +26,8 @@ bool kge::vkutility::CheckInstanceExtensionsSupported(std::vector<const char*> i
     vkEnumerateInstanceExtensionProperties(nullptr, &instanceExtensionsCount, nullptr);
 
     //если отсутствуют доступные расширения - возвращаем false
-    if (instanceExtensionsCount == 0) {
+    if (instanceExtensionsCount == 0)
+    {
         return false;
     }
 
@@ -35,19 +36,21 @@ bool kge::vkutility::CheckInstanceExtensionsSupported(std::vector<const char*> i
 
     //Получаем все доступные расширения
     vkEnumerateInstanceExtensionProperties(
-                nullptr,
-                &instanceExtensionsCount,
-                avialableExtensions.data());
+        nullptr,
+        &instanceExtensionsCount,
+        avialableExtensions.data());
 
     //  Проходим по запрашиваемым расширениям
-    for (auto* requiredExtName : instanceExtensionsNames)
+    for (auto *requiredExtName : instanceExtensionsNames)
     {
         bool found = false;
 
         //Проходим по всем доступным расширениям
-        for (auto& extProperties : avialableExtensions) {
+        for (auto &extProperties : avialableExtensions)
+        {
             //Если доступен запрашиваемый
-            if (strcmp(requiredExtName, extProperties.extensionName) == 0) {
+            if (strcmp(requiredExtName, extProperties.extensionName) == 0)
+            {
                 found = true;
                 //                std::cout << "Vulkan: Extension: "<<  requiredExtName << " founded "  << std::endl;
                 break;
@@ -70,7 +73,7 @@ bool kge::vkutility::CheckInstanceExtensionsSupported(std::vector<const char*> i
 * @return bool - состояние наличия поддержки
 * @note - слои предоставляют возможность отлаживать программу и проверять данные, если это надо - нужно убедится что они поддерживаются
 */
-bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char*> instanceVLayersNames)
+bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char *> instanceVLayersNames)
 {
 
     std::cout << "Vulkan: Start require  layers" << std::endl;
@@ -85,7 +88,8 @@ bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char*> ins
     vkEnumerateInstanceLayerProperties(&instanceLayersCount, nullptr);
 
     //если отсутствуют доступные слои валидации - возвращаем false
-    if (instanceLayersCount == 0) {
+    if (instanceLayersCount == 0)
+    {
         return false;
     }
 
@@ -96,22 +100,30 @@ bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char*> ins
     vkEnumerateInstanceLayerProperties(&instanceLayersCount, avialableLayers.data());
 
     //Проходим по запрашиваемым слоям валидации
-    for (auto* requiredVLayerName : instanceVLayersNames)
+    for (const auto &requiredVLayerName : instanceVLayersNames)
     {
         bool found = false;
 
         //Проходим по всем доступным слоям валидации
-        for (auto& vLayerProperties : avialableLayers) {
+        for (auto &vLayerProperties : avialableLayers)
+        {
             //Если доступен запрашиваемый слой валидации
-            if (strcmp(requiredVLayerName, vLayerProperties.layerName) == 0) {
+            if (strcmp(requiredVLayerName, vLayerProperties.layerName) == 0)
+            {
                 found = true;
-                //                std::cout << "Vulkan: Layer: "<<  requiredVLayerName << " founded "  << std::endl;
+                std::cout << "Vulkan : Layer search '" << requiredVLayerName << "' founded " << std::endl;
                 break;
+            }
+            else
+            {
+                std::cout << "Vulkan : Layer search : layer '" << requiredVLayerName << "' not found "
+                          << " compared with '" << vLayerProperties.layerName << "'" << std::endl;
             }
         }
 
         //Не найден какой то из запрашиваемых слоев
-        if (!found) {
+        if (!found)
+        {
             return false;
         }
     }
@@ -124,27 +136,36 @@ bool kge::vkutility::CheckValidationLayersSupported(std::vector<const char*> ins
 #include <sstream>
 //Функция, которая будет вызываться слоем валидации при обнаружении ошибок
 VKAPI_ATTR VkBool32 VKAPI_CALL kge::vkutility::DebugVulkanCallback(
-        VkDebugReportFlagsEXT msgFlags,
-        VkDebugReportObjectTypeEXT objType,
-        uint64_t srcObject,
-        size_t location,
-        int32_t msgCode,
-        const char* pLayerPrefix,
-        const char* pMsg,
-        void* pUserData)
+    VkDebugReportFlagsEXT msgFlags,
+    VkDebugReportObjectTypeEXT objType,
+    uint64_t srcObject,
+    size_t location,
+    int32_t msgCode,
+    const char *pLayerPrefix,
+    const char *pMsg,
+    void *pUserData)
 {
     std::cout << ">REPORT: ";
     std::ostringstream message;
 
-    if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+    if (msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+    {
         message << "ERROR: ";
-    } else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
+    }
+    else if (msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+    {
         message << "WARNING: ";
-    } else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
+    }
+    else if (msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
+    {
         message << "PERFORMANCE WARNING: ";
-    } else if (msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
+    }
+    else if (msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+    {
         message << "INFO: ";
-    } else if (msgFlags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
+    }
+    else if (msgFlags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
+    {
         message << "DEBUG: ";
     }
     message << "[" << pLayerPrefix << "] Code " << msgCode << " : " << pMsg;
@@ -166,39 +187,44 @@ VKAPI_ATTR VkBool32 VKAPI_CALL kge::vkutility::DebugVulkanCallback(
 }
 
 bool kge::vkutility::CheckDeviceExtensionSupported(
-        VkPhysicalDevice physicalDevice,
-        std::vector<const char *> deviceExtensionsNames)
+    VkPhysicalDevice physicalDevice,
+    std::vector<const char *> deviceExtensionsNames)
 {
-    std::vector <VkExtensionProperties> aviableExtensions;
+    std::vector<VkExtensionProperties> aviableExtensions;
     uint32_t deviceExtensionCount = 0;
     vkEnumerateDeviceExtensionProperties(
-                physicalDevice,
-                nullptr,
-                &deviceExtensionCount,
-                nullptr);
+        physicalDevice,
+        nullptr,
+        &deviceExtensionCount,
+        nullptr);
 
-    if(deviceExtensionCount == 0) {
+    if (deviceExtensionCount == 0)
+    {
         return false;
     }
 
     aviableExtensions.resize(deviceExtensionCount);
 
     vkEnumerateDeviceExtensionProperties(
-                physicalDevice,
-                nullptr,
-                &deviceExtensionCount,
-                aviableExtensions.data());
+        physicalDevice,
+        nullptr,
+        &deviceExtensionCount,
+        aviableExtensions.data());
 
-    for( const char* requiredExtName : deviceExtensionsNames){
+    for (const char *requiredExtName : deviceExtensionsNames)
+    {
         bool found = false;
-        for(const auto& extProperties : aviableExtensions){
-            if(strcmp(requiredExtName, extProperties.extensionName) == 0) {
+        for (const auto &extProperties : aviableExtensions)
+        {
+            if (strcmp(requiredExtName, extProperties.extensionName) == 0)
+            {
                 found = true;
                 break;
             }
         }
 
-        if(!found){
+        if (!found)
+        {
             return false;
         }
     }
@@ -214,9 +240,9 @@ bool kge::vkutility::CheckDeviceExtensionSupported(
 * @return QueueFamilyInfo - объект с ID'ами семейств очередей команд рисования (graphics) и представления (present)
 */
 kge::vkstructs::QueueFamilyInfo kge::vkutility::GetQueueFamilyInfo(
-        VkPhysicalDevice physicalDevice,
-        VkSurfaceKHR surface,
-        bool uniqueStrict)
+    VkPhysicalDevice physicalDevice,
+    VkSurfaceKHR surface,
+    bool uniqueStrict)
 {
     /* */
     kge::vkstructs::QueueFamilyInfo qFamilyInfo;
@@ -230,25 +256,30 @@ kge::vkstructs::QueueFamilyInfo kge::vkutility::GetQueueFamilyInfo(
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queuFamilyCount, queueFamilies.data());
 
     /* */
-    for(unsigned int i = 0; i < queueFamilies.size(); i++){
+    for (unsigned int i = 0; i < queueFamilies.size(); i++)
+    {
         //
-        if(queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT){
+        if (queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        {
             qFamilyInfo.graphics = i;
             break;
         }
     }
 
     /**/
-    for(unsigned int i = 0; i < queueFamilies.size(); i++) {
+    for (unsigned int i = 0; i < queueFamilies.size(); i++)
+    {
         //
-        if(static_cast<int>(i) == qFamilyInfo.graphics && uniqueStrict){
+        if (static_cast<int>(i) == qFamilyInfo.graphics && uniqueStrict)
+        {
             continue;
         }
 
         unsigned int presentSupport = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
 
-        if(queueFamilies[i].queueCount > 0 && presentSupport){
+        if (queueFamilies[i].queueCount > 0 && presentSupport)
+        {
             qFamilyInfo.present = static_cast<int>(i);
             break;
         }
@@ -256,7 +287,6 @@ kge::vkstructs::QueueFamilyInfo kge::vkutility::GetQueueFamilyInfo(
 
     return qFamilyInfo;
 }
-
 
 /**
 * Метод получения информации об особенностях поверхности
@@ -272,7 +302,8 @@ kge::vkstructs::SurfaceInfo kge::vkutility::GetSurfaceInfo(VkPhysicalDevice phys
     unsigned int formatCount = 0;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
 
-    if(formatCount > 0) {
+    if (formatCount > 0)
+    {
         surfaceInfo.formats.resize(formatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, surfaceInfo.formats.data());
     }
@@ -280,7 +311,8 @@ kge::vkstructs::SurfaceInfo kge::vkutility::GetSurfaceInfo(VkPhysicalDevice phys
     unsigned int presentModeCount = 0;
     vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 
-    if(presentModeCount > 0){
+    if (presentModeCount > 0)
+    {
         surfaceInfo.presentModes.resize(presentModeCount);
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, surfaceInfo.presentModes.data());
     }
@@ -304,8 +336,10 @@ int kge::vkutility::GetMemoryTypeIndex(VkPhysicalDevice physicalDevice, unsigned
 
     // Пройтись по всем типам и найти подходящий
     // Для опредения нужного индекса типа памяти использются побитовые операции, подробнее о побитовых операциях - https://ravesli.com/urok-45-pobitovye-operatory/
-    for (unsigned int i = 0; i < deviceMemoryProperties.memoryTypeCount; i++) {
-        if ((typeFlags & (1 << i)) && (deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+    for (unsigned int i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
+    {
+        if ((typeFlags & (1 << i)) && (deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+        {
             return i;
         }
     }
@@ -344,7 +378,8 @@ kge::vkstructs::Buffer kge::vkutility::CreateBuffer(const kge::vkstructs::Device
     bufferInfo.flags = 0;
 
     // Попытка создания буфера
-    if (vkCreateBuffer(device.logicalDevice, &bufferInfo, nullptr, &(resultBuffer.vkBuffer)) != VK_SUCCESS) {
+    if (vkCreateBuffer(device.logicalDevice, &bufferInfo, nullptr, &(resultBuffer.vkBuffer)) != VK_SUCCESS)
+    {
         throw std::runtime_error("Vulkan: Error while creating buffer. Can't create!");
     }
 
@@ -354,7 +389,8 @@ kge::vkstructs::Buffer kge::vkutility::CreateBuffer(const kge::vkstructs::Device
 
     // Получить индекс типа памяти соответствующего требованиям буфера
     int memoryTypeIndex = vkutility::GetMemoryTypeIndex(device.physicalDevice, memRequirements.memoryTypeBits, properties);
-    if (memoryTypeIndex < 0) {
+    if (memoryTypeIndex < 0)
+    {
         throw std::runtime_error("Vulkan: Error while creating buffer. Can't find suitable memory type!");
     }
 
@@ -365,7 +401,8 @@ kge::vkstructs::Buffer kge::vkutility::CreateBuffer(const kge::vkstructs::Device
     memoryAllocateInfo.memoryTypeIndex = static_cast<unsigned int>(memoryTypeIndex);
 
     // Выделение памяти для буфера
-    if (vkAllocateMemory(device.logicalDevice, &memoryAllocateInfo, nullptr, &(resultBuffer.vkDeviceMemory)) != VK_SUCCESS) {
+    if (vkAllocateMemory(device.logicalDevice, &memoryAllocateInfo, nullptr, &(resultBuffer.vkDeviceMemory)) != VK_SUCCESS)
+    {
         throw std::runtime_error("Vulkan: Error while allocating buffer memory!");
     }
 
@@ -418,7 +455,8 @@ kge::vkstructs::Image kge::vkutility::CreateImageSingle(const kge::vkstructs::De
     imageInfo.initialLayout = initialLayout;
 
     // Создание изображения
-    if (vkCreateImage(device.logicalDevice, &imageInfo, nullptr, &(resultImage.vkImage)) != VK_SUCCESS) {
+    if (vkCreateImage(device.logicalDevice, &imageInfo, nullptr, &(resultImage.vkImage)) != VK_SUCCESS)
+    {
         throw std::runtime_error("Vulkan: Error while creating image");
     }
 
@@ -434,21 +472,25 @@ kge::vkstructs::Image kge::vkutility::CreateImageSingle(const kge::vkstructs::De
     memoryAllocInfo.pNext = nullptr;
 
     // Аллоцировать
-    if (vkAllocateMemory(device.logicalDevice, &memoryAllocInfo, nullptr, &(resultImage.vkDeviceMemory)) != VK_SUCCESS) {
+    if (vkAllocateMemory(device.logicalDevice, &memoryAllocInfo, nullptr, &(resultImage.vkDeviceMemory)) != VK_SUCCESS)
+    {
         throw std::runtime_error("Vulkan: Error while allocating memory for image");
     }
 
     // Привязать
-    if (vkBindImageMemory(device.logicalDevice, resultImage.vkImage, resultImage.vkDeviceMemory, 0) != VK_SUCCESS) {
+    if (vkBindImageMemory(device.logicalDevice, resultImage.vkImage, resultImage.vkDeviceMemory, 0) != VK_SUCCESS)
+    {
         throw std::runtime_error("Vulkan: Error while binding memory to image");
     }
 
     // Подходящий тип view-объекта (в зависимости от типа изображения)
     VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_1D;
-    if (imageInfo.imageType == VK_IMAGE_TYPE_2D) {
+    if (imageInfo.imageType == VK_IMAGE_TYPE_2D)
+    {
         viewType = VK_IMAGE_VIEW_TYPE_2D;
     }
-    else if (imageInfo.imageType == VK_IMAGE_TYPE_3D) {
+    else if (imageInfo.imageType == VK_IMAGE_TYPE_3D)
+    {
         viewType = VK_IMAGE_VIEW_TYPE_3D;
     }
 
@@ -466,7 +508,8 @@ kge::vkstructs::Image kge::vkutility::CreateImageSingle(const kge::vkstructs::De
     imageViewInfo.image = resultImage.vkImage;
 
     // Создание view-обхекта
-    if (vkCreateImageView(device.logicalDevice, &imageViewInfo, nullptr, &(resultImage.vkImageView)) != VK_SUCCESS) {
+    if (vkCreateImageView(device.logicalDevice, &imageViewInfo, nullptr, &(resultImage.vkImageView)) != VK_SUCCESS)
+    {
         throw std::runtime_error("Vulkan: Error while creating image view");
     }
 
@@ -484,14 +527,12 @@ kge::vkstructs::Image kge::vkutility::CreateImageSingle(const kge::vkstructs::De
 */
 std::vector<VkVertexInputBindingDescription> kge::vkutility::GetVertexInputBindingDescriptions(unsigned int bindingIndex)
 {
-    return
-    {
+    return {
         {
             bindingIndex,                   // Индекс привязки вершинных буферов
-                    sizeof(kge::vkstructs::Vertex),      // Размерность шага
-                    VK_VERTEX_INPUT_RATE_VERTEX     // Правила перехода к следующим
-        }
-    };
+            sizeof(kge::vkstructs::Vertex), // Размерность шага
+            VK_VERTEX_INPUT_RATE_VERTEX     // Правила перехода к следующим
+        }};
 }
 
 /**
@@ -577,19 +618,18 @@ void kge::vkutility::CmdImageCopy(VkCommandBuffer cmdBuffer,
     VkImageCopy region = {};
     region.srcSubresource = subresourceLayers;
     region.dstSubresource = subresourceLayers;
-    region.srcOffset = { 0, 0, 0 };
-    region.dstOffset = { 0, 0, 0 };
+    region.srcOffset = {0, 0, 0};
+    region.dstOffset = {0, 0, 0};
     region.extent.width = width;
     region.extent.height = height;
     region.extent.depth = 1;
 
     // Записать команду копирования в буфер
     vkCmdCopyImage(
-                cmdBuffer,
-                srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                1, &region
-                );
+        cmdBuffer,
+        srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        1, &region);
 }
 
 /**
@@ -610,8 +650,8 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
     VkImageMemoryBarrier imageMemoryBarrier = {};
     imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     imageMemoryBarrier.pNext = nullptr;
-//    imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-//    imageMemoryBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    //    imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    //    imageMemoryBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     imageMemoryBarrier.oldLayout = oldImageLayout;
     imageMemoryBarrier.newLayout = newImageLayout;
     imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -624,6 +664,10 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
     imageMemoryBarrier.image = image;
     imageMemoryBarrier.subresourceRange = subresourceRange;
 
+    // Разметить барьер на верише конвейера (в самом начале)
+    VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    
     // В зависимоти от старого (исходного) размещения меняется исходная маска доступа
     switch (oldImageLayout)
     {
@@ -632,14 +676,15 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
         break;
     case VK_IMAGE_LAYOUT_PREINITIALIZED:
         imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+        srcStageFlags = VK_PIPELINE_STAGE_HOST_BIT;
         break;
     case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
         imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        srcStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
         break;
     default:
         std::cout << "WARNING!_133: default switch" << std::endl;
         break;
-
     }
 
     // В зависимости от нового (целевого) размещения меняется целевая маска доступа
@@ -658,10 +703,6 @@ void kge::vkutility::CmdImageLayoutTransition(VkCommandBuffer cmdBuffer,
         std::cout << "WARNING!_134: default switch" << std::endl;
         break;
     }
-
-    // Разметить барьер на верише конвейера (в самом начале)
-    VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
     // Отправить команду барьера в командный буфер
     vkCmdPipelineBarrier(cmdBuffer,
@@ -689,13 +730,14 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::filesystem::path shaderFileP
     size_t shaderSize;
 
     // Содержимое файла (код шейдера)
-    char* shaderCode = nullptr;
+    char *shaderCode = nullptr;
 
     // Загрузить код шейдера
     bool loaded = tools::LoadBytesFromFile(shaderFilePath, &shaderCode, &shaderSize);
 
     // Если не удалось загрузить или файл пуст
-    if (!loaded || shaderSize == 0){
+    if (!loaded || shaderSize == 0)
+    {
         std::string msg = "Vulkan: Error while loading shader code from file " + std::to_string(*shaderFilePath.c_str());
         throw std::runtime_error(msg);
     }
@@ -704,12 +746,13 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::filesystem::path shaderFileP
     VkShaderModuleCreateInfo moduleCreateInfo{};
     moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     moduleCreateInfo.codeSize = shaderSize;
-    moduleCreateInfo.pCode = reinterpret_cast<unsigned int*>(shaderCode);
+    moduleCreateInfo.pCode = reinterpret_cast<unsigned int *>(shaderCode);
 
     // Создать шейдерный модуль
     VkShaderModule shaderModule;
-    if (vkCreateShaderModule(logicalDevice, &moduleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-        std::string msg = *(&"Vulkan: Error whiler creating shader module from file " +*shaderFilePath.c_str());
+    if (vkCreateShaderModule(logicalDevice, &moduleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS)
+    {
+        std::string msg = *(&"Vulkan: Error whiler creating shader module from file " + *shaderFilePath.c_str());
         throw std::runtime_error(msg);
     }
 
@@ -730,32 +773,25 @@ VkShaderModule kge::vkutility::LoadSPIRVShader(std::filesystem::path shaderFileP
 */
 std::vector<VkVertexInputAttributeDescription> kge::vkutility::GetVertexInputAttributeDescriptions(unsigned int bindingIndex)
 {
-    return
-    {
+    return {
         {
-            0,                                      // Индекс аттрибута (location в шейдере)
-            bindingIndex,                           // Индекс привязки вершинных буферов
-                    VK_FORMAT_R32G32B32_SFLOAT,             // Тип аттрибута (соответствует vec3 у шейдера)
-                    offsetof(vkstructs::Vertex, position)   // Cдвиг в структуре
+            0,                                    // Индекс аттрибута (location в шейдере)
+            bindingIndex,                         // Индекс привязки вершинных буферов
+            VK_FORMAT_R32G32B32_SFLOAT,           // Тип аттрибута (соответствует vec3 у шейдера)
+            offsetof(vkstructs::Vertex, position) // Cдвиг в структуре
         },
-        {
-            1,
-            bindingIndex,
-                    VK_FORMAT_R32G32B32_SFLOAT,
-                    offsetof(vkstructs::Vertex, color)
-        },
-        {
-            2,
-            bindingIndex,
-                    VK_FORMAT_R32G32_SFLOAT,               // Тип аттрибута (соответствует vec2 у шейдера)
-                    offsetof(vkstructs::Vertex, texCoord)
-        },
-        {
-            3,
-            bindingIndex,
-                    VK_FORMAT_R32_UINT,                    // Тип аттрибута (соответствует uint у шейдера)
-                    offsetof(vkstructs::Vertex, textureUsed)
-        },
+        {1,
+         bindingIndex,
+         VK_FORMAT_R32G32B32_SFLOAT,
+         offsetof(vkstructs::Vertex, color)},
+        {2,
+         bindingIndex,
+         VK_FORMAT_R32G32_SFLOAT, // Тип аттрибута (соответствует vec2 у шейдера)
+         offsetof(vkstructs::Vertex, texCoord)},
+        {3,
+         bindingIndex,
+         VK_FORMAT_R32_UINT, // Тип аттрибута (соответствует uint у шейдера)
+         offsetof(vkstructs::Vertex, textureUsed)},
     };
 }
 
@@ -796,7 +832,7 @@ std::time_t kge::tools::CurrentTime()
 * @return std::string - строка с отформатированным временем
 * @note подробнее о форматах - http://www.cplusplus.com/reference/ctime/strftime/
 */
-std::string kge::tools::TimeToStr(const std::time_t& time, const char * format)
+std::string kge::tools::TimeToStr(const std::time_t &time, const char *format)
 {
     tm timeInfo;
     localtime_r(&time, &timeInfo);
@@ -814,7 +850,8 @@ void kge::tools::LogMessage(std::string message, bool printTime)
 {
     std::string result = "";
 
-    if (printTime) {
+    if (printTime)
+    {
         time_t time = tools::CurrentTime();
         result += tools::TimeToStr(time, "[%Y-%m-%d %H:%M:%S] ");
     }
@@ -822,7 +859,8 @@ void kge::tools::LogMessage(std::string message, bool printTime)
     result += message + '\n';
     std::cout << result;
 
-    try {
+    try
+    {
         std::filesystem::path filePath = std::string("/home/vxuser/GitHub/KitevaGameEngine/") + LOG_FILENAME;
 
         std::fstream fs;
@@ -832,7 +870,8 @@ void kge::tools::LogMessage(std::string message, bool printTime)
         fs << result;
         fs.close();
     }
-    catch (const std::exception &ex) {
+    catch (const std::exception &ex)
+    {
         std::cout << ex.what() << std::endl;
     }
 }
@@ -892,7 +931,7 @@ void kge::tools::LogError(std::string message, bool printTime)
 * @param size_t * size - указатель на параметр размера (размер будет получен при загрузке)
 * @return bool - состояние загрузки (удалось или нет)
 */
-bool kge::tools::LoadBytesFromFile(const std::filesystem::path &path, char** pData, size_t * size)
+bool kge::tools::LoadBytesFromFile(const std::filesystem::path &path, char **pData, size_t *size)
 {
     // Открытие файла в режиме бинарного чтения
     std::ifstream is(path.c_str(), std::ios::binary | std::ios::in | std::ios::ate);
@@ -901,10 +940,10 @@ bool kge::tools::LoadBytesFromFile(const std::filesystem::path &path, char** pDa
     if (is.is_open())
     {
         *size = static_cast<size_t>(is.tellg()); // Получить размер
-        is.seekg(0, std::ios::beg); // Перейти в начало файла
-        *pData = new char[*size];   // Аллокировать необходимое кол-во памяти
-        is.read(*pData, *size);     // Прочесть файл и поместить данные в буфер
-        is.close();                 // Закрыть файл
+        is.seekg(0, std::ios::beg);              // Перейти в начало файла
+        *pData = new char[*size];                // Аллокировать необходимое кол-во памяти
+        is.read(*pData, *size);                  // Прочесть файл и поместить данные в буфер
+        is.close();                              // Закрыть файл
 
         return true;
     }

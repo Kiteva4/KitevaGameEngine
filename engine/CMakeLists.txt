@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(KitevaGameEngine CXX)
+project(engine CXX)
 
 add_executable(${PROJECT_NAME} main.cpp)
 

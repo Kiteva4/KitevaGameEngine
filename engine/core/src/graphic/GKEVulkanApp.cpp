@@ -11,6 +11,7 @@
 #include <stdio.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include <filesystem>
 
 // Переменная IS_VK_DEBUG будет true если используется debug конфиуграция
 // В зависимости от данной переменной некоторое поведение может меняться
@@ -69,14 +70,14 @@ void GKEVulkanApp::Init()
 
     m_instanceExtensions         = std::move(instanceExtensions);
     m_deviceExtensions           = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    m_validationLayersExtensions = {"VK_LAYER_LUNARG_standard_validation"};
+    m_validationLayersExtensions = {"VK_LAYER_KHRONOS_validation"};
 
     // Если это DEBUG конфигурация - запросить еще расширения и слои для валидации
     if(IS_VK_DEBUG){
         std::cout << "DEBUG: debug extensions included!" << std::endl;
         m_instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         m_instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-        m_validationLayersExtensions.push_back("VK_LAYER_LUNARG_standard_validation");
+        // m_validationLayersExtensions.push_back("VK_LAYER_LUNARG_standard_validation");
     }
 
     // Enable surface extensions depending on os
@@ -200,7 +201,7 @@ void GKEVulkanApp::Run()
 
     while (true)
     {
-        // std::cout << "app tick" << std::endl;
+        std::cout << "app tick" << std::endl;
         // Структура оконного (системного) сообщения
         //MSG msg = {};
         // Если получено какое-то сообщение системы
@@ -279,31 +280,4 @@ kge::vkstructs::Texture LoadTextureVk(KGEVulkanCore * renderer, std::filesystem:
     stbi_image_free(pixels);
 
     return result;
-
-    //    int width;        // Ширина загруженного изображения
-    //    int height;       // Высота загруженного изображения
-    //    int channels;     // Кол-во каналов
-    //    int bpp = 4;      // Байт на пиксель
-
-    //    // Путь к файлу
-    //    std::filesystem::path filename = kge::tools::WorkingDir().concat("textures/" + path);
-    //    FILE * pfile;
-    //    pfile = fopen(filename.c_str(), "r");
-    //    if (pfile == nullptr) perror ("Error opening file");
-    //    // Получить пиксели (массив байт)
-    //    unsigned char* pixels = stbi_load_from_file(pfile, &width, &height, &channels, STBI_rgb_alpha);
-
-    //    // Создать текстуру (загрузить пиксели в память устройства)
-    //    kge::vkstructs::Texture result = renderer->CreateTexture(
-    //                pixels,
-    //                static_cast<uint32_t>(width),
-    //                static_cast<uint32_t>(height),
-    //                static_cast<uint32_t>(channels),
-    //                static_cast<uint32_t>(bpp));
-
-    //    // Очистить массив байт
-    //    stbi_image_free(pixels);
-
-    //    return result;
-
 }
