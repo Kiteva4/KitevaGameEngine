@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8)
 
-project(KGEAudio CXX)
+project(KGEAudio)
 
 file(GLOB_RECURSE HDRS *.h)
 file(GLOB_RECURSE SRCS *.cpp)

@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
-project(KGECore CXX)
+cmake_minimum_required(VERSION 3.8)
+project(KGECore)
 
 set(HDRS
     include/core.h
-    include/graphic/GKEVulkanApp.h
+    include/graphic/KGEVulkanApp.h
     include/graphic/KGEVulkan.h
     include/graphic/KGEVulkanCore.h
     include/graphic/VulkanWindowControl/GLFWWindowControl.h
@@ -35,7 +35,7 @@ set(HDRS
 
 set(SRCS
     src/core.cpp
-    src/graphic/GKEVulkanApp.cpp
+    src/graphic/KGEVulkanApp.cpp
     src/graphic/KGEVulkan.cpp
     src/graphic/KGEVulkanCore.cpp
     src/graphic/VulkanWindowControl/GLFWWindowControl.cpp
@@ -64,6 +64,11 @@ set(SRCS
     )
 
 add_library(${PROJECT_NAME} STATIC ${SRCS} ${HDRS})
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "lib")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
@@ -221,7 +226,10 @@ target_link_libraries(${PROJECT_NAME}
 ENDIF (UNIX AND NOT APPLE)
 #XCB_END
 
-# If ANDROID is ON, turn on cross-compiling for it
+# If ANDROID is ON, turn on cross-compiling for itset(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 if(ANDROID)
     set(CMAKE_SYSTEM_NAME "Android")
     set(CMAKE_SYSTEM_VERSION "7")

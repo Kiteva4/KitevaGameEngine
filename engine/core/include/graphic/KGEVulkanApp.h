@@ -61,11 +61,11 @@ struct
     int32_t y = 0;
 } mousePos;
 
-class GKEVulkanApp
+class KGEVulkanApp
 {
 public:
-    GKEVulkanApp(uint32_t width, uint32_t heigh, std::string applicationName);
-    ~GKEVulkanApp();
+    KGEVulkanApp(uint32_t width, uint32_t heigh, std::string applicationName);
+    ~KGEVulkanApp();
 
     void Init();
     void Run();

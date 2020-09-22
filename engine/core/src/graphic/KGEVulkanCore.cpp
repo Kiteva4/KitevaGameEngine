@@ -60,7 +60,7 @@ KGEVulkanCore::KGEVulkanCore(uint32_t width,
     m_kgeVkDescriptorPoolMain{m_kgeVkDevice.device()},
     // Создание дескрипторного пула для выделения текстурного набора (текстурные семплеры)
     //m_descriptorPoolTextures{},
-    m_kgeVkDescriptorPoolTextures{m_kgeVkDevice.device(), 5},
+    m_kgeVkDescriptorPoolTextures{m_kgeVkDevice.device(), 2},
     // Инициализация размещения основного дескрипторного набора
     //m_descriptorSetLayoutMain{},
     m_kgeVkDescriptorSetLayoutMain{m_kgeVkDevice.device(), SetLayoutMain},

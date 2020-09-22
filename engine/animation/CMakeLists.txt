@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8)
 
-project(KGEAnimation CXX)
+project(KGEAnimation)
 
 file(GLOB_RECURSE HDRS *.h)
 file(GLOB_RECURSE SRCS *.cpp)

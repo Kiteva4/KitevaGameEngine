@@ -54,8 +54,8 @@ KGEVkDescriptorPool::KGEVkDescriptorPool(const kge::vkstructs::Device *device,
     // Парамтеры размеров пула
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes =
     {
-        // Один дескриптор для текстурного семплера
-        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER , 1 },
+        // Два дескриптор для текстурного семплера
+        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER , 2 },
     };
 
     // Конфигурация пула

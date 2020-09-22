@@ -3,7 +3,7 @@
 #include "graphic/VulkanWindowControl/MacOSWindowControl.h"
 #include "graphic/VulkanWindowControl/GLFWWindowControl.h"
 
-#include "graphic/GKEVulkanApp.h"
+#include "graphic/KGEVulkanApp.h"
 #include "graphic/KGEVulkanCore.h"
 
 #include "X11/Xlib.h"
@@ -23,7 +23,7 @@ const bool IS_VK_DEBUG = true;
 // Метод вернет структуру с хендлами текстуры и дескриптора
 kge::vkstructs::Texture LoadTextureVk(KGEVulkanCore * renderer, std::filesystem::__cxx11::path pPath);
 
-GKEVulkanApp::GKEVulkanApp(uint32_t width, uint32_t heigh, std::string applicationName):
+KGEVulkanApp::KGEVulkanApp(uint32_t width, uint32_t heigh, std::string applicationName):
     m_appWidth{width},
     m_appHeigh{heigh},
     m_applicationName{applicationName},
@@ -33,13 +33,13 @@ GKEVulkanApp::GKEVulkanApp(uint32_t width, uint32_t heigh, std::string applicati
 
 }
 
-GKEVulkanApp::~GKEVulkanApp()
+KGEVulkanApp::~KGEVulkanApp()
 {
     delete m_windowControl;
     //delete m_KGEVulkanCore;
 }
 
-void GKEVulkanApp::Init()
+void KGEVulkanApp::Init()
 {
 #ifdef _WIN32 // note the underscore: without it, it's not msdn official!
     // Windows (x64 and x86)
@@ -196,7 +196,7 @@ void GKEVulkanApp::Init()
     lastFrameTime = high_resolution_clock::now();
 }
 
-void GKEVulkanApp::Run()
+void KGEVulkanApp::Run()
 {
 
     while (true)
